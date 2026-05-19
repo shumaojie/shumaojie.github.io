@@ -4,9 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>六下数学比例尺</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="vendor/leaflet.css">
   <style>
+    :root {
+      --app-height: 100vh;
+      --toolbar-base-height: 72px;
+      --toolbar-safe-bottom: env(safe-area-inset-bottom, 0px);
+      --toolbar-height: calc(var(--toolbar-base-height) + var(--toolbar-safe-bottom));
+      --history-width: clamp(188px, 23vw, 280px);
+    }
+
     * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
 
     html,
     body {
@@ -29,15 +39,15 @@
     .app {
       position: relative;
       width: 100vw;
-      height: 100vh;
-      min-height: 620px;
+      height: var(--app-height);
+      min-height: 0;
       background: linear-gradient(180deg, #d8edf8 0%, #e8f6fb 64%, #cceffa 100%);
       user-select: none;
     }
 
     .stage {
       position: absolute;
-      inset: 0 0 72px;
+      inset: 0 0 var(--toolbar-height) var(--history-width);
       overflow: hidden;
       background: #cdebf5;
       touch-action: none;
@@ -116,7 +126,7 @@
       position: absolute;
       z-index: 510;
       left: 50%;
-      bottom: 96px;
+      bottom: calc(var(--toolbar-height) + 24px);
       width: min(850px, calc(100% - 24px));
       transform: translateX(-50%);
       color: #fff;
@@ -135,7 +145,7 @@
       position: absolute;
       z-index: 520;
       left: 34px;
-      bottom: 112px;
+      bottom: calc(var(--toolbar-height) + 40px);
       width: min(350px, calc(100% - 68px));
       display: none;
       color: #25414a;
@@ -554,6 +564,151 @@
     .app[data-mode="number"] .hint,
     .app[data-mode="zoom"] .hint { display: flex; }
 
+    .history-panel {
+      position: absolute;
+      z-index: 650;
+      left: 0;
+      top: 0;
+      bottom: var(--toolbar-height);
+      width: var(--history-width);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 18px 14px 12px max(12px, env(safe-area-inset-left));
+      background: linear-gradient(180deg, rgba(12, 72, 98, 0.96) 0%, rgba(21, 104, 131, 0.9) 100%);
+      box-shadow: 12px 0 30px rgba(14, 55, 72, 0.22);
+      overflow: hidden;
+    }
+
+    .history-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .history-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .history-title {
+      margin: 0;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .history-badge,
+    .history-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .history-badge {
+      color: #e9fbff;
+      background: rgba(255, 255, 255, 0.14);
+      white-space: nowrap;
+    }
+
+    .history-status {
+      color: #dff7ff;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .history-status.is-offline {
+      color: #133c4e;
+      background: #ffe57c;
+    }
+
+    .history-note {
+      margin: 0;
+      color: rgba(234, 248, 255, 0.92);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .history-empty {
+      padding: 14px 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.24);
+      border-radius: 14px;
+      color: #e3f8ff;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .history-list {
+      flex: 1;
+      margin: 0;
+      padding: 0 2px 4px 0;
+      list-style: none;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .history-list::-webkit-scrollbar { width: 6px; }
+
+    .history-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(220, 248, 255, 0.34);
+    }
+
+    .history-item {
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(7, 33, 46, 0.12);
+    }
+
+    .history-item + .history-item { margin-top: 10px; }
+
+    .history-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .history-kind {
+      color: #ffe57c;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .history-time {
+      color: #c9eaf4;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .history-main {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.45;
+    }
+
+    .history-detail {
+      margin-top: 4px;
+      color: #dcf2f8;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
     .hint-dot {
       width: 9px;
       height: 9px;
@@ -568,11 +723,11 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: 72px;
+      height: var(--toolbar-height);
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 11px max(14px, env(safe-area-inset-left)) 12px;
+      padding: 11px max(14px, env(safe-area-inset-left)) calc(12px + var(--toolbar-safe-bottom)) max(14px, env(safe-area-inset-left));
       overflow-x: auto;
       background: rgba(215, 242, 253, 0.92);
       box-shadow: 0 -8px 28px rgba(62, 141, 180, 0.22);
@@ -647,6 +802,17 @@
       background: rgba(255, 225, 91, 0.9);
       color: #4a3d05;
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.56), 0 8px 18px rgba(204, 158, 28, 0.18);
+    }
+
+    .danger-action {
+      background: rgba(255, 125, 115, 0.94);
+      color: #5f160e;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 8px 18px rgba(170, 66, 48, 0.18);
+    }
+
+    .danger-action:disabled {
+      opacity: 0.72;
+      cursor: default;
     }
 
     .tool-icon {
@@ -767,12 +933,77 @@
     .switch-wrap.is-on .switch { background: #13afd1; }
     .switch-wrap.is-on .switch::before { transform: translateX(18px); }
 
+    @media (max-width: 980px) {
+      :root { --history-width: clamp(156px, 27vw, 220px); }
+
+      .history-panel { padding-right: 10px; }
+      .history-title { font-size: 16px; }
+      .history-main { font-size: 14px; }
+    }
+
+    @media (orientation: landscape) and (max-height: 760px) {
+      :root {
+        --toolbar-base-height: 64px;
+        --history-width: clamp(156px, 20vw, 220px);
+      }
+
+      .headline {
+        top: 28px;
+        font-size: clamp(22px, 4vw, 42px);
+      }
+
+      .caption {
+        bottom: calc(var(--toolbar-height) + 12px);
+        font-size: clamp(16px, 3vw, 28px);
+      }
+
+      .scale-strip { bottom: calc(var(--toolbar-height) + 26px); }
+      .history-panel { padding-top: 12px; }
+      .history-item { padding: 10px; }
+      .toolbar { gap: 8px; }
+
+      .zoom-btn,
+      .scale-pill,
+      .tool-btn,
+      .measure-action { height: 40px; border-radius: 20px; }
+
+      .zoom-btn {
+        width: 40px;
+        font-size: 20px;
+        line-height: 40px;
+      }
+
+      .scale-pill {
+        min-width: 120px;
+        font-size: 14px;
+      }
+
+      .tool-btn,
+      .measure-action {
+        padding: 0 12px;
+        font-size: 13px;
+      }
+
+      .chip-board { transform: translate(-50%, -50%) scale(0.68); }
+
+      .zoom-card {
+        right: 40px;
+        top: 148px;
+        transform: scale(0.82);
+        transform-origin: top right;
+      }
+    }
+
     @media (max-width: 740px) {
-      .app { min-height: 560px; }
-      .stage { bottom: 68px; }
+      :root {
+        --toolbar-base-height: 68px;
+        --history-width: clamp(132px, 36vw, 180px);
+      }
+
+      .stage { bottom: var(--toolbar-height); }
       .headline { top: 42px; }
-      .caption { bottom: 88px; }
-      .toolbar { height: 68px; gap: 8px; }
+      .caption { bottom: calc(var(--toolbar-height) + 20px); }
+      .toolbar { gap: 8px; }
       .zoom-btn,
       .scale-pill,
       .tool-btn,
@@ -781,6 +1012,12 @@
       .scale-pill { min-width: 126px; padding: 0 14px; font-size: 15px; }
       .tool-btn,
       .measure-action { padding: 0 13px; font-size: 13px; }
+      .history-panel { padding: 12px 10px 10px max(10px, env(safe-area-inset-left)); }
+      .history-title { font-size: 15px; }
+      .history-note { display: none; }
+      .history-empty,
+      .history-detail { font-size: 11px; }
+      .history-main { font-size: 13px; }
       .chip-board { width: 860px; height: 570px; transform: translate(-50%, -50%) scale(0.76); }
       .zoom-card { right: 52px; top: 178px; }
       .hint { left: 12px; right: 12px; justify-content: center; margin: 0 auto; }
@@ -789,6 +1026,19 @@
 </head>
 <body>
   <main class="app" data-mode="line" aria-label="六下数学比例尺互动程序">
+    <aside class="history-panel" aria-label="测量历史记录">
+      <div class="history-header">
+        <div class="history-title-row">
+          <h2 class="history-title">历史记录</h2>
+          <span class="history-badge" id="historyCount">0 条</span>
+        </div>
+        <div class="history-status" id="cacheStatus">正在准备离线缓存</div>
+        <p class="history-note">完成一次地图或芯片测量后，会自动保存到这里。联网打开过一次后，没有网络时也能继续使用。</p>
+      </div>
+      <div class="history-empty" id="historyEmpty">还没有测量记录。点击底部“开始测距”，完成一次测量后会自动保存。</div>
+      <ol class="history-list" id="historyList" hidden></ol>
+    </aside>
+
     <section class="stage" id="stage">
       <div class="map-stage" aria-label="真实地图测量区">
         <div class="real-map" id="realMap"></div>
@@ -859,11 +1109,12 @@
         <button class="tool-btn" id="pairToolButton" type="button">
           <span class="tool-icon grid"></span><span>数对</span>
         </button>
+        <button class="measure-action danger-action" id="clearCacheButton" type="button">清除记录</button>
       </div>
     </nav>
   </main>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="vendor/leaflet.js"></script>
   <script>
     (function () {
       var PX_PER_CM = 37.7952755906;
@@ -877,11 +1128,16 @@
       var scalePill = document.getElementById("scalePill");
       var halfScale = document.getElementById("halfScale");
       var fullScale = document.getElementById("fullScale");
+      var historyList = document.getElementById("historyList");
+      var historyEmpty = document.getElementById("historyEmpty");
+      var historyCount = document.getElementById("historyCount");
+      var cacheStatus = document.getElementById("cacheStatus");
       var zoomIn = document.getElementById("zoomIn");
       var zoomOut = document.getElementById("zoomOut");
       var startMeasureButton = document.getElementById("startMeasure");
       var directionGuideButton = document.getElementById("directionGuideButton");
       var pairToolButton = document.getElementById("pairToolButton");
+      var clearCacheButton = document.getElementById("clearCacheButton");
       var modeButtons = Array.prototype.slice.call(document.querySelectorAll("[data-mode-button]"));
       var chipStage = document.getElementById("chipStage");
       var chipLayer = document.getElementById("chipMeasureLayer");
@@ -891,12 +1147,15 @@
       var chipStartLabel = document.getElementById("chipStartLabel");
       var chipEndLabel = document.getElementById("chipEndLabel");
       var chipBadge = document.getElementById("chipBadge");
+      var HISTORY_STORAGE_KEY = "scale-history-v1";
+      var HISTORY_LIMIT = 30;
       var map = null;
       var currentScaleDenominator = 0;
       var schoolCenter = [30.2874, 120.1425];
       var mode = "line";
       var activeMapTool = "measure";
       var scaleVisible = true;
+      var measureHistory = loadHistory();
       var mapMeasure = emptyMapMeasure();
       var directionGuide = emptyDirectionGuide();
       var pairMeasure = emptyPairMeasure();
@@ -907,12 +1166,21 @@
         cmPerPixel: 0.0125
       };
 
+      updateViewportHeight();
       createPins();
       createChipRuler();
+      renderHistory();
+      updateNetworkStatus();
       initMap();
       bindControls();
       setMode("line");
       updateChipMeasure();
+
+      if (document.readyState === "complete") {
+        registerServiceWorker();
+      } else {
+        window.addEventListener("load", registerServiceWorker);
+      }
 
       function initMap() {
         if (!window.L) {
@@ -1036,6 +1304,9 @@
         startMeasureButton.addEventListener("click", startMeasure);
         directionGuideButton.addEventListener("click", activateDirectionGuideTool);
         pairToolButton.addEventListener("click", activatePairTool);
+        clearCacheButton.addEventListener("click", clearAllCachesAndReload);
+        window.addEventListener("online", updateNetworkStatus);
+        window.addEventListener("offline", updateNetworkStatus);
 
         modeButtons.forEach(function (button) {
           button.addEventListener("click", function () {
@@ -1046,6 +1317,7 @@
         chipStage.addEventListener("pointerdown", handleChipPointerDown);
         chipStage.addEventListener("pointermove", handleChipPointerMove);
         window.addEventListener("resize", function () {
+          updateViewportHeight();
           if (map) {
             map.invalidateSize();
             updateScaleDisplay();
@@ -1230,6 +1502,7 @@
           mapMeasure.state = "complete";
           map.dragging.enable();
           renderMapMeasure(false);
+          recordMapHistory();
           syncMapToolUi();
         }
       }
@@ -1299,15 +1572,14 @@
 
         var startPoint = map.latLngToContainerPoint(mapMeasure.start);
         var endPoint = map.latLngToContainerPoint(mapMeasure.end);
-        var cm = Math.max(0, startPoint.distanceTo(endPoint) / PX_PER_CM);
-        var meters = map.distance(mapMeasure.start, mapMeasure.end);
+        var snapshot = getMapMeasurementSnapshot(startPoint, endPoint);
         var middle = L.latLng(
           (mapMeasure.start.lat + mapMeasure.end.lat) / 2,
           (mapMeasure.start.lng + mapMeasure.end.lng) / 2
         );
         mapMeasure.tooltip
           .setLatLng(middle)
-          .setContent("<b>图上: " + cm.toFixed(1) + "cm</b><br>实际: " + formatDistance(meters));
+          .setContent("<b>图上: " + snapshot.drawnText + "</b><br>实际: " + snapshot.actualText);
       }
 
       function clearMapMeasure() {
@@ -1805,6 +2077,7 @@
           startMeasureButton.classList.remove("is-active");
           hintText.textContent = getChipHint();
           updateChipMeasure(false);
+          recordChipHistory();
         }
       }
 
@@ -1829,8 +2102,7 @@
         var y2 = chipMeasure.end.y;
         var dx = x2 - x1;
         var dy = y2 - y1;
-        var pixelDistance = Math.sqrt(dx * dx + dy * dy);
-        var cm = Math.max(0, pixelDistance * chipMeasure.cmPerPixel);
+        var snapshot = getChipMeasurementSnapshot(dx, dy);
         var middleX = (x1 + x2) / 2;
         var middleY = (y1 + y2) / 2;
 
@@ -1844,7 +2116,7 @@
         place(chipEnd, x2, y2);
         place(chipStartLabel, x1, y1 - 14);
         place(chipEndLabel, x2, y2 - 14);
-        chipBadge.innerHTML = "<b>图上: " + cm.toFixed(1) + "cm</b><br>实际: " + cm.toFixed(1) + "mm";
+        chipBadge.innerHTML = "<b>图上: " + snapshot.drawnText + "</b><br>实际: " + snapshot.actualText;
         place(chipBadge, middleX, Math.min(middleY + 48, stage.clientHeight - 48));
       }
 
@@ -1967,6 +2239,248 @@
           x: clamp(event.clientX - rect.left, 18, rect.width - 18),
           y: clamp(event.clientY - rect.top, 18, rect.height - 18)
         };
+      }
+
+      function updateViewportHeight() {
+        var viewportHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        document.documentElement.style.setProperty("--app-height", viewportHeight + "px");
+      }
+
+      function getMapMeasurementSnapshot(startPoint, endPoint) {
+        var resolvedStart = startPoint || map.latLngToContainerPoint(mapMeasure.start);
+        var resolvedEnd = endPoint || map.latLngToContainerPoint(mapMeasure.end);
+        var cm = Math.max(0, resolvedStart.distanceTo(resolvedEnd) / PX_PER_CM);
+        var meters = map.distance(mapMeasure.start, mapMeasure.end);
+
+        return {
+          drawnText: cm.toFixed(1) + "cm",
+          actualText: formatDistance(meters)
+        };
+      }
+
+      function getChipMeasurementSnapshot(dx, dy) {
+        var deltaX = typeof dx === "number" ? dx : chipMeasure.end.x - chipMeasure.start.x;
+        var deltaY = typeof dy === "number" ? dy : chipMeasure.end.y - chipMeasure.start.y;
+        var pixelDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        var cm = Math.max(0, pixelDistance * chipMeasure.cmPerPixel);
+
+        return {
+          drawnText: cm.toFixed(1) + "cm",
+          actualText: cm.toFixed(1) + "mm"
+        };
+      }
+
+      function recordMapHistory() {
+        if (!map || !mapMeasure.start || !mapMeasure.end) {
+          return;
+        }
+
+        var snapshot = getMapMeasurementSnapshot();
+
+        appendHistoryEntry({
+          id: createHistoryId(),
+          kind: "地图测距",
+          summary: "图上 " + snapshot.drawnText + " / 实际 " + snapshot.actualText,
+          detail: "比例尺 1:" + currentScaleDenominator + "，方向 " + describeDirection(),
+          createdAt: Date.now()
+        });
+      }
+
+      function recordChipHistory() {
+        if (!chipMeasure.start || !chipMeasure.end) {
+          return;
+        }
+
+        var snapshot = getChipMeasurementSnapshot();
+
+        appendHistoryEntry({
+          id: createHistoryId(),
+          kind: "放大测量",
+          summary: "图上 " + snapshot.drawnText + " / 实际 " + snapshot.actualText,
+          detail: "放大比例尺 10:1",
+          createdAt: Date.now()
+        });
+      }
+
+      function createHistoryId() {
+        return String(Date.now()) + Math.random().toString(16).slice(2, 8);
+      }
+
+      function appendHistoryEntry(entry) {
+        measureHistory.unshift(entry);
+        measureHistory = measureHistory.slice(0, HISTORY_LIMIT);
+        saveHistory();
+        renderHistory();
+      }
+
+      function loadHistory() {
+        var raw;
+        var parsed;
+
+        try {
+          raw = localStorage.getItem(HISTORY_STORAGE_KEY);
+          parsed = raw ? JSON.parse(raw) : [];
+        } catch (error) {
+          parsed = [];
+        }
+
+        if (!Array.isArray(parsed)) {
+          return [];
+        }
+
+        return parsed.filter(function (item) {
+          return item && item.kind && item.summary;
+        });
+      }
+
+      function saveHistory() {
+        try {
+          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(measureHistory));
+        } catch (error) {
+          measureHistory = measureHistory.slice(0, Math.max(0, HISTORY_LIMIT - 5));
+        }
+      }
+
+      function renderHistory() {
+        historyCount.textContent = measureHistory.length + " 条";
+        historyEmpty.hidden = measureHistory.length > 0;
+        historyList.hidden = measureHistory.length === 0;
+
+        if (measureHistory.length === 0) {
+          historyList.innerHTML = "";
+          return;
+        }
+
+        var fragment = document.createDocumentFragment();
+
+        measureHistory.forEach(function (item) {
+          var listItem = document.createElement("li");
+          var header = document.createElement("div");
+          var kind = document.createElement("span");
+          var time = document.createElement("span");
+          var main = document.createElement("div");
+          var detail = document.createElement("div");
+
+          listItem.className = "history-item";
+          header.className = "history-item-header";
+          kind.className = "history-kind";
+          time.className = "history-time";
+          main.className = "history-main";
+          detail.className = "history-detail";
+
+          kind.textContent = item.kind;
+          time.textContent = formatHistoryTime(item.createdAt);
+          main.textContent = item.summary;
+          detail.textContent = item.detail || "";
+
+          header.appendChild(kind);
+          header.appendChild(time);
+          listItem.appendChild(header);
+          listItem.appendChild(main);
+          if (item.detail) {
+            listItem.appendChild(detail);
+          }
+          fragment.appendChild(listItem);
+        });
+
+        historyList.innerHTML = "";
+        historyList.appendChild(fragment);
+      }
+
+      function formatHistoryTime(value) {
+        var date = new Date(value);
+
+        if (isNaN(date.getTime())) {
+          return "刚刚";
+        }
+
+        return date.toLocaleString("zh-CN", {
+          month: "numeric",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false
+        });
+      }
+
+      function updateNetworkStatus() {
+        if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
+          cacheStatus.textContent = "当前环境不支持离线缓存";
+          cacheStatus.classList.remove("is-offline");
+          return;
+        }
+
+        if (!navigator.onLine) {
+          cacheStatus.textContent = "当前离线模式";
+          cacheStatus.classList.add("is-offline");
+          return;
+        }
+
+        cacheStatus.textContent = navigator.serviceWorker.controller ? "离线缓存已开启" : "正在准备离线缓存";
+        cacheStatus.classList.remove("is-offline");
+      }
+
+      function registerServiceWorker() {
+        if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
+          updateNetworkStatus();
+          return;
+        }
+
+        navigator.serviceWorker.register("sw.js")
+          .then(function (registration) {
+            updateNetworkStatus();
+            if (registration.installing) {
+              cacheStatus.textContent = "正在准备离线缓存";
+            }
+            registration.addEventListener("updatefound", function () {
+              cacheStatus.textContent = "正在更新离线缓存";
+            });
+            navigator.serviceWorker.addEventListener("controllerchange", updateNetworkStatus);
+            return navigator.serviceWorker.ready;
+          })
+          .then(function () {
+            updateNetworkStatus();
+          })
+          .catch(function () {
+            cacheStatus.textContent = "离线缓存启动失败";
+            cacheStatus.classList.remove("is-offline");
+          });
+      }
+
+      function clearAllCachesAndReload() {
+        if (clearCacheButton.disabled) {
+          return;
+        }
+
+        clearCacheButton.disabled = true;
+        clearCacheButton.textContent = "正在清除...";
+        measureHistory = [];
+        renderHistory();
+
+        Promise.resolve()
+          .then(function () {
+            localStorage.removeItem(HISTORY_STORAGE_KEY);
+            return "caches" in window ? caches.keys() : [];
+          })
+          .then(function (cacheKeys) {
+            return Promise.all(cacheKeys.map(function (cacheKey) {
+              return caches.delete(cacheKey);
+            }));
+          })
+          .then(function () {
+            return "serviceWorker" in navigator ? navigator.serviceWorker.getRegistrations() : [];
+          })
+          .then(function (registrations) {
+            return Promise.all(registrations.map(function (registration) {
+              return registration.unregister();
+            }));
+          })
+          .catch(function () {
+            return null;
+          })
+          .then(function () {
+            window.location.reload();
+          });
       }
 
       function place(element, x, y) {
