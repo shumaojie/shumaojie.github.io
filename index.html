@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>六下数学比例尺</title>
+  <title>图形的位置总复习</title>
   <link rel="stylesheet" href="vendor/leaflet.css">
   <style>
     :root {
@@ -127,7 +127,6 @@
       text-shadow: 0 3px 0 #14344b, 2px 0 0 #14344b, -2px 0 0 #14344b, 0 -2px 0 #14344b;
     }
 
-    .app[data-mode="number"] .headline,
     .app[data-mode="zoom"] .headline { display: none; }
 
     .caption {
@@ -572,6 +571,209 @@
     .app[data-mode="number"] .hint,
     .app[data-mode="zoom"] .hint { display: flex; }
 
+    .report-panel {
+      position: absolute;
+      z-index: 540;
+      top: 78px;
+      right: 18px;
+      width: min(360px, calc(100% - 36px));
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .report-sheet-label {
+      margin: 0;
+      color: #1b5971;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+    }
+
+    .report-title {
+      margin: 0;
+      color: #193d4d;
+      font-size: clamp(20px, 2.1vw, 28px);
+      font-weight: 900;
+      line-height: 1.12;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+
+    .report-box {
+      position: relative;
+      min-height: 228px;
+      padding: 18px 18px 54px;
+      border: 3px solid rgba(23, 100, 126, 0.22);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 14px 28px rgba(23, 82, 104, 0.18);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+
+    .report-box::after {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(198, 238, 249, 0.14) 0%, rgba(255, 255, 255, 0) 48%);
+      pointer-events: none;
+      content: "";
+    }
+
+    .report-content {
+      position: relative;
+      z-index: 1;
+      padding-right: 74px;
+    }
+
+    .report-empty {
+      padding: 14px;
+      border: 1px dashed rgba(24, 93, 117, 0.28);
+      border-radius: 14px;
+      color: #426979;
+      background: rgba(220, 244, 251, 0.55);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .report-list {
+      max-height: min(41vh, 320px);
+      margin: 0;
+      padding: 0 4px 0 0;
+      list-style: none;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+
+    .report-list::-webkit-scrollbar { width: 6px; }
+
+    .report-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(24, 93, 117, 0.18);
+    }
+
+    .report-item {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px dashed rgba(24, 93, 117, 0.18);
+    }
+
+    .report-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .report-order {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      border-radius: 999px;
+      color: #0f4d64;
+      background: #d4f0f8;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .report-item-kind {
+      color: #0c7090;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.3;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .report-item-main {
+      margin-top: 4px;
+      color: #183744;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.55;
+    }
+
+    .report-item-detail {
+      margin-top: 4px;
+      color: #4a6b79;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .report-compass {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: rgba(214, 244, 249, 0.72);
+      box-shadow: inset 0 0 0 1px rgba(23, 100, 126, 0.16);
+    }
+
+    .report-compass::before,
+    .report-compass::after {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border-radius: 999px;
+      background: #1c88ac;
+      transform: translate(-50%, -50%);
+      content: "";
+    }
+
+    .report-compass::before {
+      width: 3px;
+      height: 44px;
+    }
+
+    .report-compass::after {
+      width: 44px;
+      height: 3px;
+    }
+
+    .report-compass-arrow {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 16px solid #ef7d3b;
+      transform: translateX(-50%);
+    }
+
+    .report-compass-north {
+      position: absolute;
+      left: 50%;
+      top: -3px;
+      color: #c54f1a;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+      transform: translateX(-50%);
+    }
+
+    .report-scale-note {
+      position: absolute;
+      right: 18px;
+      bottom: 14px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: #0f5972;
+      background: rgba(212, 240, 248, 0.92);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.3;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      z-index: 1;
+    }
+
     .history-panel {
       position: absolute;
       z-index: 650;
@@ -1003,6 +1205,9 @@
       .history-panel { padding-right: 10px; }
       .history-title { font-size: 16px; }
       .history-main { font-size: 14px; }
+      .report-panel { width: min(320px, calc(100% - 28px)); }
+      .report-box { min-height: 210px; padding: 16px 16px 50px; }
+      .report-content { padding-right: 68px; }
     }
 
     @media (orientation: landscape) and (max-height: 760px) {
@@ -1043,6 +1248,14 @@
         font-size: 14px;
       }
 
+      .report-panel {
+        top: 62px;
+        width: min(320px, calc(100% - 28px));
+      }
+
+      .report-box { min-height: 190px; }
+      .report-list { max-height: min(32vh, 220px); }
+
       .tool-btn,
       .measure-action {
         padding: 0 12px;
@@ -1078,6 +1291,27 @@
       .scale-pill { min-width: 126px; padding: 0 14px; font-size: 15px; }
       .tool-btn,
       .measure-action { padding: 0 13px; font-size: 13px; }
+      .report-panel { width: min(300px, calc(100% - 24px)); }
+      .report-title { font-size: 20px; }
+      .report-box {
+        min-height: 176px;
+        padding: 14px 14px 46px;
+      }
+      .report-content { padding-right: 62px; }
+      .report-list { max-height: min(24vh, 160px); }
+      .report-compass {
+        top: 12px;
+        right: 12px;
+        width: 58px;
+        height: 58px;
+      }
+      .report-compass::before { height: 38px; }
+      .report-compass::after { width: 38px; }
+      .report-scale-note {
+        right: 12px;
+        bottom: 10px;
+        font-size: 11px;
+      }
       .history-panel { padding: 12px 10px 10px max(10px, env(safe-area-inset-left)); }
       .history-title { font-size: 15px; }
       .history-note { display: none; }
@@ -1093,10 +1327,20 @@
       .zoom-card { right: 52px; top: 178px; }
       .hint { left: 12px; right: 12px; justify-content: center; margin: 0 auto; }
     }
+
+    @media (max-width: 740px) and (orientation: portrait) {
+      .report-panel {
+        left: 12px;
+        right: 12px;
+        top: auto;
+        bottom: calc(var(--toolbar-height) + 12px);
+        width: auto;
+      }
+    }
   </style>
 </head>
 <body>
-  <main class="app" data-mode="line" data-history-collapsed="true" aria-label="六下数学比例尺互动程序">
+  <main class="app" data-mode="number" data-history-collapsed="true" aria-label="图形的位置总复习互动程序">
     <aside class="history-panel" aria-label="测量历史记录">
       <button class="history-toggle" id="historyToggleButton" type="button" aria-expanded="false" aria-label="展开历史记录">
         <span class="history-toggle-icon" aria-hidden="true">&gt;</span>
@@ -1108,9 +1352,9 @@
           <span class="history-badge" id="historyCount">0 条</span>
         </div>
         <div class="history-status" id="cacheStatus">正在准备离线缓存</div>
-        <p class="history-note">完成一次地图或芯片测量后，会自动保存到这里。联网打开过一次后，没有网络时也能继续使用。</p>
+        <p class="history-note">完成一次测量或数对定位后，会自动保存到这里。联网打开过一次后，没有网络时也能继续使用。</p>
       </div>
-      <div class="history-empty" id="historyEmpty">还没有测量记录。点击底部“开始测距”，完成一次测量后会自动保存。</div>
+      <div class="history-empty" id="historyEmpty">还没有测量记录。点击底部“开始测量”或“数对”，完成一次操作后会自动保存。</div>
       <ol class="history-list" id="historyList" hidden></ol>
     </aside>
 
@@ -1118,7 +1362,7 @@
       <div class="map-stage" aria-label="真实地图测量区">
         <div class="real-map" id="realMap"></div>
         <div class="map-fallback">地图资源没有加载成功。请确认当前设备可以访问在线地图资源，然后重新打开页面。</div>
-        <div class="headline" id="headline">六下数学比例尺<span>玩的就是真实</span></div>
+        <div class="headline" id="headline">图形的位置总复习</div>
         <div class="scale-strip is-visible" id="scaleStrip">
           <div class="scale-line"></div>
           <div class="scale-values"><span>0</span><span id="halfScale">7km</span><span id="fullScale">14km</span></div>
@@ -1155,29 +1399,45 @@
       </div>
 
       <div class="caption" id="caption"></div>
-      <div class="hint" id="hint"><span class="hint-dot"></span><span id="hintText">点击“开始测距”，再在页面上点起点</span></div>
+      <div class="hint" id="hint"><span class="hint-dot"></span><span id="hintText">点击“开始测量”，再在地图上点起点</span></div>
+
+      <section class="report-panel" aria-label="路线报告单">
+        <p class="report-sheet-label">报告单</p>
+        <h2 class="report-title">我们设计的路线图</h2>
+        <div class="report-box">
+          <div class="report-compass" aria-hidden="true">
+            <span class="report-compass-north">北</span>
+            <span class="report-compass-arrow"></span>
+          </div>
+          <div class="report-content">
+            <div class="report-empty" id="reportEmpty">完成一次“开始测量”或“数对”操作后，这里会按顺序生成路线描述。</div>
+            <ol class="report-list" id="reportList" aria-live="polite" hidden></ol>
+          </div>
+          <div class="report-scale-note" id="reportScale">比例尺 1:--</div>
+        </div>
+      </section>
     </section>
 
-    <nav class="toolbar" aria-label="比例尺工具栏">
+    <nav class="toolbar" aria-label="位置复习工具栏">
       <div class="zoom-group">
         <button class="zoom-btn" id="zoomOut" type="button" aria-label="缩小地图">-</button>
         <div class="scale-pill" id="scalePill">1:700000</div>
         <button class="zoom-btn" id="zoomIn" type="button" aria-label="放大地图">+</button>
       </div>
-      <button class="switch-wrap is-on" id="lineSwitch" type="button" aria-label="显示或隐藏线段比例尺">
+      <button class="switch-wrap is-on" id="lineSwitch" type="button" aria-label="显示或隐藏线段比例尺" hidden>
         <span class="switch"></span><span>线段显示</span>
       </button>
       <div class="mode-group">
-        <button class="tool-btn is-active" data-mode-button="line" type="button">
+        <button class="tool-btn is-active" data-mode-button="line" type="button" hidden>
           <span class="tool-icon">⌁</span><span>线段比例尺</span>
         </button>
-        <button class="tool-btn" data-mode-button="number" type="button">
+        <button class="tool-btn" data-mode-button="number" type="button" hidden>
           <span class="tool-icon square"></span><span>数值比例尺</span>
         </button>
-        <button class="tool-btn" data-mode-button="zoom" type="button">
+        <button class="tool-btn" data-mode-button="zoom" type="button" hidden>
           <span class="tool-icon lens"></span><span>放大比例尺</span>
         </button>
-        <button class="measure-action" id="startMeasure" type="button">开始测距</button>
+        <button class="measure-action" id="startMeasure" type="button">开始测量</button>
         <button class="tool-btn" id="directionGuideButton" type="button">
           <span class="tool-icon cross"></span><span>十字方向标</span>
         </button>
@@ -1203,6 +1463,9 @@
       var scalePill = document.getElementById("scalePill");
       var halfScale = document.getElementById("halfScale");
       var fullScale = document.getElementById("fullScale");
+      var reportList = document.getElementById("reportList");
+      var reportEmpty = document.getElementById("reportEmpty");
+      var reportScale = document.getElementById("reportScale");
       var historyList = document.getElementById("historyList");
       var historyEmpty = document.getElementById("historyEmpty");
       var historyCount = document.getElementById("historyCount");
@@ -1232,6 +1495,7 @@
       var activeMapTool = "measure";
       var scaleVisible = true;
       var historyCollapsed = app.getAttribute("data-history-collapsed") !== "false";
+      var reportEntries = [];
       var measureHistory = loadHistory();
       var mapMeasure = emptyMapMeasure();
       var directionGuide = emptyDirectionGuide();
@@ -1248,10 +1512,12 @@
       createPins();
       createChipRuler();
       renderHistory();
+      renderReport();
+      updateReportScale();
       updateNetworkStatus();
       initMap();
       bindControls();
-      setMode("line");
+      setMode("number");
       updateChipMeasure();
 
       if (document.readyState === "complete") {
@@ -1421,8 +1687,8 @@
         });
 
         if (mode === "line") {
-          hintText.textContent = "点击“开始测距”，再在地图上点起点";
-          startMeasureButton.textContent = "开始测距";
+          hintText.textContent = "点击“开始测量”，再在地图上点起点";
+          startMeasureButton.textContent = "开始测量";
           if (map) {
             map.dragging.enable();
             updateScaleDisplay();
@@ -1443,8 +1709,8 @@
 
         if (mode === "zoom") {
           scalePill.textContent = "10 : 1";
-          hintText.textContent = chipMeasure.state === "idle" ? "点击“开始测距”，再在芯片上点起点" : getChipHint();
-          startMeasureButton.textContent = chipMeasure.state === "complete" ? "重新测距" : "开始测距";
+          hintText.textContent = chipMeasure.state === "idle" ? "点击“开始测量”，再在芯片上点起点" : getChipHint();
+          startMeasureButton.textContent = chipMeasure.state === "complete" ? "继续测量" : "开始测量";
           updateMapToolControls();
         }
       }
@@ -1483,9 +1749,9 @@
           return "确定终点";
         }
         if (mapMeasure.state === "complete") {
-          return "重新测距";
+          return "继续测量";
         }
-        return "开始测距";
+        return "开始测量";
       }
 
       function startMeasure() {
@@ -1502,7 +1768,7 @@
           setMode("number");
         }
         activeMapTool = "measure";
-        if (pairMeasure.state === "drawing") {
+        if (pairMeasure.state === "drawing" || pairMeasure.state === "complete") {
           clearPairMeasure();
         }
         clearDirectionGuide();
@@ -1886,7 +2152,8 @@
           start: null,
           end: null,
           origin: { x: 0, y: 0 },
-          group: null
+          group: null,
+          entryId: null
         };
       }
 
@@ -1917,6 +2184,7 @@
           pairMeasure.state = "complete";
           map.dragging.enable();
           renderPairMeasure(false);
+          recordPairHistory();
           syncMapToolUi();
         }
       }
@@ -2125,6 +2393,9 @@
 
             pairMeasure.origin[axis] = value;
             renderPairMeasure(false);
+            if (pairMeasure.state === "complete" && pairMeasure.entryId) {
+              refreshPairRecords(pairMeasure.entryId);
+            }
           });
         });
       }
@@ -2152,7 +2423,7 @@
         if (chipMeasure.state === "drawing") {
           chipMeasure.end = getStagePoint(event);
           chipMeasure.state = "complete";
-          startMeasureButton.textContent = "重新测距";
+          startMeasureButton.textContent = "继续测量";
           startMeasureButton.classList.remove("is-active");
           hintText.textContent = getChipHint();
           updateChipMeasure(false);
@@ -2242,6 +2513,7 @@
         }
         halfScale.textContent = formatDistance(oneCmMeters);
         fullScale.textContent = formatDistance(oneCmMeters * 2);
+        updateReportScale();
       }
 
       function handleMapScaleChange() {
@@ -2271,14 +2543,14 @@
           return "终点会跟随鼠标移动，再点击一下确定终点";
         }
         if (mapMeasure.state === "complete") {
-          return "再次点击“开始测距”可以清除后重测";
+          return "点击“继续测量”可以开始下一条并继续累积报告";
         }
-        return "点击“开始测距”，再在地图上点起点";
+        return "点击“开始测量”，再在地图上点起点";
       }
 
       function getDirectionGuideHint() {
         if (mapMeasure.state !== "complete") {
-          return "先用“开始测距”完成线段，再点击起点显示十字方向标";
+          return "先用“开始测量”完成线段，再点击起点显示十字方向标";
         }
         if (directionGuide.visible) {
           return "当前方向是“" + describeDirection() + "”，可再次点击起点刷新";
@@ -2307,9 +2579,9 @@
           return "终点会跟随鼠标移动，再点击一下确定终点";
         }
         if (chipMeasure.state === "complete") {
-          return "再次点击“开始测距”可以清除后重测";
+          return "再次点击“开始测量”可以清除后重测";
         }
-        return "点击“开始测距”，再在芯片上点起点";
+        return "点击“开始测量”，再在芯片上点起点";
       }
 
       function getStagePoint(event) {
@@ -2366,13 +2638,50 @@
         }
 
         var snapshot = getMapMeasurementSnapshot();
+        var entryId = createHistoryId();
+        var directionText = describeDirection();
+        var scaleText = getCurrentScaleText();
 
         appendHistoryEntry({
-          id: createHistoryId(),
+          id: entryId,
           kind: "地图测距",
           summary: "图上 " + snapshot.drawnText + " / 实际 " + snapshot.actualText,
-          detail: "比例尺 1:" + currentScaleDenominator + "，方向 " + describeDirection(),
+          detail: "比例尺 " + scaleText + "，方向 " + directionText,
           createdAt: Date.now()
+        });
+
+        appendReportEntry({
+          id: entryId,
+          kind: "方向 + 距离",
+          summary: "向" + directionText + "前进约" + snapshot.actualText,
+          detail: "图上 " + snapshot.drawnText + "，比例尺 " + scaleText
+        });
+      }
+
+      function recordPairHistory() {
+        var snapshot = getPairSnapshot();
+        var entryId;
+
+        if (!snapshot) {
+          return;
+        }
+
+        entryId = createHistoryId();
+        pairMeasure.entryId = entryId;
+
+        appendHistoryEntry({
+          id: entryId,
+          kind: "数对位置",
+          summary: snapshot.summary,
+          detail: snapshot.detail,
+          createdAt: Date.now()
+        });
+
+        appendReportEntry({
+          id: entryId,
+          kind: "数对位置",
+          summary: snapshot.summary,
+          detail: snapshot.detail
         });
       }
 
@@ -2396,11 +2705,180 @@
         return String(Date.now()) + Math.random().toString(16).slice(2, 8);
       }
 
+      function getPairSnapshot() {
+        var geometry;
+        var endPair;
+
+        if (!map || !pairMeasure.start || !pairMeasure.end) {
+          return null;
+        }
+
+        geometry = getPairGeometry();
+        endPair = {
+          x: pairMeasure.origin.x + (geometry.dx >= 0 ? geometry.columns : -geometry.columns),
+          y: pairMeasure.origin.y + (geometry.dy >= 0 ? geometry.rows : -geometry.rows)
+        };
+
+        return {
+          summary: "起点(" + pairMeasure.origin.x + "," + pairMeasure.origin.y + ")，终点(" + endPair.x + "," + endPair.y + ")",
+          detail: buildPairChangeText(endPair.x - pairMeasure.origin.x, endPair.y - pairMeasure.origin.y)
+        };
+      }
+
+      function buildPairChangeText(horizontalChange, verticalChange) {
+        var parts = [];
+
+        if (!horizontalChange && !verticalChange) {
+          return "起点和终点落在同一个数对位置";
+        }
+
+        if (horizontalChange) {
+          parts.push("横向" + (horizontalChange > 0 ? "增加" : "减少") + Math.abs(horizontalChange) + "格");
+        } else {
+          parts.push("横向不变");
+        }
+
+        if (verticalChange) {
+          parts.push("纵向" + (verticalChange > 0 ? "增加" : "减少") + Math.abs(verticalChange) + "格");
+        } else {
+          parts.push("纵向不变");
+        }
+
+        return parts.join("，");
+      }
+
+      function getCurrentScaleText() {
+        return currentScaleDenominator ? "1:" + currentScaleDenominator : "1:--";
+      }
+
+      function appendReportEntry(entry) {
+        reportEntries.push(entry);
+        renderReport();
+      }
+
+      function updateHistoryEntry(entryId, nextEntry) {
+        var updated = false;
+
+        measureHistory = measureHistory.map(function (item) {
+          if (item.id !== entryId) {
+            return item;
+          }
+
+          updated = true;
+          return {
+            id: item.id,
+            kind: nextEntry.kind,
+            summary: nextEntry.summary,
+            detail: nextEntry.detail,
+            createdAt: item.createdAt
+          };
+        });
+
+        if (!updated) {
+          return;
+        }
+
+        saveHistory();
+        renderHistory();
+      }
+
+      function updateReportEntry(entryId, nextEntry) {
+        var updated = false;
+
+        reportEntries = reportEntries.map(function (item) {
+          if (item.id !== entryId) {
+            return item;
+          }
+
+          updated = true;
+          return {
+            id: item.id,
+            kind: nextEntry.kind,
+            summary: nextEntry.summary,
+            detail: nextEntry.detail
+          };
+        });
+
+        if (updated) {
+          renderReport();
+        }
+      }
+
+      function refreshPairRecords(entryId) {
+        var snapshot = getPairSnapshot();
+
+        if (!snapshot) {
+          return;
+        }
+
+        updateHistoryEntry(entryId, {
+          kind: "数对位置",
+          summary: snapshot.summary,
+          detail: snapshot.detail
+        });
+
+        updateReportEntry(entryId, {
+          kind: "数对位置",
+          summary: snapshot.summary,
+          detail: snapshot.detail
+        });
+      }
+
       function appendHistoryEntry(entry) {
         measureHistory.unshift(entry);
         measureHistory = measureHistory.slice(0, HISTORY_LIMIT);
         saveHistory();
         renderHistory();
+      }
+
+      function renderReport() {
+        reportEmpty.hidden = reportEntries.length > 0;
+        reportList.hidden = reportEntries.length === 0;
+
+        if (reportEntries.length === 0) {
+          reportList.innerHTML = "";
+          return;
+        }
+
+        var fragment = document.createDocumentFragment();
+
+        reportEntries.forEach(function (item, index) {
+          var listItem = document.createElement("li");
+          var order = document.createElement("span");
+          var content = document.createElement("div");
+          var kind = document.createElement("div");
+          var main = document.createElement("div");
+          var detail = document.createElement("div");
+
+          listItem.className = "report-item";
+          order.className = "report-order";
+          content.className = "report-item-content";
+          kind.className = "report-item-kind";
+          main.className = "report-item-main";
+          detail.className = "report-item-detail";
+
+          order.textContent = String(index + 1).padStart(2, "0");
+          kind.textContent = item.kind;
+          main.textContent = item.summary;
+          detail.textContent = item.detail || "";
+
+          content.appendChild(kind);
+          content.appendChild(main);
+          if (item.detail) {
+            content.appendChild(detail);
+          }
+
+          listItem.appendChild(order);
+          listItem.appendChild(content);
+          fragment.appendChild(listItem);
+        });
+
+        reportList.innerHTML = "";
+        reportList.appendChild(fragment);
+      }
+
+      function updateReportScale() {
+        reportScale.textContent = "比例尺 " + getCurrentScaleText();
       }
 
       function loadHistory() {
