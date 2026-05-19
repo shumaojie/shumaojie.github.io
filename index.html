@@ -12,6 +12,7 @@
       --toolbar-safe-bottom: env(safe-area-inset-bottom, 0px);
       --toolbar-height: calc(var(--toolbar-base-height) + var(--toolbar-safe-bottom));
       --history-width: clamp(188px, 23vw, 280px);
+      --history-collapsed-width: 46px;
     }
 
     * { box-sizing: border-box; }
@@ -37,6 +38,7 @@
     }
 
     .app {
+      --history-current-width: var(--history-width);
       position: relative;
       width: 100vw;
       height: var(--app-height);
@@ -45,12 +47,18 @@
       user-select: none;
     }
 
+    .app[data-history-collapsed="true"] { --history-current-width: var(--history-collapsed-width); }
+
     .stage {
       position: absolute;
-      inset: 0 0 var(--toolbar-height) var(--history-width);
+      top: 0;
+      right: 0;
+      bottom: var(--toolbar-height);
+      left: var(--history-current-width);
       overflow: hidden;
       background: #cdebf5;
       touch-action: none;
+      transition: left 180ms ease;
     }
 
     .map-stage,
@@ -578,6 +586,62 @@
       background: linear-gradient(180deg, rgba(12, 72, 98, 0.96) 0%, rgba(21, 104, 131, 0.9) 100%);
       box-shadow: 12px 0 30px rgba(14, 55, 72, 0.22);
       overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .app[data-history-collapsed="true"] .history-panel {
+      transform: translateX(calc(var(--history-collapsed-width) - var(--history-width)));
+      box-shadow: 8px 0 20px rgba(14, 55, 72, 0.14);
+    }
+
+    .app[data-history-collapsed="true"] .history-panel > :not(.history-toggle) {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-12px);
+    }
+
+    .history-panel > :not(.history-toggle) {
+      transition: opacity 150ms ease, transform 150ms ease;
+    }
+
+    .history-toggle {
+      position: absolute;
+      right: 0;
+      top: 18px;
+      width: var(--history-collapsed-width);
+      min-height: 116px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 6px;
+      border-radius: 14px 0 0 14px;
+      color: #effcff;
+      background: linear-gradient(180deg, rgba(59, 173, 205, 0.98) 0%, rgba(18, 122, 157, 0.96) 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26), 0 8px 18px rgba(9, 48, 61, 0.18);
+      z-index: 2;
+    }
+
+    .history-toggle:active { transform: translateY(1px); }
+
+    .history-toggle-icon {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1;
+      transition: transform 180ms ease;
+    }
+
+    .app[data-history-collapsed="true"] .history-toggle-icon { transform: rotate(0deg); }
+    .app[data-history-collapsed="false"] .history-toggle-icon { transform: rotate(180deg); }
+
+    .history-toggle-text {
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: 0.08em;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
     }
 
     .history-header {
@@ -945,6 +1009,7 @@
       :root {
         --toolbar-base-height: 64px;
         --history-width: clamp(156px, 20vw, 220px);
+        --history-collapsed-width: 42px;
       }
 
       .headline {
@@ -998,6 +1063,7 @@
       :root {
         --toolbar-base-height: 68px;
         --history-width: clamp(132px, 36vw, 180px);
+        --history-collapsed-width: 40px;
       }
 
       .stage { bottom: var(--toolbar-height); }
@@ -1015,6 +1081,11 @@
       .history-panel { padding: 12px 10px 10px max(10px, env(safe-area-inset-left)); }
       .history-title { font-size: 15px; }
       .history-note { display: none; }
+      .history-toggle {
+        top: 12px;
+        min-height: 96px;
+        padding: 10px 4px;
+      }
       .history-empty,
       .history-detail { font-size: 11px; }
       .history-main { font-size: 13px; }
@@ -1025,8 +1096,12 @@
   </style>
 </head>
 <body>
-  <main class="app" data-mode="line" aria-label="六下数学比例尺互动程序">
+  <main class="app" data-mode="line" data-history-collapsed="true" aria-label="六下数学比例尺互动程序">
     <aside class="history-panel" aria-label="测量历史记录">
+      <button class="history-toggle" id="historyToggleButton" type="button" aria-expanded="false" aria-label="展开历史记录">
+        <span class="history-toggle-icon" aria-hidden="true">&gt;</span>
+        <span class="history-toggle-text">历史</span>
+      </button>
       <div class="history-header">
         <div class="history-title-row">
           <h2 class="history-title">历史记录</h2>
@@ -1132,6 +1207,7 @@
       var historyEmpty = document.getElementById("historyEmpty");
       var historyCount = document.getElementById("historyCount");
       var cacheStatus = document.getElementById("cacheStatus");
+      var historyToggleButton = document.getElementById("historyToggleButton");
       var zoomIn = document.getElementById("zoomIn");
       var zoomOut = document.getElementById("zoomOut");
       var startMeasureButton = document.getElementById("startMeasure");
@@ -1155,6 +1231,7 @@
       var mode = "line";
       var activeMapTool = "measure";
       var scaleVisible = true;
+      var historyCollapsed = app.getAttribute("data-history-collapsed") !== "false";
       var measureHistory = loadHistory();
       var mapMeasure = emptyMapMeasure();
       var directionGuide = emptyDirectionGuide();
@@ -1167,6 +1244,7 @@
       };
 
       updateViewportHeight();
+      syncHistoryPanel();
       createPins();
       createChipRuler();
       renderHistory();
@@ -1304,6 +1382,7 @@
         startMeasureButton.addEventListener("click", startMeasure);
         directionGuideButton.addEventListener("click", activateDirectionGuideTool);
         pairToolButton.addEventListener("click", activatePairTool);
+        historyToggleButton.addEventListener("click", toggleHistoryPanel);
         clearCacheButton.addEventListener("click", clearAllCachesAndReload);
         window.addEventListener("online", updateNetworkStatus);
         window.addEventListener("offline", updateNetworkStatus);
@@ -2244,6 +2323,17 @@
       function updateViewportHeight() {
         var viewportHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
         document.documentElement.style.setProperty("--app-height", viewportHeight + "px");
+      }
+
+      function toggleHistoryPanel() {
+        historyCollapsed = !historyCollapsed;
+        syncHistoryPanel();
+      }
+
+      function syncHistoryPanel() {
+        app.setAttribute("data-history-collapsed", historyCollapsed ? "true" : "false");
+        historyToggleButton.setAttribute("aria-expanded", historyCollapsed ? "false" : "true");
+        historyToggleButton.setAttribute("aria-label", historyCollapsed ? "展开历史记录" : "收起历史记录");
       }
 
       function getMapMeasurementSnapshot(startPoint, endPoint) {
