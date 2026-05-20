@@ -806,6 +806,13 @@
       pointer-events: auto;
     }
 
+    .route-report-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     .route-report-title {
       align-self: flex-start;
       padding: 8px 14px;
@@ -817,6 +824,20 @@
       line-height: 1.2;
       box-shadow: 0 10px 20px rgba(11, 54, 68, 0.18);
     }
+
+    .route-report-download {
+      min-height: 36px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #135b76;
+      box-shadow: 0 10px 20px rgba(11, 54, 68, 0.14);
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .route-report-download:active { transform: translateY(1px); }
 
     .route-report-card {
       position: relative;
@@ -1288,6 +1309,11 @@
       }
 
       .route-report-title { font-size: 15px; }
+      .route-report-download {
+        min-height: 32px;
+        padding: 0 12px;
+        font-size: 12px;
+      }
       .route-report-card { min-height: 190px; padding: 16px 16px 50px; }
       .route-report-body { gap: 10px; padding-right: 122px; }
       .route-report-list { max-height: 138px; }
@@ -1342,7 +1368,13 @@
         width: auto;
         max-height: min(46%, 280px);
       }
+      .route-report-header { gap: 8px; }
       .route-report-title { font-size: 15px; }
+      .route-report-download {
+        min-height: 32px;
+        padding: 0 11px;
+        font-size: 12px;
+      }
       .route-report-card {
         min-height: 188px;
         padding: 16px 16px 50px;
@@ -1444,7 +1476,10 @@
       <div class="hint" id="hint"><span class="hint-dot"></span><span id="hintText">点击“开始测量”，再在页面上点起点</span></div>
       <div class="route-report" aria-live="polite">
         <div class="route-report-frame">
-          <div class="route-report-title">我们设计的路线图</div>
+          <div class="route-report-header">
+            <div class="route-report-title">我们设计的路线图</div>
+            <button class="route-report-download" id="downloadReportButton" type="button">下载报告</button>
+          </div>
           <div class="route-report-card">
             <div class="route-report-compass" aria-hidden="true">
               <span class="route-report-north">北</span>
@@ -1522,6 +1557,7 @@
       var zoomIn = document.getElementById("zoomIn");
       var zoomOut = document.getElementById("zoomOut");
       var startMeasureButton = document.getElementById("startMeasure");
+      var downloadReportButton = document.getElementById("downloadReportButton");
       var directionGuideButton = document.getElementById("directionGuideButton");
       var pairToolButton = document.getElementById("pairToolButton");
       var clearCacheButton = document.getElementById("clearCacheButton");
@@ -1550,6 +1586,8 @@
       var schoolCenter = [30.2874, 120.1425];
       var mode = "number";
       var activeMapTool = "measure";
+      var directionGuideEnabled = false;
+      var pairToolEnabled = false;
       var scaleVisible = true;
       var historyCollapsed = app.getAttribute("data-history-collapsed") !== "false";
       var measureHistory = loadHistory();
@@ -1612,19 +1650,77 @@
           subdomains: ["1", "2", "3", "4"],
           minZoom: 2,
           maxZoom: 19
-        }).addTo(map);
-
+        });
+        var osm = null;
+        var primaryLoaded = false;
         var fallbackAdded = false;
-        gaode.on("tileerror", function () {
+        var fallbackFailureTimer = null;
+        var primaryFallbackTimer = setTimeout(function () {
+          if (!primaryLoaded) {
+            activateFallbackTiles();
+          }
+        }, 2500);
+
+        function clearTileTimers() {
+          if (primaryFallbackTimer) {
+            clearTimeout(primaryFallbackTimer);
+            primaryFallbackTimer = null;
+          }
+          if (fallbackFailureTimer) {
+            clearTimeout(fallbackFailureTimer);
+            fallbackFailureTimer = null;
+          }
+        }
+
+        function activateFallbackTiles() {
           if (fallbackAdded) {
             return;
           }
+
           fallbackAdded = true;
-          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          clearTileTimers();
+
+          if (map.hasLayer(gaode)) {
+            map.removeLayer(gaode);
+          }
+
+          osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
             minZoom: 2,
             maxZoom: 19
-          }).addTo(map);
+          });
+
+          osm.on("load", function () {
+            app.classList.remove("map-failed");
+            if (fallbackFailureTimer) {
+              clearTimeout(fallbackFailureTimer);
+              fallbackFailureTimer = null;
+            }
+          });
+
+          osm.on("tileerror", function () {
+            if (!fallbackFailureTimer) {
+              fallbackFailureTimer = setTimeout(function () {
+                app.classList.add("map-failed");
+              }, 1800);
+            }
+          });
+
+          osm.addTo(map);
+        }
+
+        gaode.on("load", function () {
+          primaryLoaded = true;
+          clearTileTimers();
+          app.classList.remove("map-failed");
         });
+
+        gaode.on("tileerror", function () {
+          if (!primaryLoaded) {
+            activateFallbackTiles();
+          }
+        });
+
+        gaode.addTo(map);
 
         addSchoolBox();
 
@@ -1706,6 +1802,7 @@
         });
 
         startMeasureButton.addEventListener("click", startMeasure);
+        downloadReportButton.addEventListener("click", downloadRouteReport);
         directionGuideButton.addEventListener("click", activateDirectionGuideTool);
         pairToolButton.addEventListener("click", activatePairTool);
         historyToggleButton.addEventListener("click", toggleHistoryPanel);
@@ -1787,8 +1884,8 @@
       }
 
       function updateMapToolControls() {
-        directionGuideButton.classList.toggle("is-active", mode === "number" && activeMapTool === "cross");
-        pairToolButton.classList.toggle("is-active", mode === "number" && activeMapTool === "pair");
+        directionGuideButton.classList.toggle("is-active", mode === "number" && directionGuideEnabled);
+        pairToolButton.classList.toggle("is-active", mode === "number" && pairToolEnabled);
 
         if (mode === "zoom") {
           startMeasureButton.classList.toggle("is-active", chipMeasure.state === "await-start" || chipMeasure.state === "drawing");
@@ -1797,7 +1894,7 @@
 
         startMeasureButton.classList.toggle(
           "is-active",
-          mode === "number" && activeMapTool === "measure" && (mapMeasure.state === "await-start" || mapMeasure.state === "drawing")
+          mode === "number" && (mapMeasure.state === "await-start" || mapMeasure.state === "drawing")
         );
       }
 
@@ -1848,13 +1945,9 @@
         if (mode !== "number") {
           setMode("number");
         }
-        activeMapTool = "cross";
-        if (pairMeasure.state === "drawing" || pairMeasure.state === "await-start") {
-          clearPairMeasure();
-        }
-        pauseRouteMeasurement();
-        if (map) {
-          map.dragging.enable();
+        directionGuideEnabled = !directionGuideEnabled;
+        if (!directionGuideEnabled) {
+          clearDirectionGuide();
         }
         syncMapToolUi();
       }
@@ -1866,14 +1959,11 @@
         if (mode !== "number") {
           setMode("number");
         }
-        activeMapTool = "pair";
-        pauseRouteMeasurement();
-        clearPairMeasure();
-        pairMeasure.state = "await-start";
-        pairMeasure.origin = { x: 0, y: 0 };
-        clearDirectionGuide();
-        if (map) {
-          map.dragging.enable();
+        pairToolEnabled = !pairToolEnabled;
+        if (!pairToolEnabled) {
+          clearPairMeasure();
+        } else {
+          syncPairMeasureFromRoute(mapMeasure.state === "drawing");
         }
         syncMapToolUi();
       }
@@ -1883,13 +1973,7 @@
           return;
         }
 
-        if (activeMapTool === "cross") {
-          handleDirectionGuideClick(event);
-          return;
-        }
-
-        if (activeMapTool === "pair") {
-          handlePairToolClick(event);
+        if (directionGuideEnabled && mapMeasure.state !== "drawing" && handleDirectionGuideClick(event)) {
           return;
         }
 
@@ -1901,6 +1985,9 @@
           clearDirectionGuide();
           map.dragging.disable();
           renderMapMeasure(true);
+          if (pairToolEnabled) {
+            syncPairMeasureFromRoute(true);
+          }
           syncMapToolUi();
           return;
         }
@@ -1916,13 +2003,7 @@
           return;
         }
 
-        if (activeMapTool === "pair" && pairMeasure.state === "drawing") {
-          pairMeasure.end = snapPairLatLng(event.latlng);
-          renderPairMeasure(true);
-          return;
-        }
-
-        if (activeMapTool !== "measure" || mapMeasure.state !== "drawing") {
+        if (mapMeasure.state !== "drawing") {
           return;
         }
 
@@ -1935,6 +2016,9 @@
           createMapMeasureLayers();
         }
         renderMapMeasure(true);
+        if (pairToolEnabled) {
+          syncPairMeasureFromRoute(true);
+        }
       }
 
       function createMapMeasureLayers() {
@@ -2020,6 +2104,9 @@
         mapMeasure.end = null;
         mapMeasure.state = "await-start";
         map.dragging.enable();
+        if (pairToolEnabled) {
+          syncPairMeasureFromRoute(false);
+        }
         hintText.textContent = getMapHint();
         syncMapToolUi();
       }
@@ -2174,6 +2261,7 @@
       function emptyDirectionGuide() {
         return {
           visible: false,
+          segment: null,
           horizontal: null,
           vertical: null,
           label: null
@@ -2220,21 +2308,18 @@
       }
 
       function handleDirectionGuideClick(event) {
-        var segment = getDirectionGuideSegment();
+        var segment = findNearestRouteStartSegment(event.latlng);
 
         if (!segment) {
-          syncMapToolUi();
-          return;
+          hintText.textContent = "请点击任一路线的起点，显示十字方向标";
+          return false;
         }
 
-        if (!isNearMapStart(event.latlng, segment.start)) {
-          hintText.textContent = "请点击最近一段路线的起点，显示十字方向标";
-          return;
-        }
-
+        directionGuide.segment = segment;
         directionGuide.visible = true;
         renderDirectionGuide();
         syncMapToolUi();
+        return true;
       }
 
       function renderDirectionGuide() {
@@ -2275,6 +2360,10 @@
       }
 
       function getDirectionGuideSegment() {
+        if (directionGuide.segment) {
+          return directionGuide.segment;
+        }
+
         if (mapMeasure.state === "complete" && mapMeasure.start && mapMeasure.end) {
           return {
             start: mapMeasure.start,
@@ -2404,9 +2493,6 @@
         pairMeasure = emptyPairMeasure();
         pairReport = null;
         renderRouteReport();
-        if (map) {
-          map.dragging.enable();
-        }
       }
 
       function handlePairToolClick(event) {
@@ -2807,23 +2893,29 @@
         if (directionGuide.visible && getDirectionGuideSegment()) {
           renderDirectionGuide();
         }
-        if (pairMeasure.state === "drawing" || pairMeasure.state === "complete") {
+        if (pairToolEnabled && (pairMeasure.state === "drawing" || pairMeasure.state === "complete")) {
           renderPairMeasure(pairMeasure.state === "drawing");
         }
       }
 
       function getMapHint() {
-        if (activeMapTool === "cross") {
-          return getDirectionGuideHint();
-        }
-        if (activeMapTool === "pair") {
-          return getPairHint();
-        }
         if (mapMeasure.state === "await-start") {
+          if (directionGuideEnabled && routeSegments.length) {
+            return routeSegments.length ? "十字方向标已开启，点击任一路线起点可显示；也可以点击地图选择下一段起点" : "点击地图选择起点，之后也可以点起点显示十字方向标";
+          }
           return routeSegments.length ? "已记录 " + routeSegments.length + " 段路线，请点击下一段起点" : "在地图上点击一下放置路线起点";
         }
         if (mapMeasure.state === "drawing") {
+          if (pairToolEnabled) {
+            return routeSegments.length ? "终点会跟随鼠标移动，数对会同步更新，再点击一下确定这一段路线" : "终点会跟随鼠标移动，数对会同步更新，再点击一下确定第一段路线";
+          }
           return routeSegments.length ? "终点会跟随鼠标移动，再点击一下确定这一段路线" : "终点会跟随鼠标移动，再点击一下确定第一段路线";
+        }
+        if (pairToolEnabled && getPairMeasureSegment()) {
+          return getPairHint();
+        }
+        if (directionGuideEnabled && routeSegments.length) {
+          return getDirectionGuideHint();
         }
         if (mapMeasure.state === "complete") {
           return routeSegments.length ? "路线已暂停，点击“重新开始”可以开始一条新路线" : "再次点击“开始测量”可以清除后重测";
@@ -2832,28 +2924,20 @@
       }
 
       function getDirectionGuideHint() {
-        var segment = getDirectionGuideSegment();
-
-        if (!segment) {
-          return "先用“开始测量”完成路线，再点击起点显示十字方向标";
-        }
         if (directionGuide.visible) {
-          return "当前方向是“" + describeDirection(segment) + "”，可再次点击起点刷新";
+          return "十字方向标已显示，点击其他路线起点也可以切换方向";
         }
-        return "请点击最近一段路线的起点，显示十字方向标和方向角";
+        return routeSegments.length ? "十字方向标已开启，点击任一路线的起点即可显示" : "先完成一段路线，再点击起点显示十字方向标";
       }
 
       function getPairHint() {
-        if (pairMeasure.state === "await-start") {
-          return "在地图上点击一下放置起点";
-        }
         if (pairMeasure.state === "drawing") {
-          return "终点会跟随鼠标移动，再点击一下确定终点";
+          return "数对已开启，终点移动时会同步更新数对位置";
         }
         if (pairMeasure.state === "complete") {
-          return "修改起点数对后，终点数对会自动同步变化";
+          return "数对已开启，修改起点数对后，终点数对会自动同步变化";
         }
-        return "点击“数对”后，再在地图上点起点和终点";
+        return "数对已开启，会跟随当前或最近一段路线同步显示";
       }
 
       function getChipHint() {
@@ -2966,6 +3050,37 @@
         return nearestRouteEnd ? nearestRouteEnd.endLatLng : latlng;
       }
 
+      function findNearestRouteStartSegment(latlng) {
+        var clickedPoint;
+        var matched = null;
+
+        if (!map || !routeSegments.length) {
+          return null;
+        }
+
+        clickedPoint = map.latLngToContainerPoint(latlng);
+        routeSegments.forEach(function (segment) {
+          var startPoint = map.latLngToContainerPoint(segment.startLatLng);
+          var distance = clickedPoint.distanceTo(startPoint);
+
+          if (distance > 28) {
+            return;
+          }
+
+          if (!matched || distance < matched.distance) {
+            matched = {
+              distance: distance,
+              segment: {
+                start: segment.startLatLng,
+                end: segment.endLatLng
+              }
+            };
+          }
+        });
+
+        return matched ? matched.segment : null;
+      }
+
       function findNearestRouteEnd(latlng) {
         var clickedPoint;
         var matched = null;
@@ -3032,12 +3147,192 @@
         };
       }
 
+      function getPairMeasureSegment() {
+        if (mapMeasure.start && mapMeasure.end) {
+          return {
+            start: mapMeasure.start,
+            end: mapMeasure.end
+          };
+        }
+
+        return lastCompletedMapSegment;
+      }
+
+      function syncPairMeasureFromRoute(isMoving) {
+        var segment;
+
+        if (!pairToolEnabled) {
+          clearPairMeasure();
+          return;
+        }
+
+        segment = getPairMeasureSegment();
+
+        if (!segment || !segment.start || !segment.end) {
+          clearPairMeasure();
+          return;
+        }
+
+        if (!pairMeasure.origin) {
+          pairMeasure.origin = { x: 0, y: 0 };
+        }
+
+        pairMeasure.start = segment.start;
+        pairMeasure.end = segment.end;
+        pairMeasure.state = isMoving ? "drawing" : "complete";
+        renderPairMeasure(isMoving);
+
+        if (isMoving) {
+          pairReport = null;
+          renderRouteReport();
+          return;
+        }
+
+        updatePairReport();
+      }
+
       function clearRoutePlan() {
         routeSegments = [];
         routeScaleDenominator = 0;
         lastCompletedMapSegment = null;
+        clearDirectionGuide();
+        clearPairMeasure();
         clearRouteTrail();
         renderRouteReport();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function buildPrintableRouteItems() {
+        if (!routeSegments.length) {
+          return "<li class=\"print-report-empty\">当前还没有已完成的路线数据。</li>";
+        }
+
+        return routeSegments.map(function (segment) {
+          return "<li class=\"print-report-item\"><div class=\"print-report-item-main\">" +
+            escapeHtml(segment.summary) +
+            "</div><div class=\"print-report-item-detail\">图上 " +
+            escapeHtml(segment.drawnText) +
+            "，实际 " +
+            escapeHtml(segment.actualText) +
+            "</div></li>";
+        }).join("");
+      }
+
+      function buildReportMapSnapshotMarkup() {
+        var mapContainer = document.getElementById("realMap");
+        var clone;
+        var wrapper;
+
+        if (!mapContainer || !mapContainer.querySelector(".leaflet-container")) {
+          return '<div class="print-report-map-empty">当前地图还没有准备好，暂时无法生成截图。</div>';
+        }
+
+        clone = mapContainer.cloneNode(true);
+        clone.removeAttribute("id");
+        clone.style.width = mapContainer.clientWidth + "px";
+        clone.style.height = mapContainer.clientHeight + "px";
+
+        Array.prototype.slice.call(clone.querySelectorAll(".leaflet-control-container, .map-fallback")).forEach(function (node) {
+          if (node && node.parentNode) {
+            node.parentNode.removeChild(node);
+          }
+        });
+
+        wrapper = document.createElement("div");
+        wrapper.className = "print-report-map-shell";
+        wrapper.style.width = mapContainer.clientWidth + "px";
+        wrapper.style.height = mapContainer.clientHeight + "px";
+        wrapper.appendChild(clone);
+
+        return wrapper.outerHTML;
+      }
+
+      function getPrintableReportStyles() {
+        return [
+          "html, body { height: auto !important; overflow: visible !important; background: #f4fbff !important; }",
+          "body { margin: 0 !important; padding: 24px !important; color: #163748 !important; font-family: \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif !important; }",
+          ".print-report { max-width: 980px; margin: 0 auto; display: grid; gap: 18px; }",
+          ".print-report-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }",
+          ".print-report-title { margin: 0; font-size: 28px; line-height: 1.2; color: #114f67; }",
+          ".print-report-meta { color: #4e6f81; font-size: 13px; line-height: 1.6; text-align: right; }",
+          ".print-report-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }",
+          ".print-report-summary-card { padding: 12px 14px; border-radius: 14px; background: #ffffff; box-shadow: 0 8px 18px rgba(18, 72, 95, 0.08); }",
+          ".print-report-summary-title { color: #587785; font-size: 12px; font-weight: 800; }",
+          ".print-report-summary-value { margin-top: 4px; color: #134e67; font-size: 18px; font-weight: 900; line-height: 1.3; }",
+          ".print-report-map-card, .print-report-section { padding: 16px; border-radius: 20px; background: #ffffff; box-shadow: 0 8px 18px rgba(18, 72, 95, 0.08); }",
+          ".print-report-map-title, .print-report-section h2 { margin: 0 0 12px; color: #114f67; font-size: 18px; }",
+          ".print-report-map-shell { overflow: hidden; border-radius: 16px; border: 1px solid rgba(17, 79, 103, 0.12); }",
+          ".print-report-map-shell .leaflet-container { width: 100% !important; height: 100% !important; background: #cbe7ef; }",
+          ".print-report-map-empty, .print-report-empty { padding: 18px; border-radius: 14px; background: #eef7fb; color: #4e6f81; line-height: 1.7; }",
+          ".print-report-list { margin: 0; padding-left: 22px; }",
+          ".print-report-item + .print-report-item { margin-top: 10px; }",
+          ".print-report-item-main { color: #173e52; font-weight: 900; line-height: 1.6; }",
+          ".print-report-item-detail, .print-report-pair { margin-top: 3px; color: #4e6f81; line-height: 1.6; }",
+          "@page { size: A4; margin: 12mm; }",
+          "@media print { body { padding: 0 !important; background: #ffffff !important; } .print-report { max-width: none; } }"
+        ].join("\n");
+      }
+
+      function downloadRouteReport() {
+        var reportWindow = window.open("", "_blank", "noopener,noreferrer");
+        var pageStyle = document.querySelector("style");
+        var summary = getRouteSummary();
+        var pairSection = pairReport
+          ? [
+              '<section class="print-report-section"><h2>数对描述</h2><div class="print-report-pair">',
+              escapeHtml(pairReport.description + "；" + pairReport.detail),
+              "</div></section>"
+            ].join("")
+          : "";
+        var reportHtml;
+
+        if (!reportWindow) {
+          hintText.textContent = "请允许浏览器弹出新窗口后，再下载报告。";
+          return;
+        }
+
+        reportHtml = [
+          '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base href="',
+          escapeHtml(window.location.href),
+          '"><title>我们设计的路线图</title><link rel="stylesheet" href="vendor/leaflet.css"><style>',
+          pageStyle ? pageStyle.textContent : "",
+          getPrintableReportStyles(),
+          '</style></head><body><article class="print-report"><header class="print-report-header"><div><h1 class="print-report-title">我们设计的路线图</h1><div class="print-report-meta">生成时间：',
+          escapeHtml(formatHistoryTime(Date.now())),
+          '</div></div><div class="print-report-meta">比例尺：',
+          escapeHtml(routeReportScale.textContent),
+          '<br>提示：在打印窗口中选择“另存为 PDF”即可下载</div></header><section class="print-report-summary"><div class="print-report-summary-card"><div class="print-report-summary-title">整体方向</div><div class="print-report-summary-value">',
+          escapeHtml(summary.direction),
+          '</div></div><div class="print-report-summary-card"><div class="print-report-summary-title">图上总长</div><div class="print-report-summary-value">',
+          escapeHtml(summary.drawnText),
+          '</div></div><div class="print-report-summary-card"><div class="print-report-summary-title">实际总长</div><div class="print-report-summary-value">',
+          escapeHtml(summary.actualText),
+          '</div></div></section><section class="print-report-map-card"><h2 class="print-report-map-title">当前地图截图</h2>',
+          buildReportMapSnapshotMarkup(),
+          '</section><section class="print-report-section"><h2>路线数据</h2><ol class="print-report-list">',
+          buildPrintableRouteItems(),
+          '</ol></section>',
+          pairSection,
+          '</article></body></html>'
+        ].join("");
+
+        reportWindow.document.open();
+        reportWindow.document.write(reportHtml);
+        reportWindow.document.close();
+        reportWindow.onload = function () {
+          reportWindow.focus();
+          reportWindow.setTimeout(function () {
+            reportWindow.print();
+          }, 600);
+        };
       }
 
       function renderRouteReport() {
