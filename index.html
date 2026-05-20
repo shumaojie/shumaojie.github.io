@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>六下数学比例尺</title>
+  <title>图形的位置总复习</title>
   <link rel="stylesheet" href="vendor/leaflet.css">
   <style>
     :root {
@@ -127,7 +127,6 @@
       text-shadow: 0 3px 0 #14344b, 2px 0 0 #14344b, -2px 0 0 #14344b, 0 -2px 0 #14344b;
     }
 
-    .app[data-mode="number"] .headline,
     .app[data-mode="zoom"] .headline { display: none; }
 
     .caption {
@@ -253,8 +252,23 @@
       white-space: nowrap;
     }
 
-    .leaflet-tooltip.distance-tooltip::before { display: none; }
+    .leaflet-tooltip.route-trail-tooltip {
+      border: 0;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #17506a;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.35;
+      box-shadow: 0 6px 16px rgba(19, 54, 85, 0.14);
+      text-shadow: 0 1px 0 #fff;
+      white-space: nowrap;
+    }
+
+    .leaflet-tooltip.distance-tooltip::before,
+    .leaflet-tooltip.route-trail-tooltip::before { display: none; }
     .distance-tooltip b { color: #c8672f; }
+    .route-trail-tooltip b { color: #c8672f; }
 
     .map-overlay-shell {
       background: transparent;
@@ -773,6 +787,223 @@
       line-height: 1.45;
     }
 
+    .route-report {
+      position: absolute;
+      z-index: 540;
+      right: 18px;
+      top: 80px;
+      width: min(360px, calc(100% - 36px));
+      max-height: calc(100% - 104px);
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+    }
+
+    .route-report-frame {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .route-report-title {
+      align-self: flex-start;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(14, 98, 129, 0.94);
+      color: #fff2af;
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1.2;
+      box-shadow: 0 10px 20px rgba(11, 54, 68, 0.18);
+    }
+
+    .route-report-card {
+      position: relative;
+      min-height: 228px;
+      padding: 18px 18px 58px;
+      border: 3px solid rgba(23, 88, 114, 0.18);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 16px 34px rgba(16, 61, 76, 0.18);
+      overflow: hidden;
+    }
+
+    .route-report-card::before {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(230, 247, 255, 0.78) 0%, rgba(255, 255, 255, 0) 42%), linear-gradient(90deg, rgba(36, 123, 154, 0.05) 1px, transparent 1px), linear-gradient(rgba(36, 123, 154, 0.05) 1px, transparent 1px);
+      background-size: auto, 22px 22px, 22px 22px;
+      content: "";
+      pointer-events: none;
+    }
+
+    .route-report-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 100%;
+      padding-right: 132px;
+    }
+
+    .route-report-empty {
+      color: #46606f;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.7;
+    }
+
+    .route-report-section {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .route-report-subtitle {
+      color: #19526b;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .route-report-list {
+      margin: 0;
+      padding-left: 22px;
+      max-height: 176px;
+      overflow-y: auto;
+    }
+
+    .route-report-list::-webkit-scrollbar { width: 6px; }
+
+    .route-report-list::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(36, 123, 154, 0.22);
+    }
+
+    .route-report-item + .route-report-item { margin-top: 8px; }
+
+    .route-report-item {
+      color: #234256;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .route-report-main {
+      font-weight: 900;
+    }
+
+    .route-report-detail {
+      color: #4e6f81;
+      font-size: 12px;
+    }
+
+    .route-report-pair {
+      color: #234256;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.7;
+    }
+
+    .route-report-scale {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      z-index: 1;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(21, 102, 131, 0.12);
+      color: #0f526d;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .route-report-compass {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      z-index: 1;
+      width: 76px;
+      height: 76px;
+      border-radius: 18px;
+      background: rgba(231, 247, 255, 0.94);
+      box-shadow: inset 0 0 0 1px rgba(20, 88, 114, 0.12);
+    }
+
+    .route-report-summary {
+      position: absolute;
+      right: 16px;
+      top: 102px;
+      z-index: 1;
+      width: 108px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      background: rgba(231, 247, 255, 0.94);
+      box-shadow: inset 0 0 0 1px rgba(20, 88, 114, 0.12);
+    }
+
+    .route-report-summary-title {
+      margin-bottom: 6px;
+      color: #16485e;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .route-report-summary-line {
+      color: #2d5366;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .route-report-summary-line + .route-report-summary-line { margin-top: 3px; }
+
+    .route-report-north {
+      position: absolute;
+      left: 50%;
+      top: 7px;
+      transform: translateX(-50%);
+      color: #174d65;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .route-report-arrow {
+      position: absolute;
+      left: 50%;
+      top: 22px;
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-bottom: 12px solid #1d5874;
+      transform: translateX(-50%);
+    }
+
+    .route-report-axis {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      background: #1d5874;
+      transform: translate(-50%, -50%);
+    }
+
+    .route-report-axis.vertical {
+      width: 3px;
+      height: 34px;
+      border-radius: 2px;
+    }
+
+    .route-report-axis.horizontal {
+      width: 34px;
+      height: 3px;
+      border-radius: 2px;
+    }
+
     .hint-dot {
       width: 9px;
       height: 9px;
@@ -997,6 +1228,8 @@
     .switch-wrap.is-on .switch { background: #13afd1; }
     .switch-wrap.is-on .switch::before { transform: translateX(18px); }
 
+    .app[data-mode="number"] .switch-wrap { display: none; }
+
     @media (max-width: 980px) {
       :root { --history-width: clamp(156px, 27vw, 220px); }
 
@@ -1049,6 +1282,26 @@
         font-size: 13px;
       }
 
+      .route-report {
+        top: 64px;
+        width: min(320px, calc(100% - 28px));
+      }
+
+      .route-report-title { font-size: 15px; }
+      .route-report-card { min-height: 190px; padding: 16px 16px 50px; }
+      .route-report-body { gap: 10px; padding-right: 122px; }
+      .route-report-list { max-height: 138px; }
+      .route-report-compass { width: 68px; height: 68px; }
+      .route-report-summary {
+        top: 92px;
+        width: 98px;
+        padding: 7px 8px;
+      }
+      .route-report-summary-line,
+      .route-report-summary-title { font-size: 10px; }
+      .route-report-axis.vertical { height: 30px; }
+      .route-report-axis.horizontal { width: 30px; }
+
       .chip-board { transform: translate(-50%, -50%) scale(0.68); }
 
       .zoom-card {
@@ -1081,6 +1334,39 @@
       .history-panel { padding: 12px 10px 10px max(10px, env(safe-area-inset-left)); }
       .history-title { font-size: 15px; }
       .history-note { display: none; }
+      .route-report {
+        top: auto;
+        right: 12px;
+        left: 12px;
+        bottom: 14px;
+        width: auto;
+        max-height: min(46%, 280px);
+      }
+      .route-report-title { font-size: 15px; }
+      .route-report-card {
+        min-height: 188px;
+        padding: 16px 16px 50px;
+        border-radius: 18px;
+      }
+      .route-report-body { gap: 10px; padding-right: 118px; }
+      .route-report-list { max-height: 132px; }
+      .route-report-compass {
+        width: 66px;
+        height: 66px;
+        border-radius: 16px;
+      }
+      .route-report-summary {
+        top: 90px;
+        width: 94px;
+        padding: 7px 8px;
+        border-radius: 12px;
+      }
+      .route-report-summary-line,
+      .route-report-summary-title { font-size: 10px; }
+      .route-report-north { top: 6px; }
+      .route-report-arrow { top: 20px; }
+      .route-report-axis.vertical { height: 28px; }
+      .route-report-axis.horizontal { width: 28px; }
       .history-toggle {
         top: 12px;
         min-height: 96px;
@@ -1096,7 +1382,7 @@
   </style>
 </head>
 <body>
-  <main class="app" data-mode="line" data-history-collapsed="true" aria-label="六下数学比例尺互动程序">
+  <main class="app" data-mode="number" data-history-collapsed="true" aria-label="图形的位置总复习互动程序">
     <aside class="history-panel" aria-label="测量历史记录">
       <button class="history-toggle" id="historyToggleButton" type="button" aria-expanded="false" aria-label="展开历史记录">
         <span class="history-toggle-icon" aria-hidden="true">&gt;</span>
@@ -1108,9 +1394,9 @@
           <span class="history-badge" id="historyCount">0 条</span>
         </div>
         <div class="history-status" id="cacheStatus">正在准备离线缓存</div>
-        <p class="history-note">完成一次地图或芯片测量后，会自动保存到这里。联网打开过一次后，没有网络时也能继续使用。</p>
+        <p class="history-note">完成一次路线或数对测量后，会自动保存到这里。联网打开过一次后，没有网络时也能继续使用。</p>
       </div>
-      <div class="history-empty" id="historyEmpty">还没有测量记录。点击底部“开始测距”，完成一次测量后会自动保存。</div>
+      <div class="history-empty" id="historyEmpty">还没有测量记录。点击底部“开始测量”，完成一次测量后会自动保存。</div>
       <ol class="history-list" id="historyList" hidden></ol>
     </aside>
 
@@ -1118,7 +1404,7 @@
       <div class="map-stage" aria-label="真实地图测量区">
         <div class="real-map" id="realMap"></div>
         <div class="map-fallback">地图资源没有加载成功。请确认当前设备可以访问在线地图资源，然后重新打开页面。</div>
-        <div class="headline" id="headline">六下数学比例尺<span>玩的就是真实</span></div>
+        <div class="headline" id="headline">图形的位置总复习</div>
         <div class="scale-strip is-visible" id="scaleStrip">
           <div class="scale-line"></div>
           <div class="scale-values"><span>0</span><span id="halfScale">7km</span><span id="fullScale">14km</span></div>
@@ -1155,7 +1441,38 @@
       </div>
 
       <div class="caption" id="caption"></div>
-      <div class="hint" id="hint"><span class="hint-dot"></span><span id="hintText">点击“开始测距”，再在页面上点起点</span></div>
+      <div class="hint" id="hint"><span class="hint-dot"></span><span id="hintText">点击“开始测量”，再在页面上点起点</span></div>
+      <div class="route-report" aria-live="polite">
+        <div class="route-report-frame">
+          <div class="route-report-title">我们设计的路线图</div>
+          <div class="route-report-card">
+            <div class="route-report-compass" aria-hidden="true">
+              <span class="route-report-north">北</span>
+              <span class="route-report-arrow"></span>
+              <span class="route-report-axis vertical"></span>
+              <span class="route-report-axis horizontal"></span>
+            </div>
+            <div class="route-report-summary">
+              <div class="route-report-summary-title">方向和距离</div>
+              <div class="route-report-summary-line" id="routeSummaryDirection">方向：等待测量</div>
+              <div class="route-report-summary-line" id="routeSummaryDrawn">图上总长：0cm</div>
+              <div class="route-report-summary-line" id="routeSummaryActual">实际总长：0m</div>
+            </div>
+            <div class="route-report-body">
+              <div class="route-report-empty" id="routeReportEmpty">开始测量后，这里会按顺序生成方向、距离或数对描述。</div>
+              <div class="route-report-section" id="routeDirectionSection" hidden>
+                <div class="route-report-subtitle">方向和距离</div>
+                <ol class="route-report-list" id="routeReportList"></ol>
+              </div>
+              <div class="route-report-section" id="pairReportSection" hidden>
+                <div class="route-report-subtitle">数对描述</div>
+                <div class="route-report-pair" id="pairReportText"></div>
+              </div>
+            </div>
+            <div class="route-report-scale" id="routeReportScale">比例尺 正在计算</div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <nav class="toolbar" aria-label="比例尺工具栏">
@@ -1168,16 +1485,10 @@
         <span class="switch"></span><span>线段显示</span>
       </button>
       <div class="mode-group">
-        <button class="tool-btn is-active" data-mode-button="line" type="button">
-          <span class="tool-icon">⌁</span><span>线段比例尺</span>
-        </button>
         <button class="tool-btn" data-mode-button="number" type="button">
           <span class="tool-icon square"></span><span>数值比例尺</span>
         </button>
-        <button class="tool-btn" data-mode-button="zoom" type="button">
-          <span class="tool-icon lens"></span><span>放大比例尺</span>
-        </button>
-        <button class="measure-action" id="startMeasure" type="button">开始测距</button>
+        <button class="measure-action" id="startMeasure" type="button">开始测量</button>
         <button class="tool-btn" id="directionGuideButton" type="button">
           <span class="tool-icon cross"></span><span>十字方向标</span>
         </button>
@@ -1214,6 +1525,15 @@
       var directionGuideButton = document.getElementById("directionGuideButton");
       var pairToolButton = document.getElementById("pairToolButton");
       var clearCacheButton = document.getElementById("clearCacheButton");
+      var routeReportEmpty = document.getElementById("routeReportEmpty");
+      var routeDirectionSection = document.getElementById("routeDirectionSection");
+      var routeReportList = document.getElementById("routeReportList");
+      var pairReportSection = document.getElementById("pairReportSection");
+      var pairReportText = document.getElementById("pairReportText");
+      var routeSummaryDirection = document.getElementById("routeSummaryDirection");
+      var routeSummaryDrawn = document.getElementById("routeSummaryDrawn");
+      var routeSummaryActual = document.getElementById("routeSummaryActual");
+      var routeReportScale = document.getElementById("routeReportScale");
       var modeButtons = Array.prototype.slice.call(document.querySelectorAll("[data-mode-button]"));
       var chipStage = document.getElementById("chipStage");
       var chipLayer = document.getElementById("chipMeasureLayer");
@@ -1228,11 +1548,16 @@
       var map = null;
       var currentScaleDenominator = 0;
       var schoolCenter = [30.2874, 120.1425];
-      var mode = "line";
+      var mode = "number";
       var activeMapTool = "measure";
       var scaleVisible = true;
       var historyCollapsed = app.getAttribute("data-history-collapsed") !== "false";
       var measureHistory = loadHistory();
+      var routeSegments = [];
+      var routeScaleDenominator = 0;
+      var pairReport = null;
+      var lastCompletedMapSegment = null;
+      var routeTrailLayer = null;
       var mapMeasure = emptyMapMeasure();
       var directionGuide = emptyDirectionGuide();
       var pairMeasure = emptyPairMeasure();
@@ -1248,10 +1573,11 @@
       createPins();
       createChipRuler();
       renderHistory();
+      renderRouteReport();
       updateNetworkStatus();
       initMap();
       bindControls();
-      setMode("line");
+      setMode("number");
       updateChipMeasure();
 
       if (document.readyState === "complete") {
@@ -1401,7 +1727,7 @@
             map.invalidateSize();
             updateScaleDisplay();
             renderMapMeasure(mapMeasure.state === "drawing");
-            if (directionGuide.visible) {
+            if (directionGuide.visible && getDirectionGuideSegment()) {
               renderDirectionGuide();
             }
             if (pairMeasure.state === "drawing" || pairMeasure.state === "complete") {
@@ -1421,8 +1747,8 @@
         });
 
         if (mode === "line") {
-          hintText.textContent = "点击“开始测距”，再在地图上点起点";
-          startMeasureButton.textContent = "开始测距";
+          hintText.textContent = "点击“开始测量”，再在地图上点起点";
+          startMeasureButton.textContent = "开始测量";
           if (map) {
             map.dragging.enable();
             updateScaleDisplay();
@@ -1443,8 +1769,8 @@
 
         if (mode === "zoom") {
           scalePill.textContent = "10 : 1";
-          hintText.textContent = chipMeasure.state === "idle" ? "点击“开始测距”，再在芯片上点起点" : getChipHint();
-          startMeasureButton.textContent = chipMeasure.state === "complete" ? "重新测距" : "开始测距";
+          hintText.textContent = chipMeasure.state === "idle" ? "点击“开始测量”，再在芯片上点起点" : getChipHint();
+          startMeasureButton.textContent = chipMeasure.state === "complete" ? "重新测量" : "开始测量";
           updateMapToolControls();
         }
       }
@@ -1480,12 +1806,12 @@
           return "点击起点";
         }
         if (mapMeasure.state === "drawing") {
-          return "确定终点";
+          return routeSegments.length ? "确定这一段" : "确定第一段";
         }
         if (mapMeasure.state === "complete") {
-          return "重新测距";
+          return "重新开始";
         }
-        return "开始测距";
+        return "开始测量";
       }
 
       function startMeasure() {
@@ -1502,10 +1828,11 @@
           setMode("number");
         }
         activeMapTool = "measure";
-        if (pairMeasure.state === "drawing") {
+        if (pairMeasure.state !== "idle") {
           clearPairMeasure();
         }
         clearDirectionGuide();
+        clearRoutePlan();
         clearMapMeasure();
         mapMeasure.state = "await-start";
         if (map) {
@@ -1522,9 +1849,10 @@
           setMode("number");
         }
         activeMapTool = "cross";
-        if (pairMeasure.state === "drawing") {
+        if (pairMeasure.state === "drawing" || pairMeasure.state === "await-start") {
           clearPairMeasure();
         }
+        pauseRouteMeasurement();
         if (map) {
           map.dragging.enable();
         }
@@ -1539,6 +1867,7 @@
           setMode("number");
         }
         activeMapTool = "pair";
+        pauseRouteMeasurement();
         clearPairMeasure();
         pairMeasure.state = "await-start";
         pairMeasure.origin = { x: 0, y: 0 };
@@ -1565,8 +1894,8 @@
         }
 
         if (mapMeasure.state === "await-start") {
-          mapMeasure.start = event.latlng;
-          mapMeasure.end = event.latlng;
+          mapMeasure.start = resolveRouteStart(event.latlng);
+          mapMeasure.end = mapMeasure.start;
           createMapMeasureLayers();
           mapMeasure.state = "drawing";
           clearDirectionGuide();
@@ -1578,11 +1907,7 @@
 
         if (mapMeasure.state === "drawing") {
           mapMeasure.end = event.latlng;
-          mapMeasure.state = "complete";
-          map.dragging.enable();
-          renderMapMeasure(false);
-          recordMapHistory();
-          syncMapToolUi();
+          completeMapSegment();
         }
       }
 
@@ -1601,7 +1926,14 @@
           return;
         }
 
+        if (!mapMeasure.start) {
+          return;
+        }
+
         mapMeasure.end = event.latlng;
+        if (!mapMeasure.line) {
+          createMapMeasureLayers();
+        }
         renderMapMeasure(true);
       }
 
@@ -1661,16 +1993,158 @@
           .setContent("<b>图上: " + snapshot.drawnText + "</b><br>实际: " + snapshot.actualText);
       }
 
-      function clearMapMeasure() {
-        if (!map) {
-          mapMeasure = emptyMapMeasure();
+      function completeMapSegment() {
+        if (!map || !mapMeasure.start || !mapMeasure.end) {
           return;
         }
+
+        var startPoint = map.latLngToContainerPoint(mapMeasure.start);
+        var endPoint = map.latLngToContainerPoint(mapMeasure.end);
+        var segment;
+
+        if (startPoint.distanceTo(endPoint) < 6) {
+          hintText.textContent = "请把终点放在不同的位置，再继续测量";
+          return;
+        }
+
+        renderMapMeasure(false);
+        segment = buildRouteSegment(mapMeasure.start, mapMeasure.end, startPoint, endPoint);
+        lastCompletedMapSegment = {
+          start: segment.startLatLng,
+          end: segment.endLatLng
+        };
+        appendRouteSegment(segment);
+        recordMapHistory(segment);
+        clearMapMeasureLayers();
+        mapMeasure.start = null;
+        mapMeasure.end = null;
+        mapMeasure.state = "await-start";
+        map.dragging.enable();
+        hintText.textContent = getMapHint();
+        syncMapToolUi();
+      }
+
+      function persistRouteSegment(segment) {
+        if (!map || !segment || !segment.startLatLng || !segment.endLatLng) {
+          return;
+        }
+
+        if (!routeTrailLayer) {
+          routeTrailLayer = L.layerGroup().addTo(map);
+        }
+
+        if (!segment.trailLine) {
+          segment.trailLine = L.polyline([segment.startLatLng, segment.endLatLng], {
+            color: "#e84668",
+            weight: 8,
+            opacity: 1,
+            lineCap: "round",
+            interactive: false
+          }).addTo(routeTrailLayer);
+        }
+
+        if (!segment.trailTooltip) {
+          segment.trailTooltip = L.tooltip({
+            permanent: true,
+            direction: "center",
+            className: "route-trail-tooltip",
+            opacity: 1,
+            interactive: false
+          });
+        }
+
+        refreshRouteSegmentPresentation(segment);
+
+        if (segment.trailTooltip && !routeTrailLayer.hasLayer(segment.trailTooltip)) {
+          routeTrailLayer.addLayer(segment.trailTooltip);
+        }
+      }
+
+      function refreshRouteSegmentPresentation(segment) {
+        var snapshot;
+        var middle;
+
+        if (!map || !segment || !segment.startLatLng || !segment.endLatLng) {
+          return;
+        }
+
+        snapshot = getMapMeasurementSnapshot(null, null, segment.startLatLng, segment.endLatLng);
+        middle = L.latLng(
+          (segment.startLatLng.lat + segment.endLatLng.lat) / 2,
+          (segment.startLatLng.lng + segment.endLatLng.lng) / 2
+        );
+
+        segment.drawnText = snapshot.drawnText;
+        segment.actualText = snapshot.actualText;
+
+        if (segment.trailLine) {
+          segment.trailLine.setLatLngs([segment.startLatLng, segment.endLatLng]);
+        }
+
+        if (segment.trailTooltip) {
+          segment.trailTooltip
+            .setLatLng(middle)
+            .setContent("<b>图上: " + snapshot.drawnText + "</b><br>实际: " + snapshot.actualText);
+        }
+      }
+
+      function refreshRouteTrail() {
+        routeSegments.forEach(function (segment) {
+          refreshRouteSegmentPresentation(segment);
+        });
+      }
+
+      function clearRouteTrail() {
+        if (!routeTrailLayer) {
+          return;
+        }
+
+        routeTrailLayer.clearLayers();
+      }
+
+      function clearMapMeasureLayers() {
+        if (!map) {
+          mapMeasure.startMarker = null;
+          mapMeasure.endMarker = null;
+          mapMeasure.line = null;
+          mapMeasure.tooltip = null;
+          return;
+        }
+
         [mapMeasure.startMarker, mapMeasure.endMarker, mapMeasure.line, mapMeasure.tooltip].forEach(function (layer) {
           if (layer) {
             map.removeLayer(layer);
           }
         });
+
+        mapMeasure.startMarker = null;
+        mapMeasure.endMarker = null;
+        mapMeasure.line = null;
+        mapMeasure.tooltip = null;
+      }
+
+      function pauseRouteMeasurement() {
+        clearMapMeasureLayers();
+
+        if (routeSegments.length && lastCompletedMapSegment) {
+          mapMeasure.state = "complete";
+          mapMeasure.start = lastCompletedMapSegment.start;
+          mapMeasure.end = lastCompletedMapSegment.end;
+        } else {
+          mapMeasure = emptyMapMeasure();
+        }
+
+        if (map) {
+          map.dragging.enable();
+        }
+      }
+
+      function clearMapMeasure() {
+        if (!map) {
+          mapMeasure = emptyMapMeasure();
+          return;
+        }
+        clearMapMeasureLayers();
         mapMeasure = emptyMapMeasure();
         clearDirectionGuide();
         map.dragging.enable();
@@ -1706,7 +2180,7 @@
         };
       }
 
-      function createDirectionGuideLayers() {
+      function createDirectionGuideLayers(segment) {
         directionGuide.horizontal = L.polyline([], {
           color: "#2457dd",
           weight: 3,
@@ -1723,7 +2197,7 @@
           lineCap: "round",
           interactive: false
         }).addTo(map);
-        directionGuide.label = L.marker(mapMeasure.start, {
+        directionGuide.label = L.marker(segment.start, {
           interactive: false,
           keyboard: false,
           pane: "directionGuidePane",
@@ -1746,13 +2220,15 @@
       }
 
       function handleDirectionGuideClick(event) {
-        if (mapMeasure.state !== "complete") {
+        var segment = getDirectionGuideSegment();
+
+        if (!segment) {
           syncMapToolUi();
           return;
         }
 
-        if (!isNearMapStart(event.latlng)) {
-          hintText.textContent = "请点击线段的起点，显示十字方向标";
+        if (!isNearMapStart(event.latlng, segment.start)) {
+          hintText.textContent = "请点击最近一段路线的起点，显示十字方向标";
           return;
         }
 
@@ -1762,22 +2238,25 @@
       }
 
       function renderDirectionGuide() {
-        if (!map || !mapMeasure.start || !mapMeasure.end) {
+        var segment = getDirectionGuideSegment();
+
+        if (!map || !segment) {
           return;
         }
 
         if (!directionGuide.horizontal || !directionGuide.vertical || !directionGuide.label) {
-          createDirectionGuideLayers();
+          createDirectionGuideLayers(segment);
         }
 
         var size = map.getSize();
-        var startPoint = map.latLngToContainerPoint(mapMeasure.start);
+        var startPoint = map.latLngToContainerPoint(segment.start);
+        var endPoint = map.latLngToContainerPoint(segment.end);
         var leftLatLng = map.containerPointToLatLng([0, startPoint.y]);
         var rightLatLng = map.containerPointToLatLng([size.x, startPoint.y]);
         var topLatLng = map.containerPointToLatLng([startPoint.x, 0]);
         var bottomLatLng = map.containerPointToLatLng([startPoint.x, size.y]);
-        var directionText = describeDirection();
-        var labelPoint = getDirectionLabelPoint(startPoint);
+        var directionText = describeDirection(segment);
+        var labelPoint = getDirectionLabelPoint(startPoint, endPoint);
 
         directionGuide.horizontal.setLatLngs([leftLatLng, rightLatLng]);
         directionGuide.vertical.setLatLngs([topLatLng, bottomLatLng]);
@@ -1795,9 +2274,34 @@
         });
       }
 
-      function describeDirection() {
-        var startPoint = map.latLngToContainerPoint(mapMeasure.start);
-        var endPoint = map.latLngToContainerPoint(mapMeasure.end);
+      function getDirectionGuideSegment() {
+        if (mapMeasure.state === "complete" && mapMeasure.start && mapMeasure.end) {
+          return {
+            start: mapMeasure.start,
+            end: mapMeasure.end
+          };
+        }
+
+        return lastCompletedMapSegment;
+      }
+
+      function describeDirection(segment) {
+        if (!map) {
+          return "方向未确定";
+        }
+
+        var resolved = segment || getDirectionGuideSegment();
+
+        if (!resolved || !resolved.start || !resolved.end) {
+          return "方向未确定";
+        }
+
+        return describeDirectionBetween(resolved.start, resolved.end);
+      }
+
+      function describeDirectionBetween(startLatLng, endLatLng) {
+        var startPoint = map.latLngToContainerPoint(startLatLng);
+        var endPoint = map.latLngToContainerPoint(endLatLng);
         var east = endPoint.x - startPoint.x;
         var north = startPoint.y - endPoint.y;
         var absEast = Math.abs(east);
@@ -1871,12 +2375,14 @@
         return bestPoint;
       }
 
-      function isNearMapStart(latlng) {
-        if (!map || !mapMeasure.start) {
+      function isNearMapStart(latlng, startLatLng) {
+        if (!map || !startLatLng) {
           return false;
         }
+
         var clicked = map.latLngToContainerPoint(latlng);
-        var startPoint = map.latLngToContainerPoint(mapMeasure.start);
+        var startPoint = map.latLngToContainerPoint(startLatLng);
+
         return clicked.distanceTo(startPoint) <= 28;
       }
 
@@ -1896,6 +2402,8 @@
           map.removeLayer(pairMeasure.group);
         }
         pairMeasure = emptyPairMeasure();
+        pairReport = null;
+        renderRouteReport();
         if (map) {
           map.dragging.enable();
         }
@@ -1917,6 +2425,8 @@
           pairMeasure.state = "complete";
           map.dragging.enable();
           renderPairMeasure(false);
+          updatePairReport();
+          recordPairHistory();
           syncMapToolUi();
         }
       }
@@ -2125,8 +2635,51 @@
 
             pairMeasure.origin[axis] = value;
             renderPairMeasure(false);
+            updatePairReport();
           });
         });
+      }
+
+      function updatePairReport() {
+        if (!map || pairMeasure.state !== "complete") {
+          pairReport = null;
+          renderRouteReport();
+          return;
+        }
+
+        var geometry = getPairGeometry();
+        var endPair = {
+          x: pairMeasure.origin.x + (geometry.dx >= 0 ? geometry.columns : -geometry.columns),
+          y: pairMeasure.origin.y + (geometry.dy >= 0 ? geometry.rows : -geometry.rows)
+        };
+
+        pairReport = {
+          description: "起点是 " + formatPairValue(pairMeasure.origin) + "，终点是 " + formatPairValue(endPair),
+          detail: "横向变化 " + formatSignedNumber(endPair.x - pairMeasure.origin.x) + "，纵向变化 " + formatSignedNumber(endPair.y - pairMeasure.origin.y)
+        };
+        renderRouteReport();
+      }
+
+      function recordPairHistory() {
+        if (!pairReport) {
+          return;
+        }
+
+        appendHistoryEntry({
+          id: createHistoryId(),
+          kind: "数对定位",
+          summary: pairReport.description,
+          detail: pairReport.detail,
+          createdAt: Date.now()
+        });
+      }
+
+      function formatPairValue(pair) {
+        return "(" + pair.x + "," + pair.y + ")";
+      }
+
+      function formatSignedNumber(value) {
+        return (value >= 0 ? "+" : "") + value;
       }
 
       function stopEventPropagation(event) {
@@ -2152,7 +2705,7 @@
         if (chipMeasure.state === "drawing") {
           chipMeasure.end = getStagePoint(event);
           chipMeasure.state = "complete";
-          startMeasureButton.textContent = "重新测距";
+          startMeasureButton.textContent = "重新测量";
           startMeasureButton.classList.remove("is-active");
           hintText.textContent = getChipHint();
           updateChipMeasure(false);
@@ -2242,14 +2795,16 @@
         }
         halfScale.textContent = formatDistance(oneCmMeters);
         fullScale.textContent = formatDistance(oneCmMeters * 2);
+        refreshRouteTrail();
+        renderRouteReport();
       }
 
       function handleMapScaleChange() {
         updateScaleDisplay();
-        if (mapMeasure.state === "drawing" || mapMeasure.state === "complete") {
-          renderMapMeasure(mapMeasure.state === "drawing");
+        if (mapMeasure.state === "drawing") {
+          renderMapMeasure(true);
         }
-        if (directionGuide.visible && mapMeasure.state === "complete") {
+        if (directionGuide.visible && getDirectionGuideSegment()) {
           renderDirectionGuide();
         }
         if (pairMeasure.state === "drawing" || pairMeasure.state === "complete") {
@@ -2265,25 +2820,27 @@
           return getPairHint();
         }
         if (mapMeasure.state === "await-start") {
-          return "在地图上点击一下放置起点";
+          return routeSegments.length ? "已记录 " + routeSegments.length + " 段路线，请点击下一段起点" : "在地图上点击一下放置路线起点";
         }
         if (mapMeasure.state === "drawing") {
-          return "终点会跟随鼠标移动，再点击一下确定终点";
+          return routeSegments.length ? "终点会跟随鼠标移动，再点击一下确定这一段路线" : "终点会跟随鼠标移动，再点击一下确定第一段路线";
         }
         if (mapMeasure.state === "complete") {
-          return "再次点击“开始测距”可以清除后重测";
+          return routeSegments.length ? "路线已暂停，点击“重新开始”可以开始一条新路线" : "再次点击“开始测量”可以清除后重测";
         }
-        return "点击“开始测距”，再在地图上点起点";
+        return "点击“开始测量”，再在地图上点起点";
       }
 
       function getDirectionGuideHint() {
-        if (mapMeasure.state !== "complete") {
-          return "先用“开始测距”完成线段，再点击起点显示十字方向标";
+        var segment = getDirectionGuideSegment();
+
+        if (!segment) {
+          return "先用“开始测量”完成路线，再点击起点显示十字方向标";
         }
         if (directionGuide.visible) {
-          return "当前方向是“" + describeDirection() + "”，可再次点击起点刷新";
+          return "当前方向是“" + describeDirection(segment) + "”，可再次点击起点刷新";
         }
-        return "请点击线段的起点，显示十字方向标和方向角";
+        return "请点击最近一段路线的起点，显示十字方向标和方向角";
       }
 
       function getPairHint() {
@@ -2307,9 +2864,9 @@
           return "终点会跟随鼠标移动，再点击一下确定终点";
         }
         if (chipMeasure.state === "complete") {
-          return "再次点击“开始测距”可以清除后重测";
+          return "再次点击“开始测量”可以清除后重测";
         }
-        return "点击“开始测距”，再在芯片上点起点";
+        return "点击“开始测量”，再在芯片上点起点";
       }
 
       function getStagePoint(event) {
@@ -2336,14 +2893,32 @@
         historyToggleButton.setAttribute("aria-label", historyCollapsed ? "展开历史记录" : "收起历史记录");
       }
 
-      function getMapMeasurementSnapshot(startPoint, endPoint) {
-        var resolvedStart = startPoint || map.latLngToContainerPoint(mapMeasure.start);
-        var resolvedEnd = endPoint || map.latLngToContainerPoint(mapMeasure.end);
-        var cm = Math.max(0, resolvedStart.distanceTo(resolvedEnd) / PX_PER_CM);
-        var meters = map.distance(mapMeasure.start, mapMeasure.end);
+      function getMapMeasurementSnapshot(startPoint, endPoint, startLatLng, endLatLng) {
+        var resolvedStartLatLng = startLatLng || mapMeasure.start;
+        var resolvedEndLatLng = endLatLng || mapMeasure.end;
+        var resolvedStart;
+        var resolvedEnd;
+        var cm;
+        var meters;
+
+        if (!map || !resolvedStartLatLng || !resolvedEndLatLng) {
+          return {
+            drawnCm: 0,
+            drawnText: "0.0cm",
+            actualMeters: 0,
+            actualText: "0m"
+          };
+        }
+
+        resolvedStart = startPoint || map.latLngToContainerPoint(resolvedStartLatLng);
+        resolvedEnd = endPoint || map.latLngToContainerPoint(resolvedEndLatLng);
+        cm = Math.max(0, resolvedStart.distanceTo(resolvedEnd) / PX_PER_CM);
+        meters = map.distance(resolvedStartLatLng, resolvedEndLatLng);
 
         return {
+          drawnCm: cm,
           drawnText: cm.toFixed(1) + "cm",
+          actualMeters: meters,
           actualText: formatDistance(meters)
         };
       }
@@ -2360,18 +2935,173 @@
         };
       }
 
-      function recordMapHistory() {
-        if (!map || !mapMeasure.start || !mapMeasure.end) {
+      function buildRouteSegment(startLatLng, endLatLng, startPoint, endPoint) {
+        var snapshot = getMapMeasurementSnapshot(startPoint, endPoint, startLatLng, endLatLng);
+        var step = routeSegments.length + 1;
+        var direction = describeDirectionBetween(startLatLng, endLatLng);
+
+        return {
+          step: step,
+          startLatLng: L.latLng(startLatLng.lat, startLatLng.lng),
+          endLatLng: L.latLng(endLatLng.lat, endLatLng.lng),
+          direction: direction,
+          drawnText: snapshot.drawnText,
+          actualText: snapshot.actualText,
+          actualMeters: snapshot.actualMeters,
+          scaleDenominator: currentScaleDenominator,
+          summary: "第" + step + "段：向" + direction + "前进 " + snapshot.actualText
+        };
+      }
+
+      function appendRouteSegment(segment) {
+        routeSegments.push(segment);
+        routeScaleDenominator = segment.scaleDenominator;
+        persistRouteSegment(segment);
+        renderRouteReport();
+      }
+
+      function resolveRouteStart(latlng) {
+        var nearestRouteEnd = findNearestRouteEnd(latlng);
+
+        return nearestRouteEnd ? nearestRouteEnd.endLatLng : latlng;
+      }
+
+      function findNearestRouteEnd(latlng) {
+        var clickedPoint;
+        var matched = null;
+
+        if (!map || !routeSegments.length) {
+          return null;
+        }
+
+        clickedPoint = map.latLngToContainerPoint(latlng);
+        routeSegments.forEach(function (segment) {
+          var endPoint;
+          var distance;
+
+          if (!segment.endLatLng) {
+            return;
+          }
+
+          endPoint = map.latLngToContainerPoint(segment.endLatLng);
+          distance = clickedPoint.distanceTo(endPoint);
+
+          if (distance > 28) {
+            return;
+          }
+
+          if (!matched || distance < matched.distance) {
+            matched = {
+              distance: distance,
+              endLatLng: segment.endLatLng
+            };
+          }
+        });
+
+        return matched;
+      }
+
+      function getRouteSummary() {
+        var totalCm = 0;
+        var totalMeters = 0;
+        var firstSegment;
+        var lastSegment;
+
+        if (!routeSegments.length) {
+          return {
+            direction: "等待测量",
+            drawnText: "0cm",
+            actualText: "0m"
+          };
+        }
+
+        routeSegments.forEach(function (segment) {
+          var snapshot = getMapMeasurementSnapshot(null, null, segment.startLatLng, segment.endLatLng);
+
+          totalCm += snapshot.drawnCm;
+          totalMeters += snapshot.actualMeters;
+        });
+
+        firstSegment = routeSegments[0];
+        lastSegment = routeSegments[routeSegments.length - 1];
+
+        return {
+          direction: describeDirectionBetween(firstSegment.startLatLng, lastSegment.endLatLng),
+          drawnText: (Math.round(totalCm * 10) / 10).toFixed(1).replace(/\.0$/, "") + "cm",
+          actualText: formatDistance(totalMeters)
+        };
+      }
+
+      function clearRoutePlan() {
+        routeSegments = [];
+        routeScaleDenominator = 0;
+        lastCompletedMapSegment = null;
+        clearRouteTrail();
+        renderRouteReport();
+      }
+
+      function renderRouteReport() {
+        var hasRoute = routeSegments.length > 0;
+        var hasPair = !!pairReport;
+        var scaleDenominator = currentScaleDenominator || routeScaleDenominator;
+        var fragment;
+        var summary = getRouteSummary();
+
+        routeReportScale.textContent = scaleDenominator ? "比例尺 1:" + scaleDenominator : "比例尺 正在计算";
+        routeSummaryDirection.textContent = "方向：" + summary.direction;
+        routeSummaryDrawn.textContent = "图上总长：" + summary.drawnText;
+        routeSummaryActual.textContent = "实际总长：" + summary.actualText;
+        routeReportEmpty.hidden = hasRoute || hasPair;
+        routeDirectionSection.hidden = !hasRoute;
+        pairReportSection.hidden = !hasPair;
+
+        if (hasRoute) {
+          fragment = document.createDocumentFragment();
+          routeSegments.forEach(function (segment) {
+            var listItem = document.createElement("li");
+            var main = document.createElement("div");
+            var detail = document.createElement("div");
+
+            listItem.className = "route-report-item";
+            main.className = "route-report-main";
+            detail.className = "route-report-detail";
+
+            main.textContent = segment.summary;
+            detail.textContent = "图上 " + segment.drawnText + "，实际 " + segment.actualText;
+
+            listItem.appendChild(main);
+            listItem.appendChild(detail);
+            fragment.appendChild(listItem);
+          });
+          routeReportList.innerHTML = "";
+          routeReportList.appendChild(fragment);
+        } else {
+          routeReportList.innerHTML = "";
+        }
+
+        pairReportText.textContent = hasPair ? pairReport.description + "；" + pairReport.detail : "";
+      }
+
+      function recordMapHistory(segment) {
+        var snapshot = segment;
+
+        if (!snapshot) {
+          if (!map || !mapMeasure.start || !mapMeasure.end) {
+            return;
+          }
+
+          snapshot = buildRouteSegment(mapMeasure.start, mapMeasure.end);
+        }
+
+        if (!snapshot) {
           return;
         }
 
-        var snapshot = getMapMeasurementSnapshot();
-
         appendHistoryEntry({
           id: createHistoryId(),
-          kind: "地图测距",
-          summary: "图上 " + snapshot.drawnText + " / 实际 " + snapshot.actualText,
-          detail: "比例尺 1:" + currentScaleDenominator + "，方向 " + describeDirection(),
+          kind: "路线测量",
+          summary: snapshot.summary,
+          detail: "图上 " + snapshot.drawnText + "，比例尺 1:" + snapshot.scaleDenominator + "，方向 " + snapshot.direction,
           createdAt: Date.now()
         });
       }
