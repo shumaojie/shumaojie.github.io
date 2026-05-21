@@ -1,0 +1,2061 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7bf45">
+  <title>寻宝大冒险</title>
+  <style>
+    :root {
+      --bg-top: #7fd9ff;
+      --bg-bottom: #fff2c6;
+      --ink: #1e334a;
+      --ink-soft: #58728c;
+      --card: rgba(255, 252, 243, 0.96);
+      --card-strong: #ffffff;
+      --line: rgba(33, 63, 95, 0.14);
+      --accent: #ff8b3e;
+      --accent-deep: #f06727;
+      --secondary: #17a5a0;
+      --secondary-deep: #0f7a7e;
+      --highlight: #ffd84d;
+      --rose: #ff6e7f;
+      --school: #3e69f4;
+      --park: #32a852;
+      --market: #ff5a5f;
+      --treasure: #f6b400;
+      --shadow: 0 22px 48px rgba(34, 60, 88, 0.16);
+      --radius-xl: 30px;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.66) 0, rgba(255, 255, 255, 0) 20%),
+        radial-gradient(circle at 82% 18%, rgba(255, 214, 111, 0.3) 0, rgba(255, 214, 111, 0) 24%),
+        linear-gradient(180deg, var(--bg-top) 0%, #b8efff 28%, #fff4d7 100%);
+      font-family: "Trebuchet MS", "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    body::before,
+    body::after {
+      position: fixed;
+      z-index: 0;
+      border-radius: 999px;
+      content: "";
+      pointer-events: none;
+      filter: blur(10px);
+      opacity: 0.35;
+      animation: float 11s ease-in-out infinite;
+    }
+
+    body::before {
+      top: 72px;
+      left: -64px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.85) 0, rgba(255, 255, 255, 0) 70%);
+    }
+
+    body::after {
+      right: -54px;
+      bottom: 120px;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, rgba(255, 205, 90, 0.6) 0, rgba(255, 205, 90, 0) 70%);
+      animation-duration: 13s;
+    }
+
+    a,
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 22px 18px 26px;
+    }
+
+    .hero-bar {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .return-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(30, 63, 93, 0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .cache-status {
+      justify-self: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid rgba(42, 89, 129, 0.16);
+      border-radius: 999px;
+      background: rgba(255, 252, 244, 0.82);
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 800;
+      text-align: center;
+      box-shadow: 0 12px 26px rgba(38, 71, 101, 0.08);
+      backdrop-filter: blur(10px);
+    }
+
+    .cache-status.is-offline {
+      color: #0f7a7e;
+      background: rgba(231, 255, 253, 0.92);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .ghost-button {
+      min-height: 46px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--ink);
+      font-weight: 800;
+      box-shadow: 0 14px 28px rgba(33, 60, 90, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .ghost-button:disabled {
+      cursor: default;
+      opacity: 0.48;
+    }
+
+    .panel {
+      border: 1px solid rgba(255, 255, 255, 0.56);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .intro-panel {
+      padding: clamp(24px, 4vw, 42px);
+      overflow: hidden;
+    }
+
+    .intro-panel::before {
+      position: absolute;
+      right: -32px;
+      top: -30px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 224, 116, 0.7) 0, rgba(255, 224, 116, 0) 72%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .intro-panel {
+      position: relative;
+      display: grid;
+      gap: 22px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(23, 165, 160, 0.14);
+      color: var(--secondary-deep);
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .intro-panel h1,
+    .chat-panel h2,
+    .map-panel h2 {
+      margin: 0;
+      line-height: 1.05;
+    }
+
+    .intro-panel h1 {
+      font-size: clamp(38px, 7vw, 72px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+    }
+
+    .intro-subtitle {
+      margin: 0;
+      max-width: 920px;
+      color: var(--ink-soft);
+      font-size: clamp(18px, 2.7vw, 25px);
+      line-height: 1.65;
+      font-weight: 700;
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .mini-card,
+    .ai-card {
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 14px 28px rgba(40, 70, 99, 0.08);
+    }
+
+    .ai-card {
+      display: grid;
+      gap: 12px;
+      padding: 20px 22px;
+      border: 1px solid rgba(255, 143, 78, 0.18);
+    }
+
+    .ai-card__tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 139, 62, 0.14);
+      color: var(--accent-deep);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .ai-card p,
+    .mini-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      font-weight: 700;
+    }
+
+    .mini-card {
+      padding: 18px 18px 20px;
+      border: 1px solid rgba(44, 70, 104, 0.08);
+    }
+
+    .mini-card strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .cta-button,
+    .submit-button,
+    .action-button {
+      min-height: 56px;
+      padding: 0 24px;
+      border-radius: 999px;
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    .cta-button:hover,
+    .submit-button:hover,
+    .action-button:hover,
+    .ghost-button:hover,
+    .return-link:hover,
+    .direction-option:hover,
+    .quick-distance button:hover,
+    .cell.is-clickable:hover {
+      transform: translateY(-2px);
+    }
+
+    .cta-button.primary,
+    .submit-button,
+    .action-button.primary {
+      background: linear-gradient(180deg, #ff9d4e 0%, #f46e32 100%);
+      color: #fff;
+      box-shadow: 0 16px 30px rgba(241, 111, 44, 0.26);
+    }
+
+    .cta-button.secondary,
+    .action-button.secondary {
+      background: linear-gradient(180deg, #1bc2ba 0%, #139493 100%);
+      color: #fff;
+      box-shadow: 0 16px 30px rgba(20, 148, 147, 0.24);
+    }
+
+    .action-button.tertiary {
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--ink);
+      box-shadow: 0 14px 24px rgba(38, 66, 95, 0.08);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(340px, 0.9fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .map-panel,
+    .chat-panel {
+      padding: 22px;
+    }
+
+    .panel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .panel-top h2 {
+      font-size: clamp(26px, 4vw, 40px);
+      font-weight: 900;
+    }
+
+    .status-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 10px 20px rgba(40, 70, 99, 0.08);
+    }
+
+    .status-chip.muted {
+      color: var(--ink-soft);
+    }
+
+    .mission-banner {
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 239, 195, 0.92) 0%, rgba(255, 251, 236, 0.92) 100%);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .board-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .board-card,
+    .facts-card,
+    .prompt-card,
+    .guess-form,
+    .answer-sheet {
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 14px 24px rgba(38, 66, 95, 0.08);
+      border: 1px solid rgba(36, 68, 102, 0.08);
+    }
+
+    .board-card {
+      padding: 16px;
+    }
+
+    .board-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .board-hint {
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .compass {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #fffdf8 0%, #ffeec6 100%);
+      box-shadow: inset 0 0 0 2px rgba(45, 72, 106, 0.1), 0 12px 20px rgba(46, 73, 102, 0.1);
+    }
+
+    .compass::before,
+    .compass::after {
+      position: absolute;
+      inset: 50% auto auto 50%;
+      background: rgba(29, 56, 86, 0.32);
+      content: "";
+      transform: translate(-50%, -50%);
+    }
+
+    .compass::before {
+      width: 4px;
+      height: 58px;
+      border-radius: 999px;
+    }
+
+    .compass::after {
+      width: 58px;
+      height: 4px;
+      border-radius: 999px;
+    }
+
+    .compass span {
+      position: absolute;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .compass .north { top: 8px; left: 50%; transform: translateX(-50%); }
+    .compass .east { right: 10px; top: 50%; transform: translateY(-50%); }
+    .compass .south { bottom: 8px; left: 50%; transform: translateX(-50%); }
+    .compass .west { left: 10px; top: 50%; transform: translateY(-50%); }
+
+    .compass .arrow {
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 20px solid var(--accent);
+      transform: translateX(-50%);
+      filter: drop-shadow(0 8px 8px rgba(240, 103, 39, 0.2));
+    }
+
+    .grid-board {
+      display: grid;
+      grid-template-columns: 44px repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .corner,
+    .axis-label,
+    .cell {
+      border-radius: 18px;
+    }
+
+    .corner,
+    .axis-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      background: rgba(255, 236, 190, 0.88);
+      color: var(--ink);
+      font-weight: 900;
+      box-shadow: inset 0 0 0 1px rgba(42, 73, 109, 0.08);
+    }
+
+    .cell {
+      position: relative;
+      min-height: 88px;
+      padding: 8px;
+      background: linear-gradient(180deg, rgba(247, 250, 255, 0.98) 0%, rgba(234, 247, 255, 0.98) 100%);
+      box-shadow: inset 0 0 0 1px rgba(55, 90, 130, 0.07);
+      transition: transform 160ms ease, box-shadow 160ms ease, outline-color 160ms ease;
+    }
+
+    .cell.is-clickable {
+      cursor: pointer;
+    }
+
+    .cell.is-clickable:hover {
+      box-shadow: inset 0 0 0 1px rgba(55, 90, 130, 0.07), 0 14px 20px rgba(56, 93, 132, 0.12);
+    }
+
+    .cell.is-selected {
+      outline: 3px solid rgba(240, 103, 39, 0.42);
+      outline-offset: -2px;
+    }
+
+    .cell-target {
+      position: absolute;
+      inset: 7px;
+      border: 3px dashed rgba(246, 180, 0, 0.76);
+      border-radius: 18px;
+      animation: pulse 1.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .cell-target::after {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 38px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: rgba(246, 180, 0, 0.96);
+      color: #6a4200;
+      font-size: 13px;
+      font-weight: 900;
+      content: "宝藏";
+      box-shadow: 0 8px 16px rgba(246, 180, 0, 0.26);
+    }
+
+    .landmark-marker {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 58px;
+      min-height: 58px;
+      padding: 8px 10px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 12px 18px rgba(48, 80, 113, 0.14);
+    }
+
+    .landmark-marker.school { border: 2px solid rgba(62, 105, 244, 0.3); }
+    .landmark-marker.park { border: 2px solid rgba(50, 168, 82, 0.34); }
+    .landmark-marker.supermarket { border: 2px solid rgba(255, 90, 95, 0.3); }
+
+    .landmark-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .landmark-marker.school .landmark-badge { background: var(--school); }
+    .landmark-marker.park .landmark-badge { background: var(--park); }
+    .landmark-marker.supermarket .landmark-badge { background: var(--market); }
+
+    .landmark-name {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(247, 249, 255, 0.92);
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .legend-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .legend-badge.school { background: var(--school); }
+    .legend-badge.park { background: var(--park); }
+    .legend-badge.supermarket { background: var(--market); }
+    .legend-badge.treasure { background: var(--treasure); color: #754b00; }
+
+    .facts-card {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      padding: 18px;
+    }
+
+    .facts-title,
+    .prompt-title,
+    .form-title,
+    .answer-sheet__title {
+      font-size: 18px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .fact-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.8;
+      font-weight: 700;
+    }
+
+    .answer-preview {
+      display: grid;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 243, 213, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .answer-preview strong {
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .chat-log {
+      display: grid;
+      gap: 14px;
+      max-height: 440px;
+      margin-bottom: 16px;
+      padding-right: 4px;
+      overflow: auto;
+    }
+
+    .bubble {
+      max-width: 92%;
+      padding: 16px 18px;
+      border-radius: 24px;
+      box-shadow: 0 14px 22px rgba(38, 66, 95, 0.08);
+    }
+
+    .bubble.ai {
+      justify-self: start;
+      background: linear-gradient(180deg, rgba(255, 248, 224, 0.98) 0%, rgba(255, 255, 255, 0.98) 100%);
+      border-top-left-radius: 10px;
+    }
+
+    .bubble.user {
+      justify-self: end;
+      background: linear-gradient(180deg, rgba(221, 247, 255, 0.98) 0%, rgba(243, 255, 255, 0.98) 100%);
+      border-top-right-radius: 10px;
+    }
+
+    .bubble-role {
+      margin-bottom: 6px;
+      color: var(--ink-soft);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .bubble-text {
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.78;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .prompt-card,
+    .guess-form,
+    .answer-sheet {
+      padding: 18px;
+    }
+
+    .prompt-card {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .prompt-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.75;
+      font-weight: 800;
+    }
+
+    .prompt-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .prompt-tags span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: rgba(255, 240, 201, 0.92);
+      color: #91590b;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .guess-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .coordinate-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .guess-form label,
+    .distance-label {
+      display: grid;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .guess-form input {
+      width: 100%;
+      min-height: 52px;
+      padding: 0 16px;
+      border: 2px solid rgba(37, 72, 108, 0.12);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .guess-form input:focus {
+      border-color: rgba(240, 103, 39, 0.44);
+      box-shadow: 0 0 0 4px rgba(240, 103, 39, 0.12);
+    }
+
+    .form-note {
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .preview-line {
+      min-height: 52px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(247, 249, 255, 0.98);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 800;
+    }
+
+    .direction-picker,
+    .quick-distance,
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .direction-option,
+    .quick-distance button {
+      min-height: 44px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(247, 249, 255, 0.98);
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 900;
+      box-shadow: 0 10px 18px rgba(41, 70, 99, 0.08);
+    }
+
+    .direction-option.is-active,
+    .quick-distance button.is-active {
+      background: linear-gradient(180deg, #1bc2ba 0%, #139493 100%);
+      color: #fff;
+      box-shadow: 0 14px 22px rgba(20, 148, 147, 0.2);
+    }
+
+    .action-bar {
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .action-tip {
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .answer-sheet {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .answer-sheet__intro {
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .answer-card {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255, 253, 245, 0.98) 0%, rgba(245, 250, 255, 0.98) 100%);
+      border: 2px solid rgba(38, 66, 95, 0.08);
+    }
+
+    .answer-card.is-current {
+      border-color: rgba(246, 180, 0, 0.54);
+      box-shadow: 0 16px 24px rgba(246, 180, 0, 0.16);
+    }
+
+    .answer-card strong {
+      color: var(--ink);
+      font-size: 17px;
+    }
+
+    .answer-card span {
+      color: var(--ink-soft);
+      font-size: 14px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    @keyframes float {
+      0%,
+      100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, 16px, 0); }
+    }
+
+    @keyframes pulse {
+      0%,
+      100% { transform: scale(1); opacity: 0.88; }
+      50% { transform: scale(1.02); opacity: 1; }
+    }
+
+    @media (max-width: 1100px) {
+      .workspace,
+      .board-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .facts-card {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 780px) {
+      .page {
+        padding: 14px 12px 22px;
+      }
+
+      .hero-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .cache-status,
+      .hero-actions {
+        justify-self: stretch;
+      }
+
+      .hero-actions {
+        justify-content: stretch;
+      }
+
+      .hero-actions .ghost-button,
+      .hero-actions .action-button {
+        flex: 1 1 160px;
+      }
+
+      .intro-grid,
+      .coordinate-fields,
+      .answer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-top,
+      .board-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .status-stack {
+        justify-content: flex-start;
+      }
+
+      .grid-board {
+        grid-template-columns: 36px repeat(6, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .axis-label {
+        min-height: 36px;
+        font-size: 13px;
+      }
+
+      .cell {
+        min-height: 72px;
+        padding: 6px;
+      }
+
+      .landmark-marker {
+        min-width: 100%;
+        min-height: 54px;
+        padding: 6px 4px;
+        border-radius: 14px;
+      }
+
+      .landmark-name {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero-bar">
+      <a class="return-link" href="./index.html">返回主页面</a>
+      <div id="cacheStatus" class="cache-status">正在准备离线缓存</div>
+      <div class="hero-actions">
+        <button id="chooseModeAgain" class="ghost-button" hidden>重新选模式</button>
+        <button id="voiceToggle" class="ghost-button" type="button">自动语音：开</button>
+        <button id="replaySpeech" class="ghost-button" type="button">朗读当前提示</button>
+      </div>
+    </header>
+
+    <section id="introScreen" class="intro-panel panel">
+      <div class="eyebrow">AI 探险导航员</div>
+      <h1>寻宝大冒险</h1>
+      <p class="intro-subtitle">宝藏就藏在地图上的公园或超市里。你可以用数对，或者用方向、距离和比例尺，找到它的准确位置。</p>
+
+      <div class="ai-card">
+        <div class="ai-card__tag">元气开场</div>
+        <p id="introSpeech">欢迎来到「城市寻宝大冒险」！宝藏就藏在地图上的公园或超市里，你可以用两种方式找到它：第一，用数对描述位置；第二，用方向、距离和比例尺描述位置。快选择你的挑战方式吧！</p>
+      </div>
+
+      <div class="intro-grid">
+        <div class="mini-card">
+          <strong>数对模式</strong>
+          <p>以学校为起点，先看列，再看行。地图下方到上方是行，左边到右边是列，适合练习数对和坐标感。</p>
+        </div>
+        <div class="mini-card">
+          <strong>方向 + 距离模式</strong>
+          <p>以学校为观测点，结合方向和比例尺描述位置。这里约定 1 格代表 200 米，用路线推理也能找到宝藏。</p>
+        </div>
+      </div>
+
+      <div class="cta-group">
+        <button class="cta-button primary" type="button" data-start-mode="coordinate">我用数对找！</button>
+        <button class="cta-button secondary" type="button" data-start-mode="direction">我用方向+距离找！</button>
+      </div>
+    </section>
+
+    <main id="workspace" class="workspace" hidden>
+      <section class="map-panel panel">
+        <div class="panel-top">
+          <div>
+            <div class="eyebrow">藏宝地图</div>
+            <h2 id="boardTitle">藏宝地图</h2>
+          </div>
+          <div class="status-stack">
+            <div id="modeBadge" class="status-chip">数对模式</div>
+            <div id="attemptBadge" class="status-chip muted">已用提示 0 / 3</div>
+          </div>
+        </div>
+
+        <div id="missionBanner" class="mission-banner"></div>
+
+        <div class="board-layout">
+          <div class="board-card">
+            <div class="board-header">
+              <div id="boardHint" class="board-hint"></div>
+              <div class="compass" aria-hidden="true">
+                <span class="north">北</span>
+                <span class="east">东</span>
+                <span class="south">南</span>
+                <span class="west">西</span>
+                <span class="arrow"></span>
+              </div>
+            </div>
+
+            <div id="gridBoard" class="grid-board"></div>
+
+            <div class="legend">
+              <div class="legend-item"><span class="legend-badge school">校</span><span>学校</span></div>
+              <div class="legend-item"><span class="legend-badge park">园</span><span>公园</span></div>
+              <div class="legend-item"><span class="legend-badge supermarket">超</span><span>超市</span></div>
+              <div class="legend-item"><span class="legend-badge treasure">藏</span><span>答对或揭晓后高亮</span></div>
+            </div>
+          </div>
+
+          <aside class="facts-card">
+            <div class="facts-title">寻宝规则</div>
+            <ul class="fact-list">
+              <li>学校固定在 (1,1)。</li>
+              <li>数对模式：先列后行。</li>
+              <li>方向模式：1 格 = 200 米。</li>
+            </ul>
+            <div id="currentAnswer" class="answer-preview">正确答案还没有揭晓，答对后会同步显示另一种表示方法。</div>
+          </aside>
+        </div>
+
+        <div id="answerReveal" class="answer-sheet" hidden></div>
+      </section>
+
+      <section class="chat-panel panel">
+        <div class="panel-top">
+          <div>
+            <div class="eyebrow">AI 对话脚本</div>
+            <h2>和导航员一起推理</h2>
+          </div>
+          <div id="roundBadge" class="status-chip">第 1 轮</div>
+        </div>
+
+        <div id="chatLog" class="chat-log"></div>
+
+        <div id="promptCard" class="prompt-card"></div>
+
+        <form id="coordinateForm" class="guess-form" hidden>
+          <div class="form-title">输入你猜到的数对</div>
+          <div class="coordinate-fields">
+            <label for="coordCol">列
+              <input id="coordCol" type="number" min="1" max="6" inputmode="numeric" placeholder="例如 6">
+            </label>
+            <label for="coordRow">行
+              <input id="coordRow" type="number" min="1" max="6" inputmode="numeric" placeholder="例如 6">
+            </label>
+          </div>
+          <div class="form-note">提示：你也可以直接点击左侧地图格子来自动填入数对。</div>
+          <div id="coordinatePreview" class="preview-line">我猜宝藏在（_，_）。</div>
+          <button class="submit-button" type="submit">提交这一猜</button>
+        </form>
+
+        <form id="directionForm" class="guess-form" hidden>
+          <div class="form-title">描述方向和距离</div>
+          <div id="directionPicker" class="direction-picker"></div>
+          <label class="distance-label" for="distanceInput">距离（米）
+            <input id="distanceInput" type="number" min="0" step="1" inputmode="numeric" placeholder="例如 600">
+          </label>
+          <div id="quickDistance" class="quick-distance"></div>
+          <div id="directionPreview" class="preview-line">我猜：学校___，距离___米。</div>
+          <div class="form-note">比例尺：1 格代表实际 200 米。先确定方向，再算出实际距离。</div>
+          <button class="submit-button" type="submit">提交这一猜</button>
+        </form>
+
+        <div id="actionBar" class="action-bar"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      var PLACE_KEYS = ["park", "supermarket"];
+      var DIRECTION_OPTIONS = ["正东方向", "东北方向", "正北方向", "西北方向", "正西方向", "西南方向", "正南方向", "东南方向"];
+      var QUICK_DISTANCES = [400, 600, 800, 1414];
+      var LANDMARKS = {
+        school: {
+          key: "school",
+          name: "学校",
+          badge: "校",
+          cell: { col: 1, row: 1 }
+        },
+        park: {
+          key: "park",
+          name: "公园",
+          badge: "园",
+          cell: { col: 6, row: 6 },
+          coordinate: "(6,6)",
+          directionLabel: "东北方向",
+          directionText: "学校东北方向，约1414米",
+          distance: 1414,
+          isApprox: true
+        },
+        supermarket: {
+          key: "supermarket",
+          name: "超市",
+          badge: "超",
+          cell: { col: 4, row: 1 },
+          coordinate: "(4,1)",
+          directionLabel: "正东方向",
+          directionText: "学校正东方向，距离600米",
+          distance: 600,
+          isApprox: false
+        }
+      };
+
+      var HINTS = {
+        coordinate: {
+          park: [
+            "哎呀，这个位置空空如也，没有宝藏哦😯\n悄悄告诉你：我们约定了，第一个数是列，第二个数是行，学校的位置是(1,1)。再仔细看看，宝藏在第几列、第几行呀？",
+            "离宝藏超近啦！只差一点点～\n宝藏在第6列，再想想，它的行数和列数是一样的哦！",
+            "就差最后一步啦！\n宝藏在地图的右上角，从学校(1,1)开始数，向右数5格、向上数5格，你再算一算它的数对是多少？"
+          ],
+          supermarket: [
+            "哎呀，这个位置空空如也，没有宝藏哦😯\n悄悄告诉你：我们约定了，第一个数是列，第二个数是行，学校的位置是(1,1)。再仔细看看，宝藏在第几列、第几行呀？",
+            "离答案很近啦！\n宝藏和学校在同一条最下面的横线上，所以它的行数还是1。再想想，它在第几列？",
+            "最后一步提示来啦！\n从学校(1,1)开始，向右数3格，不用向上移动，宝藏的数对是多少？"
+          ]
+        },
+        direction: {
+          supermarket: [
+            "宝藏不在这个位置哦😜\n再想想，描述位置时，除了方向，还要注意什么？我们约定的比例尺是1格代表实际200米，从学校到宝藏要走几格呀？",
+            "距离算对啦，但方向不对哦！\n宝藏和学校在同一条水平线上，没有往上走，你再看看它在学校的哪个方向？",
+            "就差一点点！\n从学校（第1列）往右数，宝藏在第4列，一共走了3格，1格=200米，实际距离应该是多少呀？"
+          ],
+          park: [
+            "宝藏不在这个位置哦😜\n再想想，描述位置时，除了方向，还要注意距离。比例尺是1格代表200米，从学校到公园需要先向右、再向上，而且走的格数一样多。",
+            "离答案很近啦！\n宝藏在学校的右上方，不是只往右走。它的方向应该是斜着向上的那一种哦！",
+            "关键提醒来啦！\n从学校出发向右5格、向上5格，所以方向是东北方向，实际距离大约是1414米。你再试一次！"
+          ]
+        }
+      };
+
+      var state = {
+        mode: "",
+        targetKey: "",
+        wrongCount: 0,
+        round: 0,
+        status: "intro",
+        answerVisible: false,
+        selectedDirection: "",
+        voiceEnabled: true,
+        supportsSpeech: "speechSynthesis" in window,
+        hasUserGesture: false,
+        lastAiMessage: ""
+      };
+
+      var elements = {};
+
+      document.addEventListener("DOMContentLoaded", init);
+
+      function init() {
+        cacheElements();
+        buildDirectionButtons();
+        buildQuickDistanceButtons();
+        bindEvents();
+        state.lastAiMessage = elements.introSpeech.textContent;
+        updateVoiceButtons();
+        updateCacheStatus();
+        registerServiceWorker();
+        buildBoard();
+        renderIntroState();
+      }
+
+      function cacheElements() {
+        elements.intro = document.getElementById("introScreen");
+        elements.workspace = document.getElementById("workspace");
+        elements.cacheStatus = document.getElementById("cacheStatus");
+        elements.chooseModeAgain = document.getElementById("chooseModeAgain");
+        elements.voiceToggle = document.getElementById("voiceToggle");
+        elements.replaySpeech = document.getElementById("replaySpeech");
+        elements.introSpeech = document.getElementById("introSpeech");
+        elements.boardTitle = document.getElementById("boardTitle");
+        elements.modeBadge = document.getElementById("modeBadge");
+        elements.attemptBadge = document.getElementById("attemptBadge");
+        elements.missionBanner = document.getElementById("missionBanner");
+        elements.boardHint = document.getElementById("boardHint");
+        elements.gridBoard = document.getElementById("gridBoard");
+        elements.currentAnswer = document.getElementById("currentAnswer");
+        elements.answerReveal = document.getElementById("answerReveal");
+        elements.roundBadge = document.getElementById("roundBadge");
+        elements.chatLog = document.getElementById("chatLog");
+        elements.promptCard = document.getElementById("promptCard");
+        elements.coordinateForm = document.getElementById("coordinateForm");
+        elements.directionForm = document.getElementById("directionForm");
+        elements.coordCol = document.getElementById("coordCol");
+        elements.coordRow = document.getElementById("coordRow");
+        elements.coordinatePreview = document.getElementById("coordinatePreview");
+        elements.directionPicker = document.getElementById("directionPicker");
+        elements.distanceInput = document.getElementById("distanceInput");
+        elements.quickDistance = document.getElementById("quickDistance");
+        elements.directionPreview = document.getElementById("directionPreview");
+        elements.actionBar = document.getElementById("actionBar");
+      }
+
+      function bindEvents() {
+        var modeButtons = document.querySelectorAll("[data-start-mode]");
+        var index;
+
+        for (index = 0; index < modeButtons.length; index += 1) {
+          modeButtons[index].addEventListener("click", function (event) {
+            var button = event.currentTarget;
+            state.hasUserGesture = true;
+            startRound(button.getAttribute("data-start-mode"), getDefaultTarget(button.getAttribute("data-start-mode")), "first");
+          });
+        }
+
+        elements.chooseModeAgain.addEventListener("click", function () {
+          state.hasUserGesture = true;
+          showIntro();
+        });
+
+        elements.voiceToggle.addEventListener("click", function () {
+          state.hasUserGesture = true;
+          toggleVoice();
+        });
+
+        elements.replaySpeech.addEventListener("click", function () {
+          state.hasUserGesture = true;
+          speak(state.lastAiMessage, true);
+        });
+
+        elements.coordinateForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          handleCoordinateSubmit();
+        });
+
+        elements.directionForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          handleDirectionSubmit();
+        });
+
+        elements.coordCol.addEventListener("input", function () {
+          updateCoordinatePreview();
+          buildBoard();
+        });
+
+        elements.coordRow.addEventListener("input", function () {
+          updateCoordinatePreview();
+          buildBoard();
+        });
+
+        elements.distanceInput.addEventListener("input", function () {
+          updateDirectionPreview();
+          highlightQuickDistance();
+        });
+
+        elements.directionPicker.addEventListener("click", function (event) {
+          var button = findButton(event.target);
+
+          if (!button || state.status !== "playing") {
+            return;
+          }
+
+          state.selectedDirection = button.getAttribute("data-direction") || "";
+          highlightDirectionButtons();
+          updateDirectionPreview();
+        });
+
+        elements.quickDistance.addEventListener("click", function (event) {
+          var button = findButton(event.target);
+
+          if (!button || state.status !== "playing") {
+            return;
+          }
+
+          elements.distanceInput.value = button.getAttribute("data-distance") || "";
+          updateDirectionPreview();
+          highlightQuickDistance();
+        });
+
+        elements.gridBoard.addEventListener("click", function (event) {
+          var cell = findCell(event.target);
+
+          if (!cell || state.mode !== "coordinate" || state.status !== "playing") {
+            return;
+          }
+
+          elements.coordCol.value = cell.getAttribute("data-col");
+          elements.coordRow.value = cell.getAttribute("data-row");
+          updateCoordinatePreview();
+          buildBoard();
+        });
+
+        elements.actionBar.addEventListener("click", function (event) {
+          var button = findButton(event.target);
+          var nextMode;
+
+          if (!button) {
+            return;
+          }
+
+          state.hasUserGesture = true;
+
+          switch (button.getAttribute("data-action")) {
+            case "retry":
+              retryCurrentRound();
+              break;
+            case "reveal":
+              revealAnswer();
+              break;
+            case "replay":
+              startRound(state.mode, pickRandomTarget(state.targetKey), "replay");
+              break;
+            case "switch":
+              nextMode = state.mode === "coordinate" ? "direction" : "coordinate";
+              startRound(nextMode, state.targetKey || getDefaultTarget(nextMode), "switch");
+              break;
+            case "intro":
+              showIntro();
+              break;
+          }
+        });
+
+        window.addEventListener("online", updateCacheStatus);
+        window.addEventListener("offline", updateCacheStatus);
+      }
+
+      function renderIntroState() {
+        elements.workspace.hidden = true;
+        elements.intro.hidden = false;
+        elements.chooseModeAgain.hidden = true;
+        state.status = "intro";
+        elements.answerReveal.hidden = true;
+        elements.chatLog.innerHTML = "";
+        state.lastAiMessage = elements.introSpeech.textContent;
+      }
+
+      function showIntro() {
+        stopSpeaking();
+        state.mode = "";
+        state.targetKey = "";
+        state.wrongCount = 0;
+        state.answerVisible = false;
+        renderIntroState();
+      }
+
+      function startRound(mode, targetKey, variant) {
+        state.mode = mode;
+        state.targetKey = targetKey;
+        state.wrongCount = 0;
+        state.answerVisible = false;
+        state.selectedDirection = "";
+        state.status = "playing";
+        state.round += 1;
+
+        clearForms();
+        elements.chatLog.innerHTML = "";
+        elements.answerReveal.hidden = true;
+        elements.answerReveal.innerHTML = "";
+        elements.intro.hidden = true;
+        elements.workspace.hidden = false;
+        elements.chooseModeAgain.hidden = false;
+
+        updateRoundUI();
+        updateModeForms();
+        addAiMessage(getOpeningMessage(mode, targetKey, variant));
+      }
+
+      function updateRoundUI() {
+        var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
+        var usedHints = state.wrongCount > 3 ? 3 : state.wrongCount;
+        var attemptText = "已用提示 " + usedHints + " / 3";
+
+        if (state.status === "solved") {
+          attemptText = "通关成功";
+        } else if (state.status === "failed") {
+          attemptText = state.answerVisible ? "答案已揭晓" : "提示已用完";
+        }
+
+        elements.boardTitle.textContent = place.name + "藏宝图";
+        elements.modeBadge.textContent = getModeLabel(state.mode);
+        elements.attemptBadge.textContent = attemptText;
+        elements.roundBadge.textContent = "第 " + state.round + " 轮";
+        elements.missionBanner.textContent = getMissionText(state.mode, place);
+        elements.boardHint.textContent = getBoardHint(state.mode, place);
+
+        updatePromptCard();
+        updateAnswerPreview();
+        updateCoordinatePreview();
+        updateDirectionPreview();
+        highlightDirectionButtons();
+        highlightQuickDistance();
+        buildBoard();
+        renderActionBar();
+      }
+
+      function updateModeForms() {
+        var isCoordinate = state.mode === "coordinate";
+        var isPlaying = state.status === "playing";
+
+        elements.coordinateForm.hidden = !isCoordinate;
+        elements.directionForm.hidden = isCoordinate;
+        setFormDisabled(elements.coordinateForm, !isCoordinate || !isPlaying);
+        setFormDisabled(elements.directionForm, isCoordinate || !isPlaying);
+      }
+
+      function updatePromptCard() {
+        var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
+        var html = "<div class=\"prompt-title\">当前任务</div>";
+
+        if (state.mode === "coordinate") {
+          html += "<p>这次宝藏藏在" + place.name + "。请告诉 AI：它在第几列、第几行？你也可以先点地图格子，再提交答案。</p>";
+          html += "<div class=\"prompt-tags\"><span>学校 = (1,1)</span><span>第一个数是列</span><span>第二个数是行</span></div>";
+        } else {
+          html += "<p>这次宝藏藏在" + place.name + "。请以学校为观测点，描述它的方向和距离，再用比例尺检查答案是否合理。</p>";
+          html += "<div class=\"prompt-tags\"><span>学校是观测点</span><span>1 格 = 200 米</span><span>方向和距离缺一不可</span></div>";
+        }
+
+        elements.promptCard.innerHTML = html;
+      }
+
+      function updateAnswerPreview() {
+        var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
+
+        if (state.status === "solved" || state.answerVisible) {
+          elements.currentAnswer.innerHTML = "<strong>当前宝藏：" + place.name + "</strong><span>数对：" + place.coordinate + "</span><span>方向+距离：" + place.directionText + "</span>";
+          return;
+        }
+
+        if (state.mode === "coordinate") {
+          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先看列，再看行，学校的位置固定是 (1,1)。</span><span>答对后这里会显示同一地点的方向和距离说法。</span>";
+        } else {
+          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先判断方向，再根据 1 格 = 200 米换算实际距离。</span><span>答对后这里会显示同一地点对应的数对。</span>";
+        }
+      }
+
+      function buildDirectionButtons() {
+        var index;
+
+        elements.directionPicker.innerHTML = "";
+        for (index = 0; index < DIRECTION_OPTIONS.length; index += 1) {
+          elements.directionPicker.appendChild(createButton(DIRECTION_OPTIONS[index], "direction-option", "button", "data-direction", DIRECTION_OPTIONS[index]));
+        }
+      }
+
+      function buildQuickDistanceButtons() {
+        var index;
+
+        elements.quickDistance.innerHTML = "";
+        for (index = 0; index < QUICK_DISTANCES.length; index += 1) {
+          elements.quickDistance.appendChild(createButton(String(QUICK_DISTANCES[index]) + " 米", "", "button", "data-distance", String(QUICK_DISTANCES[index])));
+        }
+      }
+
+      function createButton(text, className, type, attrName, attrValue) {
+        var button = document.createElement("button");
+
+        button.type = type || "button";
+        button.textContent = text;
+        if (className) {
+          button.className = className;
+        }
+        if (attrName) {
+          button.setAttribute(attrName, attrValue || "");
+        }
+        return button;
+      }
+
+      function buildBoard() {
+        var fragment = document.createDocumentFragment();
+        var row;
+        var col;
+
+        elements.gridBoard.innerHTML = "";
+
+        fragment.appendChild(createAxis("列"));
+        for (col = 1; col <= 6; col += 1) {
+          fragment.appendChild(createAxis(String(col)));
+        }
+
+        for (row = 6; row >= 1; row -= 1) {
+          fragment.appendChild(createAxis(String(row)));
+          for (col = 1; col <= 6; col += 1) {
+            fragment.appendChild(createCell(col, row));
+          }
+        }
+
+        elements.gridBoard.appendChild(fragment);
+      }
+
+      function createAxis(text) {
+        var axis = document.createElement("div");
+
+        axis.className = text === "列" ? "corner" : "axis-label";
+        axis.textContent = text;
+        return axis;
+      }
+
+      function createCell(col, row) {
+        var cell = document.createElement("div");
+        var landmark = getLandmarkAt(col, row);
+        var selected = state.mode === "coordinate" && String(col) === elements.coordCol.value && String(row) === elements.coordRow.value;
+        var showTarget = (state.status === "solved" || state.answerVisible) && state.targetKey && LANDMARKS[state.targetKey].cell.col === col && LANDMARKS[state.targetKey].cell.row === row;
+
+        cell.className = "cell";
+        cell.setAttribute("data-col", String(col));
+        cell.setAttribute("data-row", String(row));
+
+        if (state.mode === "coordinate" && state.status === "playing") {
+          cell.className += " is-clickable";
+        }
+
+        if (selected) {
+          cell.className += " is-selected";
+        }
+
+        if (landmark) {
+          cell.appendChild(createLandmark(landmark));
+        }
+
+        if (showTarget) {
+          cell.appendChild(createTargetMark());
+        }
+
+        return cell;
+      }
+
+      function createLandmark(landmark) {
+        var marker = document.createElement("div");
+        var badge = document.createElement("span");
+        var name = document.createElement("span");
+
+        marker.className = "landmark-marker " + landmark.key;
+        badge.className = "landmark-badge";
+        badge.textContent = landmark.badge;
+        name.className = "landmark-name";
+        name.textContent = landmark.name;
+
+        marker.appendChild(badge);
+        marker.appendChild(name);
+        return marker;
+      }
+
+      function createTargetMark() {
+        var mark = document.createElement("div");
+        mark.className = "cell-target";
+        return mark;
+      }
+
+      function getLandmarkAt(col, row) {
+        var key;
+
+        for (key in LANDMARKS) {
+          if (Object.prototype.hasOwnProperty.call(LANDMARKS, key) && LANDMARKS[key].cell.col === col && LANDMARKS[key].cell.row === row) {
+            return LANDMARKS[key];
+          }
+        }
+
+        return null;
+      }
+
+      function handleCoordinateSubmit() {
+        var col = clampGridValue(elements.coordCol.value);
+        var row = clampGridValue(elements.coordRow.value);
+        var place = LANDMARKS[state.targetKey];
+
+        if (state.status !== "playing") {
+          return;
+        }
+
+        if (!col || !row) {
+          addAiMessage("先把列和行都填完整吧。每个数字都要在 1 到 6 之间哦！");
+          return;
+        }
+
+        addUserMessage("我猜宝藏的数对是（" + col + "，" + row + "）。");
+
+        if (place.cell.col === col && place.cell.row === row) {
+          handleSuccess();
+          return;
+        }
+
+        handleWrongGuess();
+      }
+
+      function handleDirectionSubmit() {
+        var place = LANDMARKS[state.targetKey];
+        var distance = parseInt(elements.distanceInput.value, 10);
+        var direction = state.selectedDirection;
+        var distanceMatch;
+
+        if (state.status !== "playing") {
+          return;
+        }
+
+        if (!direction || isNaN(distance)) {
+          addAiMessage("方向和距离都要说完整哦。先选方向，再填写距离吧！");
+          return;
+        }
+
+        addUserMessage("我猜：学校" + direction + "，距离" + distance + "米。");
+
+        distanceMatch = place.isApprox ? Math.abs(distance - place.distance) <= 30 : distance === place.distance;
+
+        if (direction === place.directionLabel && distanceMatch) {
+          handleSuccess();
+          return;
+        }
+
+        handleWrongGuess();
+      }
+
+      function handleWrongGuess() {
+        state.wrongCount += 1;
+
+        if (state.wrongCount <= 3) {
+          addAiMessage(HINTS[state.mode][state.targetKey][state.wrongCount - 1]);
+        } else {
+          state.status = "failed";
+          addAiMessage("没关系，寻宝就是要不断尝试呀～\n要不要看看小提示，再试一次？\n小提示：先确定观测点，再按照约定的规则数格子，就不会出错啦！");
+        }
+
+        updateRoundUI();
+        updateModeForms();
+      }
+
+      function handleSuccess() {
+        state.status = "solved";
+        addAiMessage(getSuccessMessage(state.mode, LANDMARKS[state.targetKey]));
+        updateRoundUI();
+        updateModeForms();
+      }
+
+      function revealAnswer() {
+        var html = "";
+
+        if (state.answerVisible) {
+          return;
+        }
+
+        state.answerVisible = true;
+        addAiMessage("宝藏在这里！\n数对：公园(6,6) / 超市(4,1)\n方向+距离：公园在学校东北方向，约1414米；超市在学校正东方向，600米。地图已经把当前宝藏点高亮出来啦！");
+
+        html += "<div class=\"answer-sheet__title\">宝藏答案卡</div>";
+        html += "<div class=\"answer-sheet__intro\">地图已经高亮当前宝藏位置。你可以对照两种表示方法，看看同一个地点怎样用不同规则来描述。</div>";
+        html += "<div class=\"answer-grid\">";
+        html += buildAnswerCard("park");
+        html += buildAnswerCard("supermarket");
+        html += "</div>";
+
+        elements.answerReveal.innerHTML = html;
+        elements.answerReveal.hidden = false;
+        updateRoundUI();
+      }
+
+      function buildAnswerCard(key) {
+        var place = LANDMARKS[key];
+        var currentClass = key === state.targetKey ? " answer-card is-current" : " answer-card";
+        return "<div class=\"" + currentClass.slice(1) + "\"><strong>" + place.name + "</strong><span>数对：" + place.coordinate + "</span><span>方向+距离：" + place.directionText + "</span></div>";
+      }
+
+      function retryCurrentRound() {
+        state.wrongCount = 0;
+        state.answerVisible = false;
+        state.status = "playing";
+        elements.answerReveal.hidden = true;
+        elements.answerReveal.innerHTML = "";
+        clearForms();
+        addAiMessage("好，我们带着小提示再试一次！\n先确定学校这个观测点，再按照规则一步一步数格子吧。")
+        updateRoundUI();
+        updateModeForms();
+      }
+
+      function clearForms() {
+        elements.coordCol.value = "";
+        elements.coordRow.value = "";
+        elements.distanceInput.value = "";
+        state.selectedDirection = "";
+        updateCoordinatePreview();
+        updateDirectionPreview();
+        highlightDirectionButtons();
+        highlightQuickDistance();
+      }
+
+      function updateCoordinatePreview() {
+        var col = elements.coordCol.value || "_";
+        var row = elements.coordRow.value || "_";
+        elements.coordinatePreview.textContent = "我猜宝藏在（" + col + "，" + row + "）。";
+      }
+
+      function updateDirectionPreview() {
+        var direction = state.selectedDirection || "___";
+        var distance = elements.distanceInput.value || "___";
+        elements.directionPreview.textContent = "我猜：学校" + direction + "，距离" + distance + "米。";
+      }
+
+      function highlightDirectionButtons() {
+        var buttons = elements.directionPicker.querySelectorAll("button");
+        var index;
+
+        for (index = 0; index < buttons.length; index += 1) {
+          buttons[index].classList.toggle("is-active", buttons[index].getAttribute("data-direction") === state.selectedDirection);
+          buttons[index].disabled = state.status !== "playing";
+        }
+      }
+
+      function highlightQuickDistance() {
+        var buttons = elements.quickDistance.querySelectorAll("button");
+        var value = elements.distanceInput.value;
+        var index;
+
+        for (index = 0; index < buttons.length; index += 1) {
+          buttons[index].classList.toggle("is-active", buttons[index].getAttribute("data-distance") === value);
+          buttons[index].disabled = state.status !== "playing";
+        }
+      }
+
+      function renderActionBar() {
+        var html = "";
+
+        if (state.status === "solved") {
+          html += buildActionButton("再来一次！", "primary", "replay");
+          html += buildActionButton("切换模式挑战", "secondary", "switch");
+        } else if (state.status === "failed" && !state.answerVisible) {
+          html += buildActionButton("再试一次！", "secondary", "retry");
+          html += buildActionButton("看正确答案", "tertiary", "reveal");
+        } else if (state.status === "failed" && state.answerVisible) {
+          html += buildActionButton("再试一次！", "secondary", "retry");
+          html += buildActionButton("再来一次！", "primary", "replay");
+          html += buildActionButton("切换模式挑战", "tertiary", "switch");
+        } else if (state.status === "playing") {
+          html = "<div class=\"action-tip\">猜错后 AI 会依次给出 3 阶提示。答对后还能切换另一种表示方法继续挑战。</div>";
+        } else {
+          html += buildActionButton("回到开场", "tertiary", "intro");
+        }
+
+        elements.actionBar.innerHTML = html;
+      }
+
+      function buildActionButton(text, styleName, action) {
+        return "<button type=\"button\" class=\"action-button " + styleName + "\" data-action=\"" + action + "\">" + text + "</button>";
+      }
+
+      function addAiMessage(text) {
+        addMessage("ai", text);
+      }
+
+      function addUserMessage(text) {
+        addMessage("user", text);
+      }
+
+      function addMessage(role, text) {
+        var article = document.createElement("article");
+        var title = document.createElement("div");
+        var paragraph = document.createElement("p");
+
+        article.className = "bubble " + role;
+        title.className = "bubble-role";
+        title.textContent = role === "ai" ? "AI 导航员" : "我的回答";
+        paragraph.className = "bubble-text";
+        setMultilineText(paragraph, text);
+
+        article.appendChild(title);
+        article.appendChild(paragraph);
+        elements.chatLog.appendChild(article);
+        elements.chatLog.scrollTop = elements.chatLog.scrollHeight;
+
+        if (role === "ai") {
+          state.lastAiMessage = text;
+          speak(text, false);
+        }
+      }
+
+      function setMultilineText(element, text) {
+        var parts = String(text).split("\n");
+        var index;
+
+        element.textContent = "";
+        for (index = 0; index < parts.length; index += 1) {
+          if (index > 0) {
+            element.appendChild(document.createElement("br"));
+          }
+          element.appendChild(document.createTextNode(parts[index]));
+        }
+      }
+
+      function getDefaultTarget(mode) {
+        return mode === "coordinate" ? "park" : "supermarket";
+      }
+
+      function pickRandomTarget(excludeKey) {
+        var filtered = [];
+        var index;
+
+        for (index = 0; index < PLACE_KEYS.length; index += 1) {
+          if (PLACE_KEYS[index] !== excludeKey) {
+            filtered.push(PLACE_KEYS[index]);
+          }
+        }
+
+        if (!filtered.length) {
+          return PLACE_KEYS[0];
+        }
+
+        return filtered[Math.floor(Math.random() * filtered.length)];
+      }
+
+      function getModeLabel(mode) {
+        return mode === "coordinate" ? "数对模式" : "方向+距离模式";
+      }
+
+      function getMissionText(mode, place) {
+        if (mode === "coordinate") {
+          return "本轮宝藏藏在" + place.name + "。以学校(1,1)为起点，请用数对找出它的位置。";
+        }
+
+        return "本轮宝藏藏在" + place.name + "。请以学校为观测点，结合方向、距离和比例尺描述它的位置。";
+      }
+
+      function getBoardHint(mode, place) {
+        if (mode === "coordinate") {
+          return "从左往右是列，从下往上是行。当前目标是“" + place.name + "”。点击格子也能帮你快速猜一次。";
+        }
+
+        return "看地图先判断“" + place.name + "”在学校的哪个方向，再根据 1 格 = 200 米换算实际距离。";
+      }
+
+      function getOpeningMessage(mode, targetKey, variant) {
+        var place = LANDMARKS[targetKey];
+
+        if (variant === "switch") {
+          if (mode === "coordinate") {
+            return "切换挑战成功！\n同一个宝藏点，试着换成数对来描述它吧。学校还是(1,1)，第一个数是列，第二个数是行。";
+          }
+          return "切换挑战成功！\n同一个宝藏点，试着换成方向和距离来描述它吧。记得比例尺是1格代表200米。";
+        }
+
+        if (variant === "replay") {
+          if (mode === "coordinate") {
+            return "这次宝藏藏在不同的地方啦，再挑战一次吧！\n还是用数对来找，学校在(1,1)，第一个数是列，第二个数是行。当前目标是“" + place.name + "”。";
+          }
+          return "这次宝藏藏在不同的地方啦，再挑战一次吧！\n还是用方向和距离来找，比例尺 1 格 = 200 米。当前目标是“" + place.name + "”。";
+        }
+
+        if (mode === "coordinate") {
+          return "第一关开始！\n这次宝藏藏在" + place.name + "里。请用数对告诉我它的位置吧。记得：学校在(1,1)，第一个数是列，第二个数是行。";
+        }
+
+        return "挑战开始！\n这次宝藏藏在" + place.name + "里。请以学校为观测点，说出它的方向和距离吧。比例尺 1 格 = 200 米。";
+      }
+
+      function getSuccessMessage(mode, place) {
+        if (mode === "coordinate") {
+          return "叮！宝藏找到啦！\n你用数对" + place.coordinate + "精准锁定了" + place.name + "的宝藏，太厉害啦！\n要不要挑战用“方向+距离”再找一次宝藏？";
+        }
+
+        return "哇！宝藏被你找到啦！\n你精准描述了" + place.name + "宝藏的位置：" + place.directionText + "，完全符合比例尺规则，太棒了！\n要不要挑战用“数对”再找一次宝藏？";
+      }
+
+      function clampGridValue(value) {
+        var number = parseInt(value, 10);
+
+        if (isNaN(number) || number < 1 || number > 6) {
+          return 0;
+        }
+
+        return number;
+      }
+
+      function findButton(node) {
+        while (node && node !== document.body) {
+          if (node.tagName === "BUTTON") {
+            return node;
+          }
+          node = node.parentNode;
+        }
+        return null;
+      }
+
+      function findCell(node) {
+        while (node && node !== elements.gridBoard) {
+          if (node.classList && node.classList.contains("cell")) {
+            return node;
+          }
+          node = node.parentNode;
+        }
+        return null;
+      }
+
+      function setFormDisabled(form, disabled) {
+        var controls = form.querySelectorAll("input, button");
+        var index;
+
+        for (index = 0; index < controls.length; index += 1) {
+          controls[index].disabled = disabled;
+        }
+      }
+
+      function toggleVoice() {
+        state.voiceEnabled = !state.voiceEnabled;
+        if (!state.voiceEnabled) {
+          stopSpeaking();
+        }
+        updateVoiceButtons();
+      }
+
+      function updateVoiceButtons() {
+        elements.voiceToggle.textContent = "自动语音：" + (state.voiceEnabled ? "开" : "关");
+
+        if (!state.supportsSpeech) {
+          elements.voiceToggle.disabled = true;
+          elements.replaySpeech.disabled = true;
+          elements.voiceToggle.textContent = "当前设备不支持语音";
+        }
+      }
+
+      function speak(text, manual) {
+        var utterance;
+        var content;
+
+        if (!state.supportsSpeech || !text) {
+          return;
+        }
+
+        if (!manual && (!state.voiceEnabled || !state.hasUserGesture)) {
+          return;
+        }
+
+        stopSpeaking();
+        content = String(text)
+          .replace(/[“”]/g, "")
+          .replace(/[✨🎉🎊✅😜😯💡～]/g, "")
+          .replace(/\s+/g, " ");
+
+        utterance = new SpeechSynthesisUtterance(content);
+        utterance.lang = "zh-CN";
+        utterance.rate = 1.02;
+        utterance.pitch = 1.05;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function stopSpeaking() {
+        if (state.supportsSpeech) {
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      function updateCacheStatus() {
+        if (window.location.protocol === "file:") {
+          elements.cacheStatus.textContent = "本地文件模式，不启用离线缓存";
+          elements.cacheStatus.classList.remove("is-offline");
+          return;
+        }
+
+        if (!navigator.onLine) {
+          elements.cacheStatus.textContent = "当前离线模式";
+          elements.cacheStatus.classList.add("is-offline");
+          return;
+        }
+
+        if (!("serviceWorker" in navigator)) {
+          elements.cacheStatus.textContent = "当前浏览器不支持离线缓存";
+          elements.cacheStatus.classList.remove("is-offline");
+          return;
+        }
+
+        elements.cacheStatus.textContent = navigator.serviceWorker.controller ? "离线缓存已开启" : "正在准备离线缓存";
+        elements.cacheStatus.classList.remove("is-offline");
+      }
+
+      function registerServiceWorker() {
+        if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
+          updateCacheStatus();
+          return;
+        }
+
+        navigator.serviceWorker.register("sw.js")
+          .then(function (registration) {
+            updateCacheStatus();
+            if (registration.installing) {
+              elements.cacheStatus.textContent = "正在准备离线缓存";
+            }
+            registration.addEventListener("updatefound", function () {
+              elements.cacheStatus.textContent = "正在更新离线缓存";
+            });
+            navigator.serviceWorker.addEventListener("controllerchange", updateCacheStatus);
+            return navigator.serviceWorker.ready;
+          })
+          .then(function () {
+            updateCacheStatus();
+          })
+          .catch(function () {
+            elements.cacheStatus.textContent = "离线缓存启动失败";
+            elements.cacheStatus.classList.remove("is-offline");
+          });
+      }
+    }());
+  </script>
+</body>
+</html>
