@@ -1,8 +1,8 @@
-const VERSION = "v2";
+const VERSION = "v5";
 const SHELL_CACHE = "scale-shell-" + VERSION;
 const TILE_CACHE = "scale-tiles-" + VERSION;
 const CACHE_NAMES = [SHELL_CACHE, TILE_CACHE];
-const APP_SHELL = ["./", "./index.html", "./sw.js", "./vendor/leaflet.css", "./vendor/leaflet.js"].map(resolveUrl);
+const APP_SHELL = ["./", "./index.html", "./game.html", "./sw.js", "./vendor/leaflet.css", "./vendor/leaflet.js"].map(resolveUrl);
 const OFFLINE_TILE_URLS = getWarmTileUrls(30.2874, 120.1425, 16, 2);
 const INDEX_FALLBACK = resolveUrl("./index.html");
 const ROOT_FALLBACK = resolveUrl("./");
@@ -95,9 +95,12 @@ function fetchAndStore(cacheName, url, allowOpaque) {
 function handleNavigation(request) {
   return fetch(request)
     .then(function (response) {
+      var responseToCache;
+
       if (response && response.ok) {
+        responseToCache = response.clone();
         caches.open(SHELL_CACHE).then(function (cache) {
-          cache.put(request, response.clone());
+          cache.put(request, responseToCache);
         });
       }
       return response;
@@ -121,12 +124,15 @@ function cacheFirst(request, cacheName, allowOpaque) {
 
     return fetch(request)
       .then(function (response) {
+        var responseToCache;
+
         if (!response || (!response.ok && !(allowOpaque && response.type === "opaque"))) {
           return response;
         }
 
+        responseToCache = response.clone();
         caches.open(cacheName).then(function (cache) {
-          cache.put(request, response.clone());
+          cache.put(request, responseToCache);
         });
         return response;
       })
