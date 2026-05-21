@@ -297,6 +297,46 @@
       gap: 14px;
     }
 
+    .start-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .start-image-wrap {
+      display: grid;
+      place-items: center;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(44, 70, 104, 0.08);
+      box-shadow: 0 14px 28px rgba(40, 70, 99, 0.08);
+      overflow: hidden;
+      min-height: 190px;
+    }
+
+    .start-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .start-actions {
+      display: grid;
+      gap: 12px;
+      align-content: center;
+      padding: 14px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(44, 70, 104, 0.08);
+      box-shadow: 0 14px 28px rgba(40, 70, 99, 0.08);
+    }
+
+    .start-actions .cta-button {
+      width: 100%;
+    }
+
     .cta-button,
     .submit-button,
     .action-button {
@@ -782,6 +822,63 @@
       gap: 12px;
     }
 
+    .direction-line {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .direction-inline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      color: var(--ink-soft);
+      font-weight: 800;
+    }
+
+    .direction-inline input {
+      flex: 1 1 140px;
+      min-width: 120px;
+      min-height: 46px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .small-ghost {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--ink);
+      font-weight: 800;
+      box-shadow: 0 10px 20px rgba(38, 66, 95, 0.08);
+    }
+
+    .treasure-result {
+      margin-top: 14px;
+      display: grid;
+      place-items: center;
+      gap: 8px;
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 244, 190, 0.72);
+      border: 1px solid rgba(246, 180, 0, 0.28);
+      color: #7b4d00;
+      font-weight: 900;
+    }
+
+    .treasure-result svg {
+      width: 86px;
+      height: 86px;
+      display: block;
+      filter: drop-shadow(0 8px 16px rgba(121, 79, 8, 0.2));
+    }
+
     .guess-form label,
     .distance-label {
       display: grid;
@@ -964,6 +1061,10 @@
         grid-template-columns: 1fr;
       }
 
+      .start-layout {
+        grid-template-columns: 1fr;
+      }
+
       .panel-top,
       .board-header {
         flex-direction: column;
@@ -1035,9 +1136,14 @@
         </div>
       </div>
 
-      <div class="cta-group">
-        <button class="cta-button primary" type="button" data-start-mode="coordinate">我用数对找！</button>
-        <button class="cta-button secondary" type="button" data-start-mode="direction">我用方向+距离找！</button>
+      <div class="start-layout">
+        <div class="start-image-wrap">
+          <img src="img/ditu.jpeg" alt="寻宝地图示意图">
+        </div>
+        <div class="start-actions">
+          <button class="cta-button primary" type="button" data-start-mode="coordinate">数对</button>
+          <button class="cta-button secondary" type="button" data-start-mode="direction">方向+距离</button>
+        </div>
       </div>
     </section>
 
@@ -1110,26 +1216,39 @@
           <div class="form-title">输入你猜到的数对</div>
           <div class="coordinate-fields">
             <label for="coordCol">列
-              <input id="coordCol" type="number" min="1" max="6" inputmode="numeric" placeholder="例如 6">
+              <input id="coordCol" type="number" inputmode="numeric" value="3" placeholder="例如 3">
             </label>
             <label for="coordRow">行
-              <input id="coordRow" type="number" min="1" max="6" inputmode="numeric" placeholder="例如 6">
+              <input id="coordRow" type="number" inputmode="numeric" value="0" placeholder="例如 0">
             </label>
           </div>
-          <div class="form-note">提示：你也可以直接点击左侧地图格子来自动填入数对。</div>
-          <div id="coordinatePreview" class="preview-line">我猜宝藏在（_，_）。</div>
+          <div class="form-note">学生可输入任意数字。默认答案是（3，0）。</div>
+          <div id="coordinatePreview" class="preview-line">我认为宝藏打卡点在数对（3，0）。</div>
           <button class="submit-button" type="submit">提交这一猜</button>
         </form>
 
         <form id="directionForm" class="guess-form" hidden>
           <div class="form-title">描述方向和距离</div>
-          <div id="directionPicker" class="direction-picker"></div>
-          <label class="distance-label" for="distanceInput">距离（米）
-            <input id="distanceInput" type="number" min="0" step="1" inputmode="numeric" placeholder="例如 600">
-          </label>
+          <div id="directionPicker" class="direction-picker" hidden></div>
+          <div class="direction-line">
+            <div class="direction-inline">
+              <span>我认为宝藏打卡点在</span>
+              <input id="fromInput" type="text" value="学校" placeholder="例如 学校">
+              <span>的</span>
+              <input id="directionTextInput" type="text" value="正东" placeholder="例如 正东">
+              <span>方向</span>
+              <button id="degreeToggle" class="small-ghost" type="button">+ 度数</button>
+            </div>
+            <label class="distance-label" for="distanceInput">距离（米）
+              <input id="distanceInput" type="number" min="0" step="1" inputmode="numeric" value="600" placeholder="例如 600">
+            </label>
+            <label id="degreeWrap" class="distance-label" for="degreeInput" hidden>角度（可选）
+              <input id="degreeInput" type="number" step="1" inputmode="numeric" placeholder="例如 0">
+            </label>
+          </div>
           <div id="quickDistance" class="quick-distance"></div>
-          <div id="directionPreview" class="preview-line">我猜：学校___，距离___米。</div>
-          <div class="form-note">比例尺：1 格代表实际 200 米。先确定方向，再算出实际距离。</div>
+          <div id="directionPreview" class="preview-line">我认为宝藏打卡点在学校的正东方向600米。</div>
+          <div class="form-note">默认答案是学校的正东（或东）方向 600 米。点击“+ 度数”才显示角度输入。</div>
           <button class="submit-button" type="submit">提交这一猜</button>
         </form>
 
@@ -1143,6 +1262,15 @@
       var PLACE_KEYS = ["park", "supermarket"];
       var DIRECTION_OPTIONS = ["正东方向", "东北方向", "正北方向", "西北方向", "正西方向", "西南方向", "正南方向", "东南方向"];
       var QUICK_DISTANCES = [400, 600, 800, 1414];
+      var ANSWERS = {
+        coordinate: { col: 3, row: 0 },
+        direction: {
+          from: "学校",
+          aliases: ["正东", "东", "正东方向", "东方向"],
+          distance: 600,
+          degree: 0
+        }
+      };
       var LANDMARKS = {
         school: {
           key: "school",
@@ -1209,6 +1337,7 @@
         status: "intro",
         answerVisible: false,
         selectedDirection: "",
+        degreeVisible: false,
         voiceEnabled: true,
         supportsSpeech: "speechSynthesis" in window,
         hasUserGesture: false,
@@ -1257,6 +1386,11 @@
         elements.coordRow = document.getElementById("coordRow");
         elements.coordinatePreview = document.getElementById("coordinatePreview");
         elements.directionPicker = document.getElementById("directionPicker");
+        elements.fromInput = document.getElementById("fromInput");
+        elements.directionTextInput = document.getElementById("directionTextInput");
+        elements.degreeToggle = document.getElementById("degreeToggle");
+        elements.degreeWrap = document.getElementById("degreeWrap");
+        elements.degreeInput = document.getElementById("degreeInput");
         elements.distanceInput = document.getElementById("distanceInput");
         elements.quickDistance = document.getElementById("quickDistance");
         elements.directionPreview = document.getElementById("directionPreview");
@@ -1315,15 +1449,14 @@
           highlightQuickDistance();
         });
 
-        elements.directionPicker.addEventListener("click", function (event) {
-          var button = findButton(event.target);
+        elements.fromInput.addEventListener("input", updateDirectionPreview);
+        elements.directionTextInput.addEventListener("input", updateDirectionPreview);
+        elements.degreeInput.addEventListener("input", updateDirectionPreview);
 
-          if (!button || state.status !== "playing") {
-            return;
-          }
-
-          state.selectedDirection = button.getAttribute("data-direction") || "";
-          highlightDirectionButtons();
+        elements.degreeToggle.addEventListener("click", function () {
+          state.degreeVisible = !state.degreeVisible;
+          elements.degreeWrap.hidden = !state.degreeVisible;
+          elements.degreeToggle.textContent = state.degreeVisible ? "- 度数" : "+ 度数";
           updateDirectionPreview();
         });
 
@@ -1411,6 +1544,7 @@
         state.wrongCount = 0;
         state.answerVisible = false;
         state.selectedDirection = "";
+        state.degreeVisible = false;
         state.status = "playing";
         state.round += 1;
 
@@ -1463,6 +1597,8 @@
         elements.directionForm.hidden = isCoordinate;
         setFormDisabled(elements.coordinateForm, !isCoordinate || !isPlaying);
         setFormDisabled(elements.directionForm, isCoordinate || !isPlaying);
+        elements.degreeWrap.hidden = !state.degreeVisible;
+        elements.degreeToggle.textContent = state.degreeVisible ? "- 度数" : "+ 度数";
       }
 
       function updatePromptCard() {
@@ -1481,17 +1617,15 @@
       }
 
       function updateAnswerPreview() {
-        var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
-
         if (state.status === "solved" || state.answerVisible) {
-          elements.currentAnswer.innerHTML = "<strong>当前宝藏：" + place.name + "</strong><span>数对：" + place.coordinate + "</span><span>方向+距离：" + place.directionText + "</span>";
+          elements.currentAnswer.innerHTML = "<strong>当前标准答案</strong><span>数对：（3，0）</span><span>方向+距离：学校正东（或东）方向 600 米</span>";
           return;
         }
 
         if (state.mode === "coordinate") {
-          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先看列，再看行，学校的位置固定是 (1,1)。</span><span>答对后这里会显示同一地点的方向和距离说法。</span>";
+          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先看列，再看行，当前数对答案是固定目标。</span><span>答对后会显示对应的方向+距离表达。</span>";
         } else {
-          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先判断方向，再根据 1 格 = 200 米换算实际距离。</span><span>答对后这里会显示同一地点对应的数对。</span>";
+          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先判断方向，再判断距离是否为 600 米。</span><span>答对后会显示对应的数对。</span>";
         }
       }
 
@@ -1621,54 +1755,96 @@
       }
 
       function handleCoordinateSubmit() {
-        var col = clampGridValue(elements.coordCol.value);
-        var row = clampGridValue(elements.coordRow.value);
-        var place = LANDMARKS[state.targetKey];
+        var col = parseInt(elements.coordCol.value, 10);
+        var row = parseInt(elements.coordRow.value, 10);
+        var near;
 
         if (state.status !== "playing") {
           return;
         }
 
-        if (!col || !row) {
-          addAiMessage("先把列和行都填完整吧。每个数字都要在 1 到 6 之间哦！");
+        if (isNaN(col) || isNaN(row)) {
+          addAiMessage("请先把列和行都填完整，再来提交哦。");
           return;
         }
 
-        addUserMessage("我猜宝藏的数对是（" + col + "，" + row + "）。");
+        addUserMessage("我认为宝藏打卡点在数对（" + col + "，" + row + "）。");
 
-        if (place.cell.col === col && place.cell.row === row) {
+        if (col === ANSWERS.coordinate.col && row === ANSWERS.coordinate.row) {
           handleSuccess();
           return;
         }
 
-        handleWrongGuess();
+        state.wrongCount += 1;
+
+        if (state.wrongCount >= 3) {
+          state.status = "failed";
+          addAiMessage("没关系，寻宝就是需要不断尝试呀");
+        } else {
+          near = Math.abs(col - ANSWERS.coordinate.col) < 2 && Math.abs(row - ANSWERS.coordinate.row) < 2;
+          addAiMessage(near ? "离宝藏超近了，再调整一下吧！" : "宝藏不再这个位置哦");
+        }
+
+        updateRoundUI();
+        updateModeForms();
       }
 
       function handleDirectionSubmit() {
-        var place = LANDMARKS[state.targetKey];
+        var fromText = normalizeText(elements.fromInput.value);
+        var directionText = normalizeDirection(elements.directionTextInput.value);
+        var degree = parseInt(elements.degreeInput.value, 10);
         var distance = parseInt(elements.distanceInput.value, 10);
-        var direction = state.selectedDirection;
-        var distanceMatch;
+        var fromOk;
+        var directionOk;
+        var distanceOk;
+        var degreeOk;
+        var wrongMessage;
 
         if (state.status !== "playing") {
           return;
         }
 
-        if (!direction || isNaN(distance)) {
-          addAiMessage("方向和距离都要说完整哦。先选方向，再填写距离吧！");
+        if (!fromText || !directionText || isNaN(distance)) {
+          addAiMessage("请把“地点、方向、距离”都填写完整后再提交哦。");
           return;
         }
 
-        addUserMessage("我猜：学校" + direction + "，距离" + distance + "米。");
+        addUserMessage("我认为宝藏打卡点在" + elements.fromInput.value.trim() + "的" + elements.directionTextInput.value.trim() + "方向" + distance + "米。");
 
-        distanceMatch = place.isApprox ? Math.abs(distance - place.distance) <= 30 : distance === place.distance;
+        fromOk = fromText.indexOf(normalizeText(ANSWERS.direction.from)) !== -1;
+        directionOk = ANSWERS.direction.aliases.some(function (alias) {
+          return normalizeDirection(alias) === directionText;
+        });
+        distanceOk = distance === ANSWERS.direction.distance;
+        degreeOk = !state.degreeVisible || isNaN(degree) || degree === ANSWERS.direction.degree;
 
-        if (direction === place.directionLabel && distanceMatch) {
+        if (fromOk && directionOk && distanceOk && degreeOk) {
           handleSuccess();
           return;
         }
 
-        handleWrongGuess();
+        state.wrongCount += 1;
+        if (state.wrongCount >= 3) {
+          state.status = "failed";
+          addAiMessage("没关系，寻宝就是需要不断尝试呀");
+          updateRoundUI();
+          updateModeForms();
+          return;
+        }
+
+        if (!directionOk || !degreeOk) {
+          wrongMessage = "再想一想，宝藏的打卡点的方向正确吗？";
+        } else if (!distanceOk) {
+          wrongMessage = "宝藏不在这里哦！再想一想，距离是不是 600 米？";
+        } else if (!fromOk) {
+          wrongMessage = "宝藏不在这里哦！再想一想，观测点是不是学校？";
+        } else {
+          wrongMessage = "宝藏不在这里哦！";
+        }
+
+        addAiMessage(wrongMessage);
+        updateRoundUI();
+        updateModeForms();
       }
 
       function handleWrongGuess() {
@@ -1693,23 +1869,13 @@
       }
 
       function revealAnswer() {
-        var html = "";
-
         if (state.answerVisible) {
           return;
         }
 
         state.answerVisible = true;
-        addAiMessage("宝藏在这里！\n数对：公园(6,6) / 超市(4,1)\n方向+距离：公园在学校东北方向，约1414米；超市在学校正东方向，600米。地图已经把当前宝藏点高亮出来啦！");
-
-        html += "<div class=\"answer-sheet__title\">宝藏答案卡</div>";
-        html += "<div class=\"answer-sheet__intro\">地图已经高亮当前宝藏位置。你可以对照两种表示方法，看看同一个地点怎样用不同规则来描述。</div>";
-        html += "<div class=\"answer-grid\">";
-        html += buildAnswerCard("park");
-        html += buildAnswerCard("supermarket");
-        html += "</div>";
-
-        elements.answerReveal.innerHTML = html;
+        addAiMessage("宝藏在这里！\n数对：（3，0）\n方向+距离：学校正东（或东）方向 600 米。你可以继续修改输入再试一次。")
+        elements.answerReveal.innerHTML = "<div class=\"answer-sheet__title\">正确答案</div><div class=\"answer-sheet__intro\">数对：（3，0）<br>方向+距离：学校正东（或东）方向 600 米</div>";
         elements.answerReveal.hidden = false;
         updateRoundUI();
       }
@@ -1727,15 +1893,19 @@
         elements.answerReveal.hidden = true;
         elements.answerReveal.innerHTML = "";
         clearForms();
-        addAiMessage("好，我们带着小提示再试一次！\n先确定学校这个观测点，再按照规则一步一步数格子吧。")
+        addAiMessage("好，我们再试一次！你可以在输入的界面继续修改答案。")
         updateRoundUI();
         updateModeForms();
       }
 
       function clearForms() {
-        elements.coordCol.value = "";
-        elements.coordRow.value = "";
-        elements.distanceInput.value = "";
+        elements.coordCol.value = String(ANSWERS.coordinate.col);
+        elements.coordRow.value = String(ANSWERS.coordinate.row);
+        elements.fromInput.value = ANSWERS.direction.from;
+        elements.directionTextInput.value = "正东";
+        elements.distanceInput.value = String(ANSWERS.direction.distance);
+        elements.degreeInput.value = "";
+        state.degreeVisible = false;
         state.selectedDirection = "";
         updateCoordinatePreview();
         updateDirectionPreview();
@@ -1746,13 +1916,19 @@
       function updateCoordinatePreview() {
         var col = elements.coordCol.value || "_";
         var row = elements.coordRow.value || "_";
-        elements.coordinatePreview.textContent = "我猜宝藏在（" + col + "，" + row + "）。";
+        elements.coordinatePreview.textContent = "我认为宝藏打卡点在数对（" + col + "，" + row + "）。";
       }
 
       function updateDirectionPreview() {
-        var direction = state.selectedDirection || "___";
+        var fromText = elements.fromInput.value || "___";
+        var direction = elements.directionTextInput.value || "___";
         var distance = elements.distanceInput.value || "___";
-        elements.directionPreview.textContent = "我猜：学校" + direction + "，距离" + distance + "米。";
+        var degreeText = "";
+
+        if (state.degreeVisible && elements.degreeInput.value) {
+          degreeText = "（" + elements.degreeInput.value + "度）";
+        }
+        elements.directionPreview.textContent = "我认为宝藏打卡点在" + fromText + "的" + direction + "方向" + degreeText + distance + "米。";
       }
 
       function highlightDirectionButtons() {
@@ -1911,11 +2087,19 @@
       }
 
       function getSuccessMessage(mode, place) {
-        if (mode === "coordinate") {
-          return "叮！宝藏找到啦！\n你用数对" + place.coordinate + "精准锁定了" + place.name + "的宝藏，太厉害啦！\n要不要挑战用“方向+距离”再找一次宝藏？";
-        }
+        var icon = "<div class=\"treasure-result\"><svg viewBox=\"0 0 100 100\" aria-hidden=\"true\"><rect x=\"10\" y=\"38\" width=\"80\" height=\"46\" rx=\"8\" fill=\"#d68912\"/><rect x=\"10\" y=\"30\" width=\"80\" height=\"18\" rx=\"8\" fill=\"#f5c64c\"/><rect x=\"44\" y=\"30\" width=\"12\" height=\"54\" fill=\"#8f5e0b\"/><circle cx=\"50\" cy=\"57\" r=\"6\" fill=\"#fff2b0\"/></svg><div>宝箱已出现</div></div>";
 
-        return "哇！宝藏被你找到啦！\n你精准描述了" + place.name + "宝藏的位置：" + place.directionText + "，完全符合比例尺规则，太棒了！\n要不要挑战用“数对”再找一次宝藏？";
+        elements.answerReveal.innerHTML = icon;
+        elements.answerReveal.hidden = false;
+        return "宝藏就在这里！";
+      }
+
+      function normalizeText(value) {
+        return String(value || "").replace(/\s+/g, "").toLowerCase();
+      }
+
+      function normalizeDirection(value) {
+        return normalizeText(value).replace(/方向/g, "");
       }
 
       function clampGridValue(value) {
