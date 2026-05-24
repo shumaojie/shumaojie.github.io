@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#16415f">
   <title>设计路线图</title>
   <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
   <style>
     :root {
       --ink: #102536;
@@ -498,8 +499,10 @@
     </header>
 
     <section class="workspace">
+
       <div id="mapShell" class="map-shell">
         <div id="realMap" aria-label="杭州市文一街小学到黄龙体育中心周边地图"></div>
+        <div id="mlMap" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:10;display:none;"></div>
         <div id="viewRibbon" class="view-ribbon">3D版本</div>
         <div id="scaleReadout" class="scale-readout">比例尺 正在计算</div>
         <div id="hint" class="hint">点击“测量”，再在地图上依次选择起点和终点。</div>
@@ -531,8 +534,25 @@
   </main>
 
   <script src="vendor/leaflet.js"></script>
+  <script src="vendor/maplibre-gl.js"></script>
   <script>
-    (function () {
+    // 页面初始化时直接插入 OSM Buildings 脚本
+    (function preloadOSMB() {
+      if (!window.OSMBuildings) {
+        var script1 = document.createElement('script');
+        script1.src = 'vendor/OSMBuildings.js';
+        document.head.appendChild(script1);
+        var script2 = document.createElement('script');
+        script2.src = 'vendor/OSMBuildings-Leaflet.js';
+        document.head.appendChild(script2);
+      }
+    })();
+    function loadOSMBuildings(cb) {
+      if (window.OSMBuildings) { cb(); return; }
+      var check = setInterval(function () {
+        if (window.OSMBuildings) { clearInterval(check); cb(); }
+      }, 60);
+    }
       var app = document.getElementById("app");
       var mapShell = document.getElementById("mapShell");
       var hint = document.getElementById("hint");
@@ -547,8 +567,10 @@
       var measureList = document.getElementById("measureList");
       var emptyRoute = document.getElementById("emptyRoute");
       var map = null;
+      var mlMap = null; // MapLibre GL map
       var routeLayer = null;
       var guideLayer = null;
+      var osmb = null; // OSM Buildings 图层（已废弃）
       var activeTool = "";
       var routeSegments = [];
       var currentMeasure = emptyMeasure();
@@ -627,6 +649,36 @@
           updateScaleDisplay();
           setTimeout(function () { map.invalidateSize(); }, 80);
         });
+        // 初始化 MapLibre GL 容器但不显示
+        var mlDiv = document.getElementById('mlMap');
+        mlDiv.style.display = 'none';
+      }
+
+      function enableMapLibre3D() {
+        var mlDiv = document.getElementById('mlMap');
+        mlDiv.style.display = 'block';
+        document.getElementById('realMap').style.display = 'none';
+        if (mlMap) { mlMap.resize(); return; }
+        // 使用 OpenMapTiles 官方演示源和样式，支持 3D 建筑
+        mlMap = new maplibregl.Map({
+          container: 'mlMap',
+          style: 'https://demotiles.maplibre.org/style.json',
+          center: [120.137, 30.281],
+          zoom: 15,
+          pitch: 48,
+          bearing: -17,
+          antialias: true
+        });
+        mlMap.on('load', function () {
+          mlMap.resize();
+        });
+      }
+
+      function disableMapLibre3D() {
+        var mlDiv = document.getElementById('mlMap');
+        mlDiv.style.display = 'none';
+        document.getElementById('realMap').style.display = '';
+        if (mlMap) { mlMap.remove(); mlMap = null; }
       }
 
       function addTiles() {
@@ -1005,6 +1057,19 @@
         view2d.classList.toggle("is-active", mode === "2d");
         viewRibbon.textContent = mode === "3d" ? "3D版本" : "2D版本";
         hint.textContent = mode === "3d" ? "已切换到3D版本，建筑物会以立体效果显示。" : "已切换到2D版本，测量和方向标仍可使用。";
+        if (mode === "3d") {
+          disableBuildingFootprints();
+          enableMapLibre3D();
+        } else {
+          disableMapLibre3D();
+          addBuildingFootprints();
+        }
+      }
+
+      function disableBuildingFootprints() {
+        // 移除伪3D footprint
+        var overlays = document.querySelectorAll('.building-footprint');
+        overlays.forEach(function (el) { el.remove(); });
       }
 
       function updateScaleDisplay() {
