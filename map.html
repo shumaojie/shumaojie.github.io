@@ -536,6 +536,7 @@
   <script src="vendor/leaflet.js"></script>
   <script src="vendor/maplibre-gl.js"></script>
   <script>
+    (function () {
     // 页面初始化时直接插入 OSM Buildings 脚本
     (function preloadOSMB() {
       if (!window.OSMBuildings) {
@@ -566,11 +567,18 @@
       var routeSummary = document.getElementById("routeSummary");
       var measureList = document.getElementById("measureList");
       var emptyRoute = document.getElementById("emptyRoute");
+      var AMAP_WEB_KEY = "d33cd8d7ae54845d492ab40ad76a936d";
+      var AMAP_SECURITY_CODE = "";
       var map = null;
-      var mlMap = null; // MapLibre GL map
+      var mlMap = null; // 高德在线 3D map
       var routeLayer = null;
       var guideLayer = null;
       var osmb = null; // OSM Buildings 图层（已废弃）
+      var amapLoadState = "idle";
+      var amapLoadQueue = [];
+      var amapLoadTimer = null;
+      var amapTrafficLayer = null;
+      var amapLandmarkMarkers = [];
       var activeTool = "";
       var routeSegments = [];
       var currentMeasure = emptyMeasure();
@@ -590,6 +598,14 @@
         { name: "天目山路", points: [[30.2749, 120.1262], [30.2746, 120.1513]], label: [30.2755, 120.135] },
         { name: "黄龙路", points: [[30.2658, 120.1361], [30.2786, 120.1402]], label: [30.2725, 120.1374] }
       ];
+      var buildingModels = [
+        { key: "school", name: "杭州市文一街小学", bounds: [[30.2912, 120.1359], [30.2922, 120.1373]], color: "#f5b832", height: 32 },
+        { key: "huanglong", name: "黄龙体育中心", bounds: [[30.2684, 120.1362], [30.2714, 120.1398]], color: "#d8444b", height: 40 },
+        { key: "xixi", name: "浙江大学西溪校区", bounds: [[30.2826, 120.1287], [30.2866, 120.1325]], color: "#2f9464", height: 64 },
+        { key: "library", name: "浙江图书馆", bounds: [[30.2734, 120.1428], [30.2753, 120.1448]], color: "#2f9464", height: 50 },
+        { key: "hotel", name: "黄龙饭店", bounds: [[30.2761, 120.1388], [30.2775, 120.1408]], color: "#2f9464", height: 78 },
+        { key: "westlake", name: "黄龙洞景区", bounds: [[30.2699, 120.1445], [30.2721, 120.1466]], color: "#2f9464", height: 46 }
+      ];
 
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", init);
@@ -600,6 +616,7 @@
       function init() {
         bindControls();
         initMap();
+        setViewMode(app.classList.contains("is-2d") ? "2d" : "3d");
         registerServiceWorker();
       }
 
@@ -649,7 +666,7 @@
           updateScaleDisplay();
           setTimeout(function () { map.invalidateSize(); }, 80);
         });
-        // 初始化 MapLibre GL 容器但不显示
+        // 初始化在线 3D 地图容器但不显示
         var mlDiv = document.getElementById('mlMap');
         mlDiv.style.display = 'none';
       }
@@ -658,19 +675,24 @@
         var mlDiv = document.getElementById('mlMap');
         mlDiv.style.display = 'block';
         document.getElementById('realMap').style.display = 'none';
-        if (mlMap) { mlMap.resize(); return; }
-        // 使用 OpenMapTiles 官方演示源和样式，支持 3D 建筑
-        mlMap = new maplibregl.Map({
-          container: 'mlMap',
-          style: 'https://demotiles.maplibre.org/style.json',
-          center: [120.137, 30.281],
-          zoom: 15,
-          pitch: 48,
-          bearing: -17,
-          antialias: true
-        });
-        mlMap.on('load', function () {
-          mlMap.resize();
+        hint.textContent = "高德三维地图加载中，拖动可平移，按住右键可旋转倾斜。";
+        if (mlMap) {
+          if (mlMap.resize) {
+            mlMap.resize();
+          }
+          syncAmapView();
+          updateThreeDStatus();
+          return;
+        }
+        loadAmap(function (error) {
+          if (error) {
+            fallbackTo2D("高德3D在线地图加载失败，请检查 Key、域名白名单或网络。");
+            return;
+          }
+          if (!app.classList.contains("is-3d")) {
+            return;
+          }
+          createAmap3D();
         });
       }
 
@@ -678,7 +700,177 @@
         var mlDiv = document.getElementById('mlMap');
         mlDiv.style.display = 'none';
         document.getElementById('realMap').style.display = '';
-        if (mlMap) { mlMap.remove(); mlMap = null; }
+        amapLandmarkMarkers = [];
+        amapTrafficLayer = null;
+        if (mlMap) {
+          if (mlMap.destroy) {
+            mlMap.destroy();
+          }
+          mlMap = null;
+        }
+      }
+
+      function loadAmap(callback) {
+        if (window.AMap && window.AMap.Map) {
+          amapLoadState = "loaded";
+          callback(null);
+          return;
+        }
+
+        amapLoadQueue.push(callback);
+        if (amapLoadState === "loading") {
+          return;
+        }
+
+        amapLoadState = "loading";
+        if (AMAP_SECURITY_CODE) {
+          window._AMapSecurityConfig = { securityJsCode: AMAP_SECURITY_CODE };
+        }
+
+        window.__onAmapReady = function () {
+          flushAmapLoadQueue(null);
+        };
+
+        var script = document.createElement("script");
+        script.src = "https://webapi.amap.com/maps?v=2.0&key=" + encodeURIComponent(AMAP_WEB_KEY) + "&plugin=AMap.Scale,AMap.ToolBar,AMap.ControlBar&callback=__onAmapReady";
+        script.async = true;
+        script.onload = function () {
+          if (!(window.AMap && window.AMap.Map)) {
+            flushAmapLoadQueue(new Error("amap-script-blocked"));
+          }
+        };
+        script.onerror = function () {
+          flushAmapLoadQueue(new Error("amap-load-failed"));
+        };
+        amapLoadTimer = setTimeout(function () {
+          flushAmapLoadQueue(new Error("amap-load-timeout"));
+        }, 8000);
+        document.head.appendChild(script);
+      }
+
+      function flushAmapLoadQueue(error) {
+        var queue = amapLoadQueue.slice();
+        amapLoadQueue = [];
+        if (amapLoadTimer) {
+          clearTimeout(amapLoadTimer);
+          amapLoadTimer = null;
+        }
+        amapLoadState = error ? "idle" : "loaded";
+        delete window.__onAmapReady;
+        queue.forEach(function (callback) {
+          callback(error || null);
+        });
+      }
+
+      function createAmap3D() {
+        if (!window.AMap || !window.AMap.Map) {
+          fallbackTo2D("高德3D在线地图初始化失败，请确认 Key 已为当前域名开通。");
+          return;
+        }
+
+        mlMap = new AMap.Map("mlMap", {
+          viewMode: "3D",
+          center: [120.1372, 30.2808],
+          zoom: 17,
+          pitch: 68,
+          rotation: -24,
+          zooms: [3, 20],
+          mapStyle: "amap://styles/normal",
+          showBuildingBlock: true,
+          showIndoorMap: true,
+          expandZoomRange: true,
+          pitchEnable: true,
+          rotateEnable: true,
+          dragEnable: true,
+          zoomEnable: true,
+          buildingAnimation: true,
+          features: ["bg", "road", "building", "point"]
+        });
+
+        if (window.AMap.Scale) {
+          mlMap.addControl(new AMap.Scale());
+        }
+        if (window.AMap.ToolBar) {
+          mlMap.addControl(new AMap.ToolBar({ position: { right: "18px", top: "82px" } }));
+        }
+        if (window.AMap.ControlBar) {
+          mlMap.addControl(new AMap.ControlBar({ position: { right: "18px", top: "146px" } }));
+        }
+
+        if (window.AMap.TileLayer && window.AMap.TileLayer.Traffic) {
+          amapTrafficLayer = new AMap.TileLayer.Traffic({ zIndex: 12 });
+          amapTrafficLayer.setMap(mlMap);
+        }
+
+        addAmapLandmarks();
+        syncAmapView();
+        updateThreeDStatus();
+        mlMap.on("complete", updateThreeDStatus);
+        mlMap.on("mapmove", updateThreeDStatus);
+        mlMap.on("zoomchange", updateThreeDStatus);
+        mlMap.on("rotatechange", updateThreeDStatus);
+      }
+
+      function syncAmapView() {
+        if (!mlMap || !window.AMap || !window.AMap.LngLat) {
+          return;
+        }
+        mlMap.setCenter([120.1372, 30.2808]);
+        mlMap.setZoomAndCenter(17, [120.1372, 30.2808]);
+        mlMap.setPitch(68);
+        mlMap.setRotation(-24);
+      }
+
+      function addAmapLandmarks() {
+        if (!mlMap || !window.AMap || !window.AMap.Marker || !window.AMap.Pixel) {
+          return;
+        }
+        amapLandmarkMarkers.forEach(function (marker) {
+          if (marker && marker.setMap) {
+            marker.setMap(null);
+          }
+        });
+        amapLandmarkMarkers = landmarks.map(function (place) {
+          var marker = new AMap.Marker({
+            position: [place.lng, place.lat],
+            anchor: "bottom-center",
+            title: place.name,
+            offset: new AMap.Pixel(-18, -18),
+            content: '<span class="landmark-pin ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span>'
+          });
+          marker.setMap(mlMap);
+          return marker;
+        });
+      }
+
+      function updateThreeDStatus() {
+        var pitch;
+        var zoom;
+        if (!mlMap || !app.classList.contains("is-3d")) {
+          return;
+        }
+        pitch = mlMap.getPitch ? Math.round(mlMap.getPitch()) : 68;
+        zoom = mlMap.getZoom ? mlMap.getZoom().toFixed(1) : "17.0";
+        scaleReadout.textContent = "高德3D 俯仰 " + pitch + "°  缩放 " + zoom;
+        hint.textContent = "已切换到高德在线3D，可旋转倾斜浏览街区；测量请切回2D。";
+      }
+
+      function fallbackTo2D(message) {
+        disableMapLibre3D();
+        addBuildingFootprints();
+        app.classList.remove("is-3d");
+        app.classList.add("is-2d");
+        view3d.classList.remove("is-active");
+        view2d.classList.add("is-active");
+        viewRibbon.textContent = "2D版本";
+        scaleReadout.textContent = "比例尺 正在计算";
+        if (map) {
+          setTimeout(function () {
+            map.invalidateSize();
+            updateScaleDisplay();
+          }, 40);
+        }
+        hint.textContent = message;
       }
 
       function addTiles() {
@@ -756,12 +948,9 @@
       }
 
       function addBuildingFootprints() {
-        addRect([[30.2912, 120.1359], [30.2922, 120.1373]], "#f5b832");
-        addRect([[30.2684, 120.1362], [30.2714, 120.1398]], "#d8444b");
-        addRect([[30.2826, 120.1287], [30.2866, 120.1325]], "#2f9464");
-        addRect([[30.2734, 120.1428], [30.2753, 120.1448]], "#2f9464");
-        addRect([[30.2761, 120.1388], [30.2775, 120.1408]], "#2f9464");
-        addRect([[30.2699, 120.1445], [30.2721, 120.1466]], "#2f9464");
+        buildingModels.forEach(function (building) {
+          addRect(building.bounds, building.color);
+        });
 
         function addRect(bounds, color) {
           L.rectangle(bounds, {
@@ -774,6 +963,213 @@
             interactive: false
           }).addTo(map);
         }
+      }
+
+      function createThreeDStyle() {
+        return {
+          version: 8,
+          sources: {
+            area: {
+              type: 'geojson',
+              data: buildAreaGeoJSON()
+            },
+            roads: {
+              type: 'geojson',
+              data: buildRoadGeoJSON()
+            },
+            buildings: {
+              type: 'geojson',
+              data: buildBuildingGeoJSON()
+            },
+            landmarks: {
+              type: 'geojson',
+              data: buildLandmarkGeoJSON()
+            }
+          },
+          layers: [
+            {
+              id: 'background',
+              type: 'background',
+              paint: {
+                'background-color': '#cfe0ea'
+              }
+            },
+            {
+              id: 'area-fill',
+              type: 'fill',
+              source: 'area',
+              paint: {
+                'fill-color': '#edf4ec',
+                'fill-opacity': 0.96
+              }
+            },
+            {
+              id: 'road-casing',
+              type: 'line',
+              source: 'roads',
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round'
+              },
+              paint: {
+                'line-color': '#c67419',
+                'line-width': ['interpolate', ['linear'], ['zoom'], 13, ['+', ['get', 'width'], 1.5], 16, ['+', ['get', 'width'], 4.5]],
+                'line-opacity': 0.42
+              }
+            },
+            {
+              id: 'road-fill',
+              type: 'line',
+              source: 'roads',
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round'
+              },
+              paint: {
+                'line-color': '#f4d77c',
+                'line-width': ['interpolate', ['linear'], ['zoom'], 13, ['get', 'width'], 16, ['+', ['get', 'width'], 2]],
+                'line-opacity': 0.96
+              }
+            },
+            {
+              id: 'landmark-halo',
+              type: 'circle',
+              source: 'landmarks',
+              paint: {
+                'circle-color': '#ffffff',
+                'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 5, 16, 9],
+                'circle-opacity': 0.96
+              }
+            },
+            {
+              id: 'landmark-core',
+              type: 'circle',
+              source: 'landmarks',
+              paint: {
+                'circle-color': ['get', 'color'],
+                'circle-radius': ['interpolate', ['linear'], ['zoom'], 13, 3, 16, 6],
+                'circle-stroke-color': '#ffffff',
+                'circle-stroke-width': 1.5,
+                'circle-opacity': 0.96
+              }
+            },
+            {
+              id: 'building-footprint-fill',
+              type: 'fill',
+              source: 'buildings',
+              paint: {
+                'fill-color': ['get', 'color'],
+                'fill-opacity': 0.16
+              }
+            },
+            {
+              id: 'building-extrusion',
+              type: 'fill-extrusion',
+              source: 'buildings',
+              paint: {
+                'fill-extrusion-color': ['get', 'color'],
+                'fill-extrusion-height': ['get', 'height'],
+                'fill-extrusion-base': 0,
+                'fill-extrusion-opacity': 0.95,
+                'fill-extrusion-vertical-gradient': true
+              }
+            }
+          ]
+        };
+      }
+
+      function buildAreaGeoJSON() {
+        return {
+          type: 'FeatureCollection',
+          features: [{
+            type: 'Feature',
+            properties: {},
+            geometry: {
+              type: 'Polygon',
+              coordinates: [boundsToRing(areaBounds)]
+            }
+          }]
+        };
+      }
+
+      function buildRoadGeoJSON() {
+        return {
+          type: 'FeatureCollection',
+          features: roads.map(function (road) {
+            return {
+              type: 'Feature',
+              properties: {
+                name: road.name,
+                width: road.name === '天目山路' ? 8 : road.name === '黄龙路' ? 6 : 5
+              },
+              geometry: {
+                type: 'LineString',
+                coordinates: road.points.map(toLngLat)
+              }
+            };
+          })
+        };
+      }
+
+      function buildBuildingGeoJSON() {
+        return {
+          type: 'FeatureCollection',
+          features: buildingModels.map(function (building) {
+            return {
+              type: 'Feature',
+              properties: {
+                key: building.key,
+                name: building.name,
+                color: building.color,
+                height: building.height
+              },
+              geometry: {
+                type: 'Polygon',
+                coordinates: [boundsToRing(building.bounds)]
+              }
+            };
+          })
+        };
+      }
+
+      function buildLandmarkGeoJSON() {
+        return {
+          type: 'FeatureCollection',
+          features: landmarks.map(function (place) {
+            return {
+              type: 'Feature',
+              properties: {
+                key: place.key,
+                name: place.name,
+                color: place.type === 'school' ? '#f5b832' : place.type === 'destination' ? '#d8444b' : '#2f9464'
+              },
+              geometry: {
+                type: 'Point',
+                coordinates: [place.lng, place.lat]
+              }
+            };
+          })
+        };
+      }
+
+      function boundsToRing(bounds) {
+        var southWest = bounds[0];
+        var northEast = bounds[1];
+        var south = southWest[0];
+        var west = southWest[1];
+        var north = northEast[0];
+        var east = northEast[1];
+        return [
+          [west, south],
+          [east, south],
+          [east, north],
+          [west, north],
+          [west, south]
+        ];
+      }
+
+      function toLngLat(point) {
+        return [point[1], point[0]];
       }
 
       function addLandmarks() {
