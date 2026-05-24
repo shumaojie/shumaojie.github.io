@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#16415f">
-  <title>设计路线图</title>
-  <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="vendor/maplibre-gl.css">
-  <style>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#16415f">
+    <title>设计路线图</title>
+    <link rel="stylesheet" href="vendor/leaflet.css">
+    <link rel="stylesheet" href="vendor/maplibre-gl.css">
+    <style>
     :root {
       --ink: #102536;
       --muted: #5c7180;
@@ -37,6 +37,7 @@
         linear-gradient(135deg, rgba(212, 235, 235, 0.92), rgba(255, 246, 222, 0.84)),
         linear-gradient(180deg, #d9eff3 0%, #f8f4e9 100%);
       font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+      overflow: hidden;
     }
 
     button,
@@ -49,26 +50,32 @@
     }
 
     .app {
+      position: relative;
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr);
-      gap: 16px;
-      width: min(100%, 1480px);
+      grid-template-rows: minmax(0, 1fr);
+      gap: 0;
+      width: 100%;
       min-height: 100vh;
       margin: 0 auto;
-      padding: 18px;
+      padding: 0;
     }
 
     .topbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 900;
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 16px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
       align-items: center;
-      padding: 16px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.72);
-      border-radius: 26px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
+      padding: 9px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.58);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.68);
+      box-shadow: 0 10px 28px rgba(9, 36, 55, 0.14);
+      backdrop-filter: blur(10px);
     }
 
     .return-link,
@@ -77,13 +84,20 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 46px;
-      padding: 0 16px;
+      min-height: 32px;
+      padding: 0 11px;
       border-radius: 999px;
       color: var(--ink);
-      font-weight: 900;
+      font-size: 12px;
+      font-weight: 800;
       text-decoration: none;
       transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .return-link,
+    .eyebrow,
+    .side-panel {
+      display: none !important;
     }
 
     .return-link,
@@ -94,9 +108,13 @@
 
     .return-link:hover,
     .tool-button:hover,
-    .view-button:hover { transform: translateY(-2px); }
+    .view-button:hover { transform: translateY(-1px); }
 
-    .title-block { min-width: 0; }
+    .title-block {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
 
     .eyebrow {
       margin: 0 0 4px;
@@ -108,42 +126,46 @@
 
     h1 {
       margin: 0;
-      font-size: clamp(32px, 5vw, 58px);
-      line-height: 1;
-      color: #b71922;
+      font-size: clamp(14px, 2.2vw, 18px);
+      line-height: 1.1;
+      color: #16354b;
       font-weight: 900;
-      letter-spacing: 0;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .actions {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 6px;
     }
 
     .tool-button {
       background: linear-gradient(180deg, #2a86c7 0%, #1769aa 100%);
       color: #ffffff;
-      box-shadow: 0 12px 22px rgba(23, 105, 170, 0.22);
+      box-shadow: 0 8px 16px rgba(23, 105, 170, 0.18);
     }
 
     .tool-button.compass { background: linear-gradient(180deg, #30a36e 0%, #237c57 100%); }
     .tool-button.clear { background: linear-gradient(180deg, #f09a38 0%, #d56f18 100%); }
-    .tool-button.is-active { outline: 4px solid rgba(255, 210, 86, 0.62); }
+    .tool-button.is-active { outline: 2px solid rgba(255, 210, 86, 0.68); }
 
     .view-switch {
       display: inline-flex;
-      gap: 6px;
-      padding: 5px;
+      gap: 4px;
+      padding: 3px;
       border: 1px solid var(--line);
       border-radius: 999px;
-      background: rgba(248, 250, 252, 0.96);
+      background: rgba(248, 250, 252, 0.78);
     }
 
     .view-button {
-      min-height: 36px;
-      padding: 0 13px;
+      min-height: 26px;
+      padding: 0 10px;
+      font-size: 11px;
       color: var(--muted);
       background: transparent;
       border: 0;
@@ -157,9 +179,9 @@
 
     .workspace {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 330px;
-      gap: 16px;
-      min-height: 0;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+      min-height: 100vh;
     }
 
     .map-shell,
@@ -173,13 +195,21 @@
 
     .map-shell {
       position: relative;
-      min-height: 680px;
+      min-height: 100vh;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    #realMap,
+    #mlMap {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
     }
 
     #realMap {
-      width: 100%;
-      height: 100%;
-      min-height: 680px;
       background:
         linear-gradient(90deg, rgba(23, 105, 170, 0.12) 1px, transparent 1px),
         linear-gradient(0deg, rgba(23, 105, 170, 0.12) 1px, transparent 1px),
@@ -189,6 +219,10 @@
 
     .leaflet-control-attribution { display: none; }
     .leaflet-container { font: inherit; }
+    .leaflet-top.leaflet-left .leaflet-control-zoom {
+      margin-top: 94px;
+      margin-left: 14px;
+    }
 
     .app.is-3d #realMap .leaflet-tile-pane {
       filter: saturate(1.08) contrast(1.02);
@@ -225,20 +259,22 @@
       z-index: 700;
       display: inline-flex;
       align-items: center;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.94);
+      min-height: 30px;
+      padding: 0 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
       color: var(--ink);
-      font-weight: 900;
-      box-shadow: 0 12px 26px rgba(12, 43, 64, 0.16);
+      font-size: 11px;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(12, 43, 64, 0.12);
+      backdrop-filter: blur(8px);
       pointer-events: none;
     }
 
     .view-ribbon {
-      top: 18px;
+      top: 62px;
       left: 18px;
-      background: rgba(16, 37, 54, 0.92);
+      background: rgba(16, 37, 54, 0.72);
       color: #ffffff;
     }
 
@@ -249,9 +285,12 @@
     }
 
     .hint {
+      top: 62px;
       right: 18px;
-      bottom: 18px;
-      max-width: min(560px, calc(100% - 36px));
+      bottom: auto;
+      max-width: min(360px, calc(100% - 36px));
+      padding: 8px 10px;
+      border-radius: 14px;
       color: #7b3d0a;
       white-space: normal;
     }
@@ -349,29 +388,31 @@
       position: relative;
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 4px;
       min-width: max-content;
-      padding: 6px 10px 6px 7px;
+      padding: 3px 7px 3px 5px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 9px 18px rgba(14, 50, 76, 0.2);
-      color: var(--ink);
-      font-size: 13px;
-      font-weight: 900;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 6px 14px rgba(14, 50, 76, 0.1);
+      color: rgba(16, 37, 54, 0.88);
+      font-size: 11px;
+      font-weight: 800;
       white-space: nowrap;
+      backdrop-filter: blur(6px);
     }
 
     .landmark-pin .badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 30px;
-      height: 30px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       color: #ffffff;
-      font-size: 16px;
+      font-size: 0;
       line-height: 1;
       background: var(--blue);
+      opacity: 0.92;
     }
 
     .landmark-pin.school .badge {
@@ -384,9 +425,32 @@
     .landmark-pin.building .badge { background: var(--green); border-radius: 7px; }
     .landmark-pin.road .badge { background: #46596b; }
 
-    .app.is-3d .landmark-pin {
-      transform: translateY(-3px);
-      box-shadow: 7px 12px 0 rgba(53, 70, 77, 0.2), 0 10px 20px rgba(14, 50, 76, 0.22);
+    .landmark-pin.is-leaflet {
+      transform: translate(-50%, calc(-100% - 4px));
+    }
+
+    .landmark-pin.is-amap {
+      transform: none;
+    }
+
+    .landmark-pin-wrap {
+      position: relative;
+      display: inline-block;
+      transform: translate(-50%, calc(-100% - 4px));
+    }
+
+    .app.is-3d .landmark-pin.is-leaflet {
+      transform: translate(-50%, calc(-100% - 6px));
+      box-shadow: 6px 10px 0 rgba(53, 70, 77, 0.12), 0 10px 20px rgba(14, 50, 76, 0.16);
+    }
+
+    .app.is-3d .landmark-pin.is-amap {
+      transform: none;
+      box-shadow: 6px 10px 0 rgba(53, 70, 77, 0.12), 0 10px 20px rgba(14, 50, 76, 0.16);
+    }
+
+    .app.is-3d .landmark-pin-wrap {
+      transform: translate(-50%, calc(-100% - 6px));
     }
 
     .measure-marker-icon { background: transparent; border: 0; }
@@ -410,132 +474,146 @@
       min-width: 38px;
       padding: 3px 7px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(255, 255, 255, 0.86);
       color: var(--ink);
-      font-size: 12px;
-      font-weight: 900;
+      font-size: 10px;
+      font-weight: 800;
       text-align: center;
       content: attr(data-label);
       transform: translateX(-50%);
       white-space: nowrap;
-      box-shadow: 0 8px 16px rgba(23, 55, 79, 0.16);
+      box-shadow: 0 8px 16px rgba(23, 55, 79, 0.12);
     }
 
     .leaflet-tooltip.distance-tooltip,
     .leaflet-tooltip.angle-tooltip {
-      padding: 7px 10px;
+      padding: 5px 8px;
       border: 0;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.96);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
       color: var(--ink);
-      font-size: 14px;
-      font-weight: 900;
-      box-shadow: 0 10px 18px rgba(26, 52, 72, 0.18);
+      font-size: 12px;
+      font-weight: 800;
+      box-shadow: 0 10px 18px rgba(26, 52, 72, 0.12);
     }
 
     .leaflet-tooltip.angle-tooltip {
-      color: #a34f00;
-      font-size: 18px;
+      color: #b45900;
+      font-size: 15px;
     }
 
     .leaflet-tooltip.distance-tooltip::before,
     .leaflet-tooltip.angle-tooltip::before { display: none; }
 
+    .is-amap-overlay {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .measure-marker-wrap.is-amap-overlay {
+      transform: translate(-50%, -50%);
+    }
+
     .road-label-icon { background: transparent; border: 0; }
 
     .road-label {
       display: inline-flex;
-      padding: 3px 9px;
+      padding: 2px 6px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.82);
-      color: #345064;
-      font-size: 12px;
-      font-weight: 900;
+      background: rgba(255, 255, 255, 0.52);
+      color: rgba(52, 80, 100, 0.8);
+      font-size: 10px;
+      font-weight: 800;
       white-space: nowrap;
-      box-shadow: 0 6px 12px rgba(16, 37, 54, 0.12);
+      box-shadow: 0 5px 10px rgba(16, 37, 54, 0.08);
+      backdrop-filter: blur(4px);
+      transform: translate(-50%, -50%);
     }
 
     @media (max-width: 1120px) {
-      .topbar,
-      .workspace { grid-template-columns: 1fr; }
-
+      .topbar { right: 10px; left: 10px; }
       .actions { justify-content: flex-start; }
-      .map-shell,
-      #realMap { min-height: 620px; }
     }
 
     @media (max-width: 680px) {
-      .app { padding: 10px; }
-      .topbar { gap: 12px; padding: 13px; border-radius: 20px; }
+      .topbar { gap: 8px; padding: 8px 10px; border-radius: 14px; }
       .actions { gap: 8px; }
       .tool-button,
-      .return-link { min-height: 42px; padding: 0 12px; font-size: 14px; }
-      .map-shell,
-      #realMap { min-height: 540px; }
-      .hint { left: 12px; right: 12px; bottom: 66px; }
+      .return-link { min-height: 30px; padding: 0 10px; font-size: 11px; }
+      .hint { left: 12px; right: 12px; top: auto; bottom: 48px; max-width: none; }
       .scale-readout { left: 12px; bottom: 12px; }
-      .view-ribbon { top: 12px; left: 12px; }
-      .side-panel { padding: 12px; border-radius: 20px; }
+      .view-ribbon { top: 58px; left: 12px; }
     }
   </style>
-</head>
-<body>
-  <main id="app" class="app is-3d">
-    <header class="topbar">
-      <a class="return-link" href="./index.html">返回首页</a>
-      <div class="title-block">
-        <p class="eyebrow">文一街小学到黄龙体育中心</p>
-        <h1>设计路线图</h1>
-      </div>
-      <div class="actions" aria-label="地图工具">
-        <button id="measureButton" class="tool-button" type="button">测量</button>
-        <button id="compassButton" class="tool-button compass" type="button">十字方向标</button>
-        <button id="clearButton" class="tool-button clear" type="button">清除</button>
-        <div class="view-switch" role="group" aria-label="切换地图版本">
-          <button id="view3d" class="view-button is-active" type="button">3D</button>
-          <button id="view2d" class="view-button" type="button">2D</button>
+  </head>
+  <body>
+    <main id="app" class="app is-3d">
+      <header class="topbar">
+        <a class="return-link" href="./index.html" hidden>返回首页</a>
+        <div class="title-block">
+          <p class="eyebrow">文一街小学到黄龙体育中心</p>
+          <h1>设计路线图</h1>
         </div>
-      </div>
-    </header>
-
-    <section class="workspace">
-
-      <div id="mapShell" class="map-shell">
-        <div id="realMap" aria-label="杭州市文一街小学到黄龙体育中心周边地图"></div>
-        <div id="mlMap" style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:10;display:none;"></div>
-        <div id="viewRibbon" class="view-ribbon">3D版本</div>
-        <div id="scaleReadout" class="scale-readout">比例尺 正在计算</div>
-        <div id="hint" class="hint">点击“测量”，再在地图上依次选择起点和终点。</div>
-      </div>
-
-      <aside class="side-panel" aria-label="路线信息">
-        <section class="info-card">
-          <h2>地图范围</h2>
-          <p class="info-line">北到文一路，东到莫干山路，西到学院路，南侧覆盖黄龙体育中心。</p>
-          <div class="legend" aria-label="图例">
-            <span class="school"><i></i>起点五角星</span>
-            <span class="end"><i></i>终点圆点</span>
-            <span class="building"><i></i>周边建筑</span>
+        <div class="actions" aria-label="地图工具">
+          <button id="measureButton" class="tool-button"
+            type="button">测量</button>
+          <button id="compassButton" class="tool-button compass"
+            type="button">十字方向标</button>
+          <button id="clearButton" class="tool-button clear"
+            type="button">清除</button>
+          <div class="view-switch" role="group" aria-label="切换地图版本">
+            <button id="view3d" class="view-button is-active"
+              type="button">3D</button>
+            <button id="view2d" class="view-button" type="button">2D</button>
           </div>
-        </section>
+        </div>
+      </header>
 
-        <section class="info-card">
-          <h2>当前路线</h2>
-          <p id="routeSummary" class="info-line">还没有完成测量。</p>
-        </section>
+      <section class="workspace">
 
-        <section class="info-card">
-          <h2>测量记录</h2>
-          <div id="emptyRoute" class="empty-route">完成一次起点和终点选择后，这里会显示实际距离。</div>
-          <ol id="measureList" class="measure-list"></ol>
-        </section>
-      </aside>
-    </section>
-  </main>
+        <div id="mapShell" class="map-shell">
+          <div id="realMap" aria-label="杭州市文一街小学到黄龙体育中心周边地图"></div>
+          <div id="mlMap"
+            style="width:100%;height:100%;position:absolute;top:0;left:0;z-index:10;display:none;"></div>
+          <div id="viewRibbon" class="view-ribbon">3D版本</div>
+          <div id="scaleReadout" class="scale-readout">比例尺 正在计算</div>
+          <div id="hint" class="hint">点击“测量”，再在地图上依次选择起点和终点。</div>
+        </div>
 
-  <script src="vendor/leaflet.js"></script>
-  <script src="vendor/maplibre-gl.js"></script>
-  <script>
+        <aside class="side-panel" aria-label="路线信息" hidden>
+          <section class="info-card">
+            <h2>地图范围</h2>
+            <p class="info-line">北到文一路，东到莫干山路，西到学院路，南侧覆盖黄龙体育中心。</p>
+            <div class="legend" aria-label="图例">
+              <span class="school"><i></i>起点五角星</span>
+              <span class="end"><i></i>终点圆点</span>
+              <span class="building"><i></i>周边建筑</span>
+            </div>
+          </section>
+
+          <section class="info-card">
+            <h2>当前路线</h2>
+            <p id="routeSummary" class="info-line">还没有完成测量。</p>
+          </section>
+
+          <section class="info-card">
+            <h2>测量记录</h2>
+            <div id="emptyRoute"
+              class="empty-route">完成一次起点和终点选择后，这里会显示实际距离。</div>
+            <ol id="measureList" class="measure-list"></ol>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script src="vendor/leaflet.js"></script>
+    <script src="vendor/maplibre-gl.js"></script>
+    <script>
     (function () {
     // 页面初始化时直接插入 OSM Buildings 脚本
     (function preloadOSMB() {
@@ -580,17 +658,38 @@
       var amapLoadTimer = null;
       var amapTrafficLayer = null;
       var amapLandmarkMarkers = [];
+      var amapInstanceMode = "";
+      var areaMaskLayer = null;
+      var highlightedSegment = null;
+      var currentViewMode = "3d";
+      var amapEventsBound = false;
       var activeTool = "";
       var routeSegments = [];
       var currentMeasure = emptyMeasure();
+      var defaultFocusKey = "school";
       var areaBounds = [[30.2652, 120.1262], [30.2962, 120.1513]];
       var landmarks = [
-        { key: "school", name: "杭州市文一街小学", shortName: "文一街小学", type: "school", lat: 30.2917, lng: 120.1365 },
-        { key: "huanglong", name: "黄龙体育中心", shortName: "黄龙体育中心", type: "destination", lat: 30.2699, lng: 120.1378 },
-        { key: "xixi", name: "浙江大学西溪校区", shortName: "浙大西溪", type: "building", lat: 30.2847, lng: 120.1306 },
-        { key: "library", name: "浙江图书馆", shortName: "浙江图书馆", type: "building", lat: 30.2744, lng: 120.1437 },
-        { key: "hotel", name: "黄龙饭店", shortName: "黄龙饭店", type: "building", lat: 30.2768, lng: 120.1398 },
-        { key: "westlake", name: "黄龙洞景区", shortName: "黄龙洞", type: "building", lat: 30.2708, lng: 120.1455 }
+        // { key: "school", name: "杭州市文一街小学", shortName: "文一街小学", type: "school", lat: 30.2917, lng: 120.1366 },
+        // { key: "huanglong", name: "黄龙体育中心", shortName: "黄龙体育中心", type: "destination", lat: 30.2699, lng: 120.1380 },
+        // { key: "xixi", name: "浙江大学西溪校区", shortName: "浙大西溪", type: "building", lat: 30.2846, lng: 120.1306 },
+        // { key: "library", name: "浙江图书馆", shortName: "浙江图书馆", type: "building", lat: 30.2744, lng: 120.1438 },
+        // { key: "hotel", name: "黄龙饭店", shortName: "黄龙饭店", type: "building", lat: 30.2768, lng: 120.1398 },
+        // { key: "westlake", name: "黄龙洞景区", shortName: "黄龙洞", type: "building", lat: 30.2710, lng: 120.1456 }
+      
+
+  { key: "school", name: "杭州市文一街小学", shortName: "文一街小学", type: "school", lat: 30.2875, lng: 120.1425 },
+
+  { key: "huanglong", name: "黄龙体育中心", shortName: "黄龙体育中心", type: "destination", lat: 30.2667, lng: 120.1335 },
+
+  { key: "xixi", name: "浙江大学西溪校区", shortName: "浙大西溪", type: "building", lat: 30.2765, lng: 120.1358 },
+
+  { key: "library", name: "浙江图书馆", shortName: "浙江图书馆", type: "building", lat: 30.2735, lng: 120.1398 },
+
+  { key: "hotel", name: "黄龙饭店", shortName: "黄龙饭店", type: "building", lat: 30.2671, lng: 120.1428 },
+
+  { key: "westlake", name: "黄龙洞景区", shortName: "黄龙洞", type: "building", lat: 30.2649, lng: 120.1391 }
+
+      
       ];
       var roads = [
         { name: "文一路", points: [[30.2928, 120.1262], [30.2927, 120.1513]], label: [30.2933, 120.141] },
@@ -599,14 +698,77 @@
         { name: "天目山路", points: [[30.2749, 120.1262], [30.2746, 120.1513]], label: [30.2755, 120.135] },
         { name: "黄龙路", points: [[30.2658, 120.1361], [30.2786, 120.1402]], label: [30.2725, 120.1374] }
       ];
+      // var buildingModels = [
+      //   { key: "school", name: "杭州市文一街小学", bounds: [[30.2912, 120.1359], [30.2922, 120.1373]], color: "#f5b832", height: 32 },
+      //   { key: "huanglong", name: "黄龙体育中心", bounds: [[30.2684, 120.1362], [30.2714, 120.1398]], color: "#d8444b", height: 40 },
+      //   { key: "xixi", name: "浙江大学西溪校区", bounds: [[30.2826, 120.1287], [30.2866, 120.1325]], color: "#2f9464", height: 64 },
+      //   { key: "library", name: "浙江图书馆", bounds: [[30.2734, 120.1428], [30.2753, 120.1448]], color: "#2f9464", height: 50 },
+      //   { key: "hotel", name: "黄龙饭店", bounds: [[30.2761, 120.1388], [30.2775, 120.1408]], color: "#2f9464", height: 78 },
+      //   { key: "westlake", name: "黄龙洞景区", bounds: [[30.2699, 120.1445], [30.2721, 120.1466]], color: "#2f9464", height: 46 }
+      // ];
+
       var buildingModels = [
-        { key: "school", name: "杭州市文一街小学", bounds: [[30.2912, 120.1359], [30.2922, 120.1373]], color: "#f5b832", height: 32 },
-        { key: "huanglong", name: "黄龙体育中心", bounds: [[30.2684, 120.1362], [30.2714, 120.1398]], color: "#d8444b", height: 40 },
-        { key: "xixi", name: "浙江大学西溪校区", bounds: [[30.2826, 120.1287], [30.2866, 120.1325]], color: "#2f9464", height: 64 },
-        { key: "library", name: "浙江图书馆", bounds: [[30.2734, 120.1428], [30.2753, 120.1448]], color: "#2f9464", height: 50 },
-        { key: "hotel", name: "黄龙饭店", bounds: [[30.2761, 120.1388], [30.2775, 120.1408]], color: "#2f9464", height: 78 },
-        { key: "westlake", name: "黄龙洞景区", bounds: [[30.2699, 120.1445], [30.2721, 120.1466]], color: "#2f9464", height: 46 }
-      ];
+  { 
+    key: "school", 
+    name: "杭州市文一街小学", 
+    bounds: [[30.2985, 120.1328], [30.2998, 120.1342]], 
+    color: "#f5b832", 
+    height: 32 
+  },
+  { 
+    key: "huanglong", 
+    name: "黄龙体育中心", 
+    bounds: [[30.2648, 120.1318], [30.2685, 120.1365]], 
+    color: "#d8444b", 
+    height: 40 
+  },
+  { 
+    key: "xixi", 
+    name: "浙江大学西溪校区", 
+    bounds: [[30.2738, 120.1330], [30.2795, 120.1385]], 
+    color: "#2f9464", 
+    height: 64 
+  },
+  { 
+    key: "library", 
+    name: "浙江图书馆", 
+    bounds: [[30.2725, 120.1395], [30.2750, 120.1425]], 
+    color: "#2f9464", 
+    height: 50 
+  },
+  { 
+    key: "hotel", 
+    name: "黄龙饭店", 
+    bounds: [[30.2662, 120.1415], [30.2685, 120.1445]], 
+    color: "#2f9464", 
+    height: 78 
+  },
+  { 
+    key: "westlake", 
+    name: "黄龙洞景区", 
+    bounds: [[30.2635, 120.1375], [30.2665, 120.1415]], 
+    color: "#2f9464", 
+    height: 46 
+  }
+];
+
+      function getDefaultFocusLandmark() {
+        for (var i = 0; i < landmarks.length; i += 1) {
+          if (landmarks[i].key === defaultFocusKey) {
+            return landmarks[i];
+          }
+        }
+        return landmarks[0] || { lat: 30.2875, lng: 120.1425 };
+      }
+
+      function getDefaultAmapCenter() {
+        var landmark = getDefaultFocusLandmark();
+        return [landmark.lng, landmark.lat];
+      }
+
+      function getAmapInstanceMode(mode) {
+        return mode === "2d" ? "2d" : "3d";
+      }
 
       if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", init);
@@ -617,7 +779,8 @@
       function init() {
         bindControls();
         initMap();
-        setViewMode(app.classList.contains("is-2d") ? "2d" : "3d");
+        currentViewMode = app.classList.contains("is-2d") ? "2d" : "3d";
+        setViewMode(currentViewMode);
         registerServiceWorker();
       }
 
@@ -628,6 +791,9 @@
         view3d.addEventListener("click", function () { setViewMode("3d"); });
         view2d.addEventListener("click", function () { setViewMode("2d"); });
         window.addEventListener("resize", function () {
+          if (mlMap && mlMap.resize) {
+            mlMap.resize();
+          }
           if (map) {
             map.invalidateSize();
             updateScaleDisplay();
@@ -650,8 +816,19 @@
           zoomSnap: 0.25,
           zoomDelta: 0.5,
           zoomControl: true,
-          worldCopyJump: true
+          worldCopyJump: false,
+          maxBounds: areaBounds,
+          maxBoundsViscosity: 1
         });
+
+        map.createPane("maskPane");
+        map.getPane("maskPane").style.zIndex = 430;
+        map.createPane("labelPane");
+        map.getPane("labelPane").style.zIndex = 640;
+        map.createPane("routePane");
+        map.getPane("routePane").style.zIndex = 660;
+        map.createPane("guidePane");
+        map.getPane("guidePane").style.zIndex = 670;
 
         routeLayer = L.layerGroup().addTo(map);
         guideLayer = L.layerGroup().addTo(map);
@@ -659,6 +836,7 @@
         addRoads();
         addBuildingFootprints();
         addLandmarks();
+        addAreaMask();
         map.fitBounds(areaBounds, { padding: [24, 24] });
         map.on("click", function (event) { handleMapChoice(event.latlng, "地图点"); });
         map.on("mousemove", handleMouseMove);
@@ -672,16 +850,19 @@
         mlDiv.style.display = 'none';
       }
 
-      function enableMapLibre3D() {
+      function enableMapLibre3D(mode) {
         var mlDiv = document.getElementById('mlMap');
+        var desiredMode;
+        currentViewMode = mode || "3d";
+        desiredMode = getAmapInstanceMode(currentViewMode);
         mlDiv.style.display = 'block';
         document.getElementById('realMap').style.display = 'none';
-        hint.textContent = "高德三维地图加载中，拖动可平移，按住右键可旋转倾斜。";
-        if (mlMap) {
+        hint.textContent = currentViewMode === "3d" ? "高德三维地图加载中，拖动可平移，按住右键可旋转倾斜。" : "高德二维地图加载中，可直接浏览和测量。";
+        if (mlMap && amapInstanceMode === desiredMode) {
           if (mlMap.resize) {
             mlMap.resize();
           }
-          syncAmapView();
+          applyAmapViewMode(currentViewMode);
           updateThreeDStatus();
           return;
         }
@@ -690,25 +871,40 @@
             fallbackTo2D(getAmapLoadErrorMessage(error));
             return;
           }
-          if (!app.classList.contains("is-3d")) {
+          if (!app.classList.contains("is-" + currentViewMode)) {
             return;
           }
-          createAmap3D();
+          destroyAmapInstance();
+          createAmap3D(currentViewMode);
         });
       }
 
-      function disableMapLibre3D() {
-        var mlDiv = document.getElementById('mlMap');
-        mlDiv.style.display = 'none';
-        document.getElementById('realMap').style.display = '';
+      function destroyAmapInstance() {
+        amapLandmarkMarkers.forEach(function (marker) {
+          if (marker && marker.setMap) {
+            marker.setMap(null);
+          }
+        });
         amapLandmarkMarkers = [];
+        if (amapTrafficLayer && amapTrafficLayer.setMap) {
+          amapTrafficLayer.setMap(null);
+        }
         amapTrafficLayer = null;
+        amapEventsBound = false;
+        amapInstanceMode = "";
         if (mlMap) {
           if (mlMap.destroy) {
             mlMap.destroy();
           }
           mlMap = null;
         }
+      }
+
+      function disableMapLibre3D() {
+        var mlDiv = document.getElementById('mlMap');
+        mlDiv.style.display = 'none';
+        document.getElementById('realMap').style.display = '';
+        destroyAmapInstance();
       }
 
       function loadAmap(callback) {
@@ -763,30 +959,38 @@
         });
       }
 
-      function createAmap3D() {
+      function createAmap3D(mode) {
+        var renderMode = getAmapInstanceMode(mode);
         if (!window.AMap || !window.AMap.Map) {
           fallbackTo2D("高德 JS API 没有真正执行。当前浏览器可能把脚本重定向到了认证页/代理页，或当前域名/IP 的安全校验未通过。");
           return;
         }
 
+        amapInstanceMode = renderMode;
+
         mlMap = new AMap.Map("mlMap", {
-          viewMode: "3D",
-          center: [120.1372, 30.2808],
-          zoom: 17,
-          pitch: 68,
-          rotation: -24,
+          viewMode: renderMode === "3d" ? "3D" : "2D",
+          center: getDefaultAmapCenter(),
+          zoom: renderMode === "3d" ? 17 : 16.8,
+          pitch: renderMode === "3d" ? 68 : 0,
+          rotation: 0,
           zooms: [3, 20],
           mapStyle: "amap://styles/normal",
-          showBuildingBlock: true,
-          showIndoorMap: true,
+          showBuildingBlock: renderMode === "3d",
+          showIndoorMap: renderMode === "3d",
           expandZoomRange: true,
-          pitchEnable: true,
-          rotateEnable: true,
+          pitchEnable: renderMode === "3d",
+          rotateEnable: renderMode === "3d",
           dragEnable: true,
           zoomEnable: true,
-          buildingAnimation: true,
-          features: ["bg", "road", "building", "point"]
+          buildingAnimation: renderMode === "3d",
+          features: ["bg", "road", "building"],
+          mask: [buildAmapMaskPath()]
         });
+
+        if (window.AMap.Bounds && mlMap.setLimitBounds) {
+          mlMap.setLimitBounds(new AMap.Bounds([120.1262, 30.2652], [120.1513, 30.2962]));
+        }
 
         if (window.AMap.Scale) {
           mlMap.addControl(new AMap.Scale());
@@ -794,7 +998,7 @@
         if (window.AMap.ToolBar) {
           mlMap.addControl(new AMap.ToolBar({ position: { right: "18px", top: "82px" } }));
         }
-        if (window.AMap.ControlBar) {
+        if (window.AMap.ControlBar && renderMode === "3d") {
           mlMap.addControl(new AMap.ControlBar({ position: { right: "18px", top: "146px" } }));
         }
 
@@ -804,7 +1008,9 @@
         }
 
         addAmapLandmarks();
-        syncAmapView();
+        bindAmapInteractions();
+        applyAmapViewMode(mode || currentViewMode);
+  rebuildVisibleOverlays();
         updateThreeDStatus();
         mlMap.on("complete", updateThreeDStatus);
         mlMap.on("mapmove", updateThreeDStatus);
@@ -816,10 +1022,40 @@
         if (!mlMap || !window.AMap || !window.AMap.LngLat) {
           return;
         }
-        mlMap.setCenter([120.1372, 30.2808]);
-        mlMap.setZoomAndCenter(17, [120.1372, 30.2808]);
-        mlMap.setPitch(68);
-        mlMap.setRotation(-24);
+        var defaultCenter = getDefaultAmapCenter();
+        mlMap.setCenter(defaultCenter);
+        mlMap.setZoomAndCenter(currentViewMode === "3d" ? 17 : 16.8, defaultCenter);
+        mlMap.setPitch(currentViewMode === "3d" ? 68 : 0);
+        mlMap.setRotation(0);
+      }
+
+      function applyAmapViewMode(mode) {
+        currentViewMode = mode || currentViewMode;
+        if (!mlMap) {
+          return;
+        }
+        syncAmapView();
+        if (amapTrafficLayer && amapTrafficLayer.show && amapTrafficLayer.hide) {
+          if (currentViewMode === "3d") {
+            amapTrafficLayer.show();
+          } else {
+            amapTrafficLayer.show();
+          }
+        }
+        updateScaleDisplay();
+      }
+
+      function bindAmapInteractions() {
+        if (!mlMap || amapEventsBound) {
+          return;
+        }
+        mlMap.on("click", function (event) {
+          handleMapChoice(normalizeLatLng(event && event.lnglat), "地图点");
+        });
+        mlMap.on("mousemove", function (event) {
+          handleMouseMove({ latlng: normalizeLatLng(event && event.lnglat) });
+        });
+        amapEventsBound = true;
       }
 
       function addAmapLandmarks() {
@@ -836,29 +1072,256 @@
             position: [place.lng, place.lat],
             anchor: "bottom-center",
             title: place.name,
-            offset: new AMap.Pixel(-18, -18),
-            content: '<span class="landmark-pin ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span>'
+            offset: new AMap.Pixel(0, 0),
+            bubble: false,
+            zIndex: 220,
+            content: '<span class="landmark-pin-wrap"><span class="landmark-pin is-amap ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span></span>'
+          });
+          marker.on("click", function () {
+            handleMapChoice({ lat: place.lat, lng: place.lng }, place.shortName);
           });
           marker.setMap(mlMap);
           return marker;
         });
       }
 
+      function isAmapVisible() {
+        return !!(mlMap && window.AMap && document.getElementById('mlMap').style.display !== 'none');
+      }
+
+      function normalizeLatLng(point) {
+        if (!point) {
+          return null;
+        }
+        if (typeof point.getLat === "function" && typeof point.getLng === "function") {
+          return { lat: point.getLat(), lng: point.getLng() };
+        }
+        if (typeof point.lat === "number" && typeof point.lng === "number") {
+          return { lat: point.lat, lng: point.lng };
+        }
+        return null;
+      }
+
+      function isAmapOverlay(layer) {
+        return !!(layer && typeof layer.setMap === "function");
+      }
+
+      function toAmapPathPoint(point) {
+        return [point.lng, point.lat];
+      }
+
+      function parseDashArray(dashArray) {
+        return String(dashArray || "8 8").split(/\s+/).map(function (part) {
+          return parseInt(part, 10);
+        }).filter(function (value) {
+          return !isNaN(value) && value > 0;
+        });
+      }
+
+      function getDistanceBetween(start, end) {
+        var radius = 6378137;
+        var lat1 = toRad(start.lat);
+        var lat2 = toRad(end.lat);
+        var deltaLat = lat2 - lat1;
+        var deltaLng = toRad(end.lng - start.lng);
+        var a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return radius * c;
+      }
+
+      function removeOverlay(layer) {
+        if (!layer) {
+          return;
+        }
+        if (isAmapOverlay(layer)) {
+          layer.setMap(null);
+          return;
+        }
+        if (map && map.hasLayer && map.hasLayer(layer)) {
+          map.removeLayer(layer);
+        }
+      }
+
+      function setOverlayPosition(layer, point) {
+        if (!layer || !point) {
+          return;
+        }
+        if (isAmapOverlay(layer) && layer.setPosition) {
+          layer.setPosition(toAmapPathPoint(point));
+          return;
+        }
+        if (layer.setLatLng) {
+          layer.setLatLng(point);
+        }
+      }
+
+      function createPolylineOverlay(path, options) {
+        if (isAmapVisible()) {
+          var amapOptions = {
+            path: path.map(toAmapPathPoint),
+            strokeColor: options.color,
+            strokeWeight: options.weight,
+            strokeOpacity: options.opacity == null ? 1 : options.opacity,
+            strokeStyle: options.dashArray ? "dashed" : "solid",
+            lineCap: "round",
+            lineJoin: "round",
+            zIndex: options.zIndex || 320,
+            bubble: false
+          };
+          if (options.dashArray) {
+            amapOptions.strokeDasharray = parseDashArray(options.dashArray);
+          }
+          var amapLine = new AMap.Polyline(amapOptions);
+          amapLine.setMap(mlMap);
+          return amapLine;
+        }
+        return L.polyline(path, options);
+      }
+
+      function setPolylinePath(line, path) {
+        if (!line) {
+          return;
+        }
+        if (isAmapOverlay(line) && line.setPath) {
+          line.setPath(path.map(toAmapPathPoint));
+          return;
+        }
+        if (line.setLatLngs) {
+          line.setLatLngs(path);
+        }
+      }
+
+      function setLineStyle(line, style) {
+        if (!line) {
+          return;
+        }
+        if (isAmapOverlay(line) && line.setOptions) {
+          var amapStyle = {
+            strokeColor: style.color,
+            strokeWeight: style.weight,
+            strokeOpacity: style.opacity == null ? 1 : style.opacity,
+            strokeStyle: style.dashArray ? "dashed" : "solid"
+          };
+          if (style.dashArray) {
+            amapStyle.strokeDasharray = parseDashArray(style.dashArray);
+          }
+          line.setOptions(amapStyle);
+          return;
+        }
+        if (line.setStyle) {
+          line.setStyle(style);
+        }
+      }
+
+      function bringLineToFront(line) {
+        if (!line) {
+          return;
+        }
+        if (isAmapOverlay(line) && line.setOptions) {
+          line.setOptions({ zIndex: 380 });
+          return;
+        }
+        if (line.bringToFront) {
+          line.bringToFront();
+        }
+      }
+
+      function createAmapTextOverlay(point, className, text, zIndex) {
+        var marker;
+        if (!isAmapVisible() || !window.AMap || !window.AMap.Marker || !window.AMap.Pixel) {
+          return null;
+        }
+        marker = new AMap.Marker({
+          position: toAmapPathPoint(point),
+          anchor: "center",
+          offset: new AMap.Pixel(0, 0),
+          bubble: false,
+          zIndex: zIndex || 340,
+          content: '<span class="' + className + ' is-amap-overlay">' + text + '</span>'
+        });
+        marker.setMap(mlMap);
+        return marker;
+      }
+
+      function rebuildVisibleOverlays() {
+        var middle;
+        if (routeLayer && routeLayer.clearLayers) {
+          routeLayer.clearLayers();
+        }
+        clearGuide();
+        routeSegments.forEach(function (segment) {
+          segment.line = createPolylineOverlay([segment.start, segment.end], {
+            color: "#d8444b",
+            weight: 6,
+            dashArray: null,
+            opacity: 1,
+            lineCap: "round",
+            pane: "routePane",
+            zIndex: 330
+          });
+          segment.startMarker = makeMeasureMarker(segment.start, "起点", false);
+          segment.endMarker = makeMeasureMarker(segment.end, "终点", true);
+          middle = {
+            lat: (segment.start.lat + segment.end.lat) / 2,
+            lng: (segment.start.lng + segment.end.lng) / 2
+          };
+          segment.tooltip = isAmapVisible() ? createAmapTextOverlay(middle, "distance-tooltip", "实际距离 " + formatDistance(segment.distance), 350) : L.tooltip({
+            permanent: true,
+            direction: "center",
+            className: "distance-tooltip",
+            opacity: 1,
+            interactive: false,
+            pane: "routePane"
+          }).setLatLng(middle).setContent("实际距离 " + formatDistance(segment.distance));
+          if (!isAmapVisible()) {
+            routeLayer.addLayer(segment.line);
+            routeLayer.addLayer(segment.startMarker);
+            routeLayer.addLayer(segment.endMarker);
+            routeLayer.addLayer(segment.tooltip);
+          }
+        });
+        if (currentMeasure.state === "drawing" && currentMeasure.start && currentMeasure.end) {
+          currentMeasure.startMarker = makeMeasureMarker(currentMeasure.start, "起点", false);
+          currentMeasure.endMarker = makeMeasureMarker(currentMeasure.end, "终点", true);
+          currentMeasure.line = createPolylineOverlay([currentMeasure.start, currentMeasure.end], {
+            color: "#f08a24",
+            weight: 5,
+            dashArray: "10 10",
+            lineCap: "round",
+            pane: "routePane",
+            zIndex: 330
+          });
+          if (!isAmapVisible()) {
+            currentMeasure.line.addTo(map);
+          }
+          renderCurrentMeasure();
+        }
+      }
+
       function updateThreeDStatus() {
         var pitch;
         var zoom;
-        if (!mlMap || !app.classList.contains("is-3d")) {
+        if (!mlMap || !isAmapVisible()) {
           return;
         }
         pitch = mlMap.getPitch ? Math.round(mlMap.getPitch()) : 68;
         zoom = mlMap.getZoom ? mlMap.getZoom().toFixed(1) : "17.0";
-        scaleReadout.textContent = "高德3D 俯仰 " + pitch + "°  缩放 " + zoom;
-        hint.textContent = "已切换到高德在线3D，可旋转倾斜浏览街区；测量请切回2D。";
+        scaleReadout.textContent = (currentViewMode === "3d" ? "高德3D 俯仰 " + pitch + "°" : "高德2D") + "  缩放 " + zoom;
+        if (activeTool === "measure") {
+          hint.textContent = currentMeasure.state === "drawing" ? "起点已确定，请单击终点确认。" : "请点击起点；也可以直接点文一街小学。";
+          return;
+        }
+        if (activeTool === "compass") {
+          hint.textContent = routeSegments.length ? "请点击已测线段的起点，显示十字方向标和较小夹角。" : "先完成一条测量线段，再使用十字方向标。";
+          return;
+        }
+        hint.textContent = currentViewMode === "3d" ? "已切换到高德在线3D，可旋转倾斜浏览街区。" : "已切换到高德在线2D，可直接测量和显示方向标。";
       }
 
       function fallbackTo2D(message) {
         disableMapLibre3D();
         addBuildingFootprints();
+        rebuildVisibleOverlays();
         app.classList.remove("is-3d");
         app.classList.add("is-2d");
         view3d.classList.remove("is-active");
@@ -951,11 +1414,12 @@
           }).addTo(map);
           L.marker(road.label, {
             interactive: false,
+            pane: "labelPane",
             icon: L.divIcon({
               className: "road-label-icon",
               html: '<span class="road-label">' + road.name + '</span>',
               iconSize: null,
-              iconAnchor: [32, 14]
+              iconAnchor: [0, 0]
             })
           }).addTo(map);
         });
@@ -1205,9 +1669,9 @@
         var inner = '<span class="badge">' + badge + '</span><span>' + place.shortName + '</span>';
         return L.divIcon({
           className: "landmark-icon",
-          html: '<span class="' + className + '">' + inner + '</span>',
+          html: '<span class="' + className + ' is-leaflet">' + inner + '</span>',
           iconSize: null,
-          iconAnchor: [18, 18]
+          iconAnchor: [0, 0]
         });
       }
 
@@ -1218,7 +1682,7 @@
         currentMeasure.state = "await-start";
         measureButton.classList.add("is-active");
         compassButton.classList.remove("is-active");
-        hint.textContent = "请点击起点；也可以直接点文一街小学的五角星。";
+        hint.textContent = isAmapVisible() ? "请在当前高德地图上单击起点；再单击终点确认。" : "请点击起点，再单击终点确认。";
       }
 
       function activateCompass() {
@@ -1230,7 +1694,8 @@
       }
 
       function handleMapChoice(latlng, label) {
-        if (!map) {
+        latlng = normalizeLatLng(latlng) || latlng;
+        if ((!map && !mlMap) || !latlng) {
           return;
         }
 
@@ -1248,15 +1713,20 @@
           currentMeasure.startLabel = label;
           currentMeasure.end = latlng;
           currentMeasure.state = "drawing";
-          currentMeasure.startMarker = makeMeasureMarker(latlng, "起点", false).addTo(map);
-          currentMeasure.endMarker = makeMeasureMarker(latlng, "终点", true).addTo(map);
-          currentMeasure.line = L.polyline([latlng, latlng], {
+          currentMeasure.startMarker = makeMeasureMarker(latlng, "起点", false);
+          currentMeasure.endMarker = makeMeasureMarker(latlng, "终点", true);
+          currentMeasure.line = createPolylineOverlay([latlng, latlng], {
             color: "#f08a24",
             weight: 5,
             dashArray: "10 10",
-            lineCap: "round"
-          }).addTo(map);
-          hint.textContent = "起点已确定，请点击终点；黄龙体育中心用红色圆点标出。";
+            lineCap: "round",
+            pane: "routePane",
+            zIndex: 330
+          });
+          if (!isAmapVisible()) {
+            currentMeasure.line.addTo(map);
+          }
+          hint.textContent = "起点已确定，请单击终点确认；黄龙体育中心用红色圆点标出。";
           return;
         }
 
@@ -1268,6 +1738,9 @@
       }
 
       function handleMouseMove(event) {
+        if (event && event.latlng) {
+          event.latlng = normalizeLatLng(event.latlng) || event.latlng;
+        }
         if (activeTool !== "measure" || currentMeasure.state !== "drawing") {
           return;
         }
@@ -1279,12 +1752,12 @@
         if (!currentMeasure.line || !currentMeasure.start || !currentMeasure.end) {
           return;
         }
-        currentMeasure.line.setLatLngs([currentMeasure.start, currentMeasure.end]);
-        currentMeasure.endMarker.setLatLng(currentMeasure.end);
+        setPolylinePath(currentMeasure.line, [currentMeasure.start, currentMeasure.end]);
+        setOverlayPosition(currentMeasure.endMarker, currentMeasure.end);
       }
 
       function completeMeasurement() {
-        var distance = map.distance(currentMeasure.start, currentMeasure.end);
+        var distance = getDistanceBetween(currentMeasure.start, currentMeasure.end);
         var middle;
         var tooltip;
         var segment;
@@ -1295,17 +1768,18 @@
         }
 
         renderCurrentMeasure();
-        currentMeasure.line.setStyle({ color: "#d8444b", weight: 6, dashArray: null });
-        middle = L.latLng(
-          (currentMeasure.start.lat + currentMeasure.end.lat) / 2,
-          (currentMeasure.start.lng + currentMeasure.end.lng) / 2
-        );
-        tooltip = L.tooltip({
+        setLineStyle(currentMeasure.line, { color: "#d8444b", weight: 6, dashArray: null, opacity: 1 });
+        middle = {
+          lat: (currentMeasure.start.lat + currentMeasure.end.lat) / 2,
+          lng: (currentMeasure.start.lng + currentMeasure.end.lng) / 2
+        };
+        tooltip = isAmapVisible() ? createAmapTextOverlay(middle, "distance-tooltip", "实际距离 " + formatDistance(distance), 350) : L.tooltip({
           permanent: true,
           direction: "center",
           className: "distance-tooltip",
           opacity: 1,
-          interactive: false
+          interactive: false,
+          pane: "routePane"
         }).setLatLng(middle).setContent("实际距离 " + formatDistance(distance)).addTo(map);
 
         segment = {
@@ -1320,10 +1794,12 @@
           tooltip: tooltip
         };
         routeSegments.push(segment);
-        routeLayer.addLayer(segment.line);
-        routeLayer.addLayer(segment.startMarker);
-        routeLayer.addLayer(segment.endMarker);
-        routeLayer.addLayer(segment.tooltip);
+        if (!isAmapVisible()) {
+          routeLayer.addLayer(segment.line);
+          routeLayer.addLayer(segment.startMarker);
+          routeLayer.addLayer(segment.endMarker);
+          routeLayer.addLayer(segment.tooltip);
+        }
         currentMeasure = emptyMeasure();
         currentMeasure.state = "await-start";
         renderMeasureList();
@@ -1331,15 +1807,28 @@
       }
 
       function makeMeasureMarker(latlng, label, isEnd) {
+        if (isAmapVisible() && window.AMap && window.AMap.Marker && window.AMap.Pixel) {
+          var amapMarker = new AMap.Marker({
+            position: toAmapPathPoint(latlng),
+            anchor: "center",
+            offset: new AMap.Pixel(0, 0),
+            bubble: false,
+            zIndex: 360,
+            content: '<span class="measure-marker-wrap is-amap-overlay"><span class="measure-marker' + (isEnd ? " end" : "") + '" data-label="' + label + '"></span></span>'
+          });
+          amapMarker.setMap(mlMap);
+          return amapMarker;
+        }
         return L.marker(latlng, {
           interactive: false,
+          pane: "routePane",
           icon: L.divIcon({
             className: "measure-marker-icon",
             html: '<span class="measure-marker' + (isEnd ? " end" : "") + '" data-label="' + label + '"></span>',
             iconSize: [18, 18],
             iconAnchor: [9, 9]
           })
-        });
+        }).addTo(map);
       }
 
       function showCompass(clickedLatLng) {
@@ -1359,6 +1848,7 @@
           return;
         }
 
+        setSegmentHighlight(segment);
         center = segment.start;
         bearing = bearingBetween(segment.start, segment.end);
         nearestAxis = Math.round(bearing / 90) * 90;
@@ -1366,43 +1856,70 @@
         delta = shortestBearingDelta(nearestAxis, bearing);
         angle = Math.abs(delta);
         axisLabel = getAxisLabel(nearestAxis);
-        guideLayer = L.layerGroup().addTo(map);
-        addCompassLine(center, 0, 180, "#1769aa");
-        addCompassLine(center, 90, 270, "#1769aa");
+        guideLayer = isAmapVisible() ? [] : L.layerGroup().addTo(map);
+        addCompassLine(center, 0, 180, "rgba(23, 105, 170, 0.28)", 2);
+        addCompassLine(center, 90, 270, "rgba(23, 105, 170, 0.28)", 2);
+        addGuideOverlay(createPolylineOverlay([center, destinationPoint(center, nearestAxis, 900)], {
+          color: "#ffb020",
+          weight: 4,
+          opacity: 1,
+          dashArray: "7 10",
+          lineCap: "round",
+          interactive: false,
+          pane: "guidePane",
+          zIndex: 370
+        }));
         arcPoints = makeArc(center, nearestAxis, delta, 210);
-        L.polyline(arcPoints, {
-          color: "#f08a24",
+        addGuideOverlay(createPolylineOverlay(arcPoints, {
+          color: "#ff8c1a",
           weight: 5,
           opacity: 0.95,
           lineCap: "round",
-          interactive: false
-        }).addTo(guideLayer);
+          interactive: false,
+          pane: "guidePane",
+          zIndex: 380
+        }));
         midBearing = normalizeBearing(nearestAxis + delta / 2);
-        L.tooltip({
+        addGuideOverlay(isAmapVisible() ? createAmapTextOverlay(destinationPoint(center, midBearing, 265), "angle-tooltip", "∠ " + Math.round(angle) + "°", 390) : L.tooltip({
           permanent: true,
           direction: "center",
           className: "angle-tooltip",
           opacity: 1,
-          interactive: false
-        }).setLatLng(destinationPoint(center, midBearing, 265)).setContent("∠ " + Math.round(angle) + "°").addTo(guideLayer);
+          interactive: false,
+          pane: "guidePane"
+        }).setLatLng(destinationPoint(center, midBearing, 265)).setContent("∠ " + Math.round(angle) + "°").addTo(guideLayer));
         hint.textContent = "已显示十字方向标：线段与" + axisLabel + "虚线的较小夹角约为 " + Math.round(angle) + "°。";
 
-        function addCompassLine(origin, bearingA, bearingB, color) {
-          L.polyline([destinationPoint(origin, bearingA, 900), destinationPoint(origin, bearingB, 900)], {
+        function addCompassLine(origin, bearingA, bearingB, color, weight) {
+          addGuideOverlay(createPolylineOverlay([destinationPoint(origin, bearingA, 900), destinationPoint(origin, bearingB, 900)], {
             color: color,
-            weight: 3,
-            opacity: 0.85,
+            weight: weight,
+            opacity: 1,
             dashArray: "8 12",
-            interactive: false
-          }).addTo(guideLayer);
+            interactive: false,
+            pane: "guidePane",
+            zIndex: 360
+          }));
         }
+      }
+
+      function addGuideOverlay(overlay) {
+        if (!overlay) {
+          return null;
+        }
+        if (Array.isArray(guideLayer)) {
+          guideLayer.push(overlay);
+        } else if (guideLayer && overlay.addTo) {
+          overlay.addTo(guideLayer);
+        }
+        return overlay;
       }
 
       function findCompassSegment(latlng) {
         var best = null;
         var bestDistance = Infinity;
         routeSegments.forEach(function (segment) {
-          var distance = map.distance(latlng, segment.start);
+          var distance = getDistanceBetween(latlng, segment.start);
           if (distance < bestDistance) {
             best = segment;
             bestDistance = distance;
@@ -1424,7 +1941,15 @@
       function clearMeasurements() {
         clearCurrentMeasure();
         clearGuide();
-        routeLayer.clearLayers();
+        routeSegments.forEach(function (segment) {
+          removeOverlay(segment.line);
+          removeOverlay(segment.startMarker);
+          removeOverlay(segment.endMarker);
+          removeOverlay(segment.tooltip);
+        });
+        if (routeLayer && routeLayer.clearLayers) {
+          routeLayer.clearLayers();
+        }
         routeSegments = [];
         activeTool = "";
         measureButton.classList.remove("is-active");
@@ -1435,17 +1960,38 @@
 
       function clearCurrentMeasure() {
         [currentMeasure.startMarker, currentMeasure.endMarker, currentMeasure.line].forEach(function (layer) {
-          if (layer && map && map.hasLayer(layer)) {
-            map.removeLayer(layer);
-          }
+          removeOverlay(layer);
         });
         currentMeasure = emptyMeasure();
       }
 
       function clearGuide() {
-        if (guideLayer) {
+        clearSegmentHighlight();
+        if (Array.isArray(guideLayer)) {
+          guideLayer.forEach(removeOverlay);
+          guideLayer = [];
+        } else if (guideLayer) {
           guideLayer.clearLayers();
         }
+      }
+
+      function setSegmentHighlight(segment) {
+        clearSegmentHighlight();
+        if (!segment || !segment.line) {
+          return;
+        }
+        setLineStyle(segment.line, { color: "#ff7f11", weight: 7, opacity: 1, dashArray: null });
+        bringLineToFront(segment.line);
+        highlightedSegment = segment;
+      }
+
+      function clearSegmentHighlight() {
+        if (!highlightedSegment || !highlightedSegment.line) {
+          highlightedSegment = null;
+          return;
+        }
+        setLineStyle(highlightedSegment.line, { color: "#d8444b", weight: 6, opacity: 1, dashArray: null });
+        highlightedSegment = null;
       }
 
       function renderMeasureList() {
@@ -1461,17 +2007,18 @@
       }
 
       function setViewMode(mode) {
+        currentViewMode = mode;
         app.classList.toggle("is-3d", mode === "3d");
         app.classList.toggle("is-2d", mode === "2d");
         view3d.classList.toggle("is-active", mode === "3d");
         view2d.classList.toggle("is-active", mode === "2d");
         viewRibbon.textContent = mode === "3d" ? "3D版本" : "2D版本";
         hint.textContent = mode === "3d" ? "已切换到3D版本，建筑物会以立体效果显示。" : "已切换到2D版本，测量和方向标仍可使用。";
-        if (mode === "3d") {
-          disableBuildingFootprints();
-          enableMapLibre3D();
-        } else {
+        if (AMAP_WEB_KEY) {
+          enableMapLibre3D(mode);
+        } else if (mode === "2d") {
           disableMapLibre3D();
+          disableBuildingFootprints();
           addBuildingFootprints();
         }
       }
@@ -1480,6 +2027,34 @@
         // 移除伪3D footprint
         var overlays = document.querySelectorAll('.building-footprint');
         overlays.forEach(function (el) { el.remove(); });
+      }
+
+      function addAreaMask() {
+        if (!map) {
+          return;
+        }
+        if (areaMaskLayer && map.hasLayer(areaMaskLayer)) {
+          map.removeLayer(areaMaskLayer);
+        }
+        areaMaskLayer = L.polygon([
+          [[-90, -180], [-90, 180], [90, 180], [90, -180]],
+          [[30.2652, 120.1262], [30.2652, 120.1513], [30.2962, 120.1513], [30.2962, 120.1262]]
+        ], {
+          pane: "maskPane",
+          stroke: false,
+          fillColor: "#dce8eb",
+          fillOpacity: 0.94,
+          interactive: false
+        }).addTo(map);
+      }
+
+      function buildAmapMaskPath() {
+        return [
+          [120.1262, 30.2652],
+          [120.1513, 30.2652],
+          [120.1513, 30.2962],
+          [120.1262, 30.2962]
+        ];
       }
 
       function updateScaleDisplay() {
@@ -1564,5 +2139,5 @@
       }
     }());
   </script>
-</body>
+  </body>
 </html>

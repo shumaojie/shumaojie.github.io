@@ -33,9 +33,9 @@
     body {
       display: grid;
       place-items: center;
-      padding: 14px;
+      padding: 10px;
       color: var(--ink);
-      background: #f2f6fb;
+      background: radial-gradient(circle at top, #f8fbff 0%, #eef5fb 44%, #e5eef7 100%);
       font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     }
 
@@ -50,11 +50,13 @@
 
     .game-frame {
       position: relative;
-      width: min(100%, 1260px);
-      min-height: 720px;
-      padding: 22px 34px 18px;
-      border: 6px solid var(--frame);
-      background: #ffffff;
+      width: min(100%, 1040px);
+      min-height: 680px;
+      padding: 16px 18px 18px;
+      border: 1px solid rgba(52, 78, 99, 0.18);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 251, 255, 0.96) 100%);
+      box-shadow: 0 24px 60px rgba(48, 84, 116, 0.16);
       overflow: hidden;
     }
 
@@ -62,32 +64,34 @@
       margin: 0;
       color: var(--red);
       font-family: "SimHei", "Microsoft YaHei", sans-serif;
-      font-size: clamp(48px, 8vw, 92px);
+      font-size: clamp(28px, 4.8vw, 54px);
       font-weight: 900;
-      line-height: 1;
+      line-height: 1.05;
       text-align: center;
-      letter-spacing: 0;
+      letter-spacing: 0.04em;
     }
 
     .mission {
-      margin: 20px 0 18px;
-      font-size: clamp(24px, 3.3vw, 40px);
-      font-weight: 800;
-      line-height: 1.28;
-      text-align: left;
+      margin: 10px auto 8px;
+      max-width: 760px;
+      color: #41576a;
+      font-size: clamp(16px, 2.2vw, 24px);
+      font-weight: 700;
+      line-height: 1.42;
+      text-align: center;
     }
 
     .jumping-tip {
       display: inline-flex;
       align-items: center;
-      min-height: 50px;
-      padding: 0 18px;
-      border: 3px solid #ffd267;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid #ffd267;
       border-radius: 999px;
       background: #fff8d8;
       color: #c23522;
-      font-size: clamp(24px, 3.4vw, 42px);
-      font-weight: 900;
+      font-size: clamp(13px, 1.8vw, 18px);
+      font-weight: 800;
       line-height: 1.1;
       animation: jump 1.05s ease-in-out infinite;
       transform-origin: center bottom;
@@ -95,43 +99,44 @@
 
     .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 440px;
-      gap: 28px;
+      grid-template-columns: minmax(0, 1fr) 292px;
+      gap: 16px;
       align-items: start;
-      margin-top: 18px;
+      margin-top: 12px;
     }
 
     .map-column {
       display: grid;
-      grid-template-columns: 58px minmax(0, 1fr);
-      gap: 12px;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 8px;
       align-items: start;
     }
 
     .north-mark {
       display: grid;
       justify-items: center;
-      gap: 6px;
-      padding-top: 20px;
+      gap: 4px;
+      padding-top: 12px;
+      color: #335671;
       font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
-      font-size: 30px;
-      font-weight: 900;
+      font-size: 15px;
+      font-weight: 800;
       line-height: 1;
     }
 
     .north-arrow {
       position: relative;
-      width: 26px;
-      height: 76px;
+      width: 12px;
+      height: 44px;
     }
 
     .north-arrow::before {
       position: absolute;
       left: 50%;
-      top: 8px;
-      width: 4px;
-      height: 62px;
-      background: #111111;
+      top: 6px;
+      width: 2px;
+      height: 34px;
+      background: #325773;
       content: "";
       transform: translateX(-50%);
     }
@@ -142,35 +147,138 @@
       top: 0;
       width: 0;
       height: 0;
-      border-right: 9px solid transparent;
-      border-bottom: 14px solid #111111;
-      border-left: 9px solid transparent;
+      border-right: 5px solid transparent;
+      border-bottom: 9px solid #325773;
+      border-left: 5px solid transparent;
       content: "";
       transform: translateX(-50%);
     }
 
-    .map-stack { display: grid; gap: 8px; }
+    .map-stack {
+      position: relative;
+      display: grid;
+      gap: 0;
+    }
 
     .map-wrap {
       position: relative;
-      width: min(100%, 570px);
-      border: 3px solid #1687c4;
+      width: min(100%, 720px);
+      border-radius: 24px;
       overflow: hidden;
       background: #ffffff;
+      box-shadow: 0 18px 40px rgba(40, 82, 116, 0.14);
     }
 
-    .map-wrap img {
+    .map-svg {
       display: block;
       width: 100%;
       height: auto;
     }
 
+    .grid-frame {
+      fill: #fbfeff;
+      stroke: #1788ca;
+      stroke-width: 4;
+    }
+
+    .grid-line {
+      stroke: #2b92d7;
+      stroke-width: 3.2;
+      opacity: 0.94;
+    }
+
+    .map-node {
+      fill: #ff3c2d;
+      filter: drop-shadow(0 0 6px rgba(255, 76, 66, 0.22));
+    }
+
+    .map-label {
+      fill: rgba(17, 24, 39, 0.56);
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", serif;
+      font-size: 54px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      paint-order: stroke fill;
+      stroke: rgba(255, 255, 255, 0.72);
+      stroke-width: 7px;
+    }
+
+    .map-label--small {
+      font-size: 48px;
+    }
+
+    .direction-overlay {
+      opacity: 0;
+      transform: translateY(6px);
+      transform-origin: center center;
+      transition: opacity 180ms ease, transform 180ms ease;
+      pointer-events: none;
+    }
+
+    .map-wrap.is-direction-active .direction-overlay {
+      opacity: 1;
+      transform: none;
+    }
+
+    .overlay-cross {
+      stroke: rgba(23, 105, 170, 0.28);
+      stroke-width: 2;
+      stroke-dasharray: 10 12;
+    }
+
+    .overlay-axis {
+      stroke: rgba(255, 176, 32, 0.98);
+      stroke-width: 4.5;
+      stroke-dasharray: 10 10;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(255, 176, 32, 0.26));
+    }
+
+    .overlay-main-line {
+      stroke: #ff6a22;
+      stroke-width: 6.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(255, 106, 34, 0.24));
+    }
+
+    .overlay-arc {
+      fill: none;
+      stroke: #ff9223;
+      stroke-width: 5.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px rgba(255, 146, 35, 0.22));
+    }
+
+    .overlay-anchor {
+      fill: #ff6a22;
+    }
+
+    .overlay-chip rect {
+      fill: rgba(255, 255, 255, 0.92);
+      stroke: rgba(255, 106, 34, 0.18);
+      stroke-width: 1.5;
+    }
+
+    .overlay-text,
+    .overlay-axis-label {
+      fill: #1d4367;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      font-weight: 800;
+      paint-order: stroke fill;
+      stroke: rgba(255, 255, 255, 0.96);
+      stroke-width: 6px;
+    }
+
+    .overlay-text { font-size: 21px; }
+
+    .overlay-axis-label { font-size: 19px; }
+
     .treasure-pin {
       position: absolute;
-      left: 56%;
-      top: 85%;
-      width: clamp(78px, 14vw, 132px);
-      transform: translate(-50%, -72%) scale(0.85);
+      left: 55.8%;
+      top: 84.2%;
+      width: clamp(56px, 8vw, 92px);
+      transform: translate(-50%, -66%) scale(0.86);
       opacity: 0;
       pointer-events: none;
       transition: opacity 180ms ease, transform 180ms ease;
@@ -179,46 +287,55 @@
 
     .is-found .treasure-pin {
       opacity: 1;
-      transform: translate(-50%, -72%) scale(1);
+      transform: translate(-50%, -66%) scale(1);
     }
 
     .scale {
-      margin-left: 4px;
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 8;
+      margin-left: 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.84);
+      box-shadow: 0 10px 20px rgba(34, 73, 106, 0.12);
+      color: #385871;
       font-family: "KaiTi", "STKaiti", "SimSun", serif;
-      font-size: clamp(22px, 2.8vw, 31px);
-      font-weight: 900;
-      line-height: 1.1;
+      font-size: clamp(12px, 1.5vw, 14px);
+      font-weight: 800;
+      line-height: 1;
     }
 
     .control-column {
       display: grid;
-      gap: 18px;
+      gap: 10px;
       align-content: start;
-      padding-top: 24px;
+      padding-top: 4px;
     }
 
     .mode-buttons {
       display: grid;
-      justify-items: center;
-      gap: 28px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .mode-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 206px;
-      min-height: 70px;
-      padding: 5px 24px;
-      border: 4px solid var(--blue-line);
-      border-radius: 12px;
-      background: var(--blue-soft);
+      min-width: 0;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid rgba(120, 175, 217, 0.56);
+      border-radius: 999px;
+      background: rgba(232, 245, 255, 0.9);
       color: #d41121;
       font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
-      font-size: 40px;
-      font-weight: 900;
+      font-size: 15px;
+      font-weight: 800;
       line-height: 1;
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 10px 24px rgba(82, 132, 171, 0.1);
       transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
     }
 
@@ -226,43 +343,46 @@
 
     .mode-button.is-active {
       background: var(--blue);
-      box-shadow: inset 0 0 0 2px rgba(28, 93, 159, 0.2), 0 8px 16px rgba(42, 102, 173, 0.2);
+      color: #ffffff;
+      box-shadow: inset 0 0 0 1px rgba(28, 93, 159, 0.14), 0 10px 20px rgba(42, 102, 173, 0.18);
     }
 
     .mode-button.is-done {
       border-color: #5dbb89;
-      box-shadow: 0 0 0 5px rgba(93, 187, 137, 0.16);
+      box-shadow: 0 0 0 3px rgba(93, 187, 137, 0.14);
     }
 
     .radio-dot {
-      width: 19px;
-      height: 19px;
-      margin-right: 9px;
-      border: 3px solid #376a9c;
+      width: 11px;
+      height: 11px;
+      margin-right: 6px;
+      border: 2px solid #376a9c;
       border-radius: 50%;
       background: #eef8ff;
-      box-shadow: inset 0 0 0 3px #eef8ff;
+      box-shadow: inset 0 0 0 2px #eef8ff;
     }
 
     .mode-button.is-active .radio-dot,
     .mode-button.is-done .radio-dot { background: #2c6fbd; }
 
     .answer-panel {
-      min-height: 250px;
-      padding: 18px 20px;
-      border: 2px solid var(--panel-line);
-      border-radius: 17px;
-      background: var(--panel);
+      min-height: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(189, 213, 220, 0.72);
+      border-radius: 18px;
+      background: rgba(239, 252, 255, 0.84);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 28px rgba(60, 102, 139, 0.1);
       color: var(--pink);
-      font-size: 32px;
+      font-size: 16px;
       font-weight: 500;
       line-height: 1.45;
     }
 
     .empty-note {
       color: #6f8290;
-      font-size: 28px;
-      font-weight: 800;
+      font-size: 14px;
+      font-weight: 700;
       line-height: 1.5;
       text-align: center;
     }
@@ -271,26 +391,26 @@
 
     .sentence {
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       align-items: center;
       gap: 6px;
       max-width: 100%;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      white-space: nowrap;
+      overflow: visible;
+      padding-bottom: 0;
+      white-space: normal;
     }
 
     .sentence input {
-      width: 80px;
-      min-width: 80px;
-      min-height: 48px;
+      width: 54px;
+      min-width: 54px;
+      min-height: 34px;
       border: 0;
-      border-bottom: 4px solid rgba(213, 84, 105, 0.62);
+      border-bottom: 2px solid rgba(213, 84, 105, 0.62);
       outline: 0;
       background: transparent;
       color: #b91527;
-      font-size: 31px;
-      font-weight: 900;
+      font-size: 18px;
+      font-weight: 800;
       text-align: center;
     }
 
@@ -300,27 +420,28 @@
     }
 
     .direction-input {
-      width: min(100%, 330px);
-      min-width: 250px;
+      width: 100%;
+      min-width: 0;
+      flex: 1 1 180px;
+      padding: 0 6px;
       text-align: left !important;
-      padding: 0 8px;
     }
 
     .submit-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 8px;
+      margin-top: 10px;
     }
 
     .submit-button,
     .clear-button,
     .open-button {
-      min-height: 46px;
-      padding: 0 18px;
-      border-radius: 10px;
-      font-size: 21px;
-      font-weight: 900;
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
     }
 
     .submit-button {
@@ -342,12 +463,12 @@
     }
 
     .feedback {
-      min-height: 58px;
-      margin-top: 16px;
+      min-height: 40px;
+      margin-top: 10px;
       color: var(--warning);
-      font-size: clamp(30px, 3.6vw, 46px);
-      font-weight: 900;
-      line-height: 1.28;
+      font-size: clamp(14px, 2vw, 20px);
+      font-weight: 800;
+      line-height: 1.45;
       white-space: pre-line;
       animation: pop 180ms ease;
     }
@@ -357,19 +478,19 @@
     .status-row {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin-top: 14px;
+      gap: 8px;
+      margin-top: 10px;
     }
 
     .status-card {
       display: grid;
       gap: 4px;
-      padding: 10px 12px;
-      border-radius: 13px;
+      padding: 8px 10px;
+      border-radius: 12px;
       background: rgba(255, 255, 255, 0.78);
       color: #546778;
-      font-size: 18px;
-      font-weight: 900;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .status-card.is-done { color: var(--success); background: #edfff6; }
@@ -378,17 +499,17 @@
       position: relative;
       display: grid;
       justify-items: center;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 8px;
+      margin-top: 10px;
       color: var(--success);
-      font-size: 30px;
-      font-weight: 900;
+      font-size: 16px;
+      font-weight: 800;
       line-height: 1.2;
       overflow: hidden;
     }
 
     .treasure-button {
-      width: 160px;
+      width: 112px;
       max-width: 100%;
       padding: 0;
       background: transparent;
@@ -405,15 +526,15 @@
 
     .blessing {
       max-width: 100%;
-      padding: 14px 16px;
-      border-radius: 16px;
+      padding: 10px 12px;
+      border-radius: 14px;
       background: linear-gradient(180deg, #fff7c9 0%, #fff 100%);
       color: #b91c1c;
-      font-size: clamp(28px, 4vw, 46px);
-      font-weight: 900;
+      font-size: clamp(16px, 2.1vw, 22px);
+      font-weight: 800;
       line-height: 1.32;
       text-align: center;
-      box-shadow: 0 12px 24px rgba(205, 106, 0, 0.16);
+      box-shadow: 0 12px 22px rgba(205, 106, 0, 0.14);
     }
 
     .confetti-field {
@@ -453,28 +574,29 @@
     }
 
     @media (max-width: 1080px) {
-      .game-frame { padding: 18px; }
+      .game-frame { padding: 14px; }
       .game-layout { grid-template-columns: 1fr; }
       .control-column { padding-top: 0; }
       .mode-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
       .mode-button { width: 100%; }
-      .map-wrap { width: min(100%, 640px); }
+      .map-wrap { width: min(100%, 760px); }
     }
 
     @media (max-width: 660px) {
-      body { padding: 8px; }
-      .game-frame { min-height: 0; border-width: 4px; padding: 12px; }
-      .mission { margin: 14px 0; }
-      .map-column { grid-template-columns: 42px minmax(0, 1fr); }
-      .north-mark { font-size: 20px; padding-top: 10px; }
-      .north-arrow { height: 50px; }
-      .north-arrow::before { height: 42px; }
+      body { padding: 6px; }
+      .game-frame { min-height: 0; border-width: 1px; border-radius: 20px; padding: 10px; }
+      .mission { margin: 10px 0 8px; }
+      .map-column { grid-template-columns: 24px minmax(0, 1fr); }
+      .north-mark { font-size: 12px; padding-top: 8px; }
+      .north-arrow { height: 34px; }
+      .north-arrow::before { height: 26px; }
       .mode-buttons { grid-template-columns: 1fr; }
-      .mode-button { min-height: 56px; font-size: 30px; }
-      .answer-panel { padding: 14px; font-size: 24px; }
-      .sentence input { width: 66px; min-width: 66px; font-size: 24px; }
-      .direction-input { min-width: 220px; }
+      .mode-button { min-height: 38px; font-size: 14px; }
+      .answer-panel { padding: 12px; font-size: 14px; }
+      .sentence input { width: 48px; min-width: 48px; font-size: 16px; }
+      .direction-input { min-width: 0; }
       .status-row { grid-template-columns: 1fr; }
+      .scale { left: 8px; bottom: 8px; font-size: 11px; }
     }
   </style>
 </head>
@@ -492,7 +614,64 @@
         </div>
         <div class="map-stack">
           <div id="mapWrap" class="map-wrap">
-            <img src="img/ditu.jpeg" alt="街区寻宝地图，学校、银行、公园、小明家、邮局、医院、超市分布在方格中">
+            <svg id="treasureMap" class="map-svg" viewBox="0 0 700 700" role="img" aria-label="街区寻宝地图，学校、银行、公园、小明家、邮局、医院、超市分布在方格中">
+              <rect width="700" height="700" fill="#ffffff"></rect>
+              <g aria-hidden="true">
+                <rect class="grid-frame" x="28" y="28" width="644" height="644" rx="6"></rect>
+                <line class="grid-line" x1="120" y1="28" x2="120" y2="672"></line>
+                <line class="grid-line" x1="212" y1="28" x2="212" y2="672"></line>
+                <line class="grid-line" x1="304" y1="28" x2="304" y2="672"></line>
+                <line class="grid-line" x1="396" y1="28" x2="396" y2="672"></line>
+                <line class="grid-line" x1="488" y1="28" x2="488" y2="672"></line>
+                <line class="grid-line" x1="580" y1="28" x2="580" y2="672"></line>
+                <line class="grid-line" x1="28" y1="120" x2="672" y2="120"></line>
+                <line class="grid-line" x1="28" y1="212" x2="672" y2="212"></line>
+                <line class="grid-line" x1="28" y1="304" x2="672" y2="304"></line>
+                <line class="grid-line" x1="28" y1="396" x2="672" y2="396"></line>
+                <line class="grid-line" x1="28" y1="488" x2="672" y2="488"></line>
+                <line class="grid-line" x1="28" y1="580" x2="672" y2="580"></line>
+              </g>
+
+              <g aria-hidden="true">
+                <circle class="map-node" cx="120" cy="212" r="10"></circle>
+                <circle class="map-node" cx="488" cy="212" r="10"></circle>
+                <circle class="map-node" cx="304" cy="396" r="10"></circle>
+                <circle class="map-node" cx="212" cy="488" r="10"></circle>
+                <circle class="map-node" cx="488" cy="488" r="10"></circle>
+                <circle class="map-node" cx="120" cy="580" r="10"></circle>
+                <circle class="map-node" cx="396" cy="580" r="10"></circle>
+              </g>
+
+              <g aria-hidden="true">
+                <text class="map-label map-label--small" x="580" y="176" text-anchor="middle">公园</text>
+                <text class="map-label" x="190" y="268" text-anchor="middle">银行</text>
+                <text class="map-label" x="338" y="356" text-anchor="middle">小明家</text>
+                <text class="map-label map-label--small" x="565" y="448" text-anchor="middle">医院</text>
+                <text class="map-label" x="236" y="538" text-anchor="middle">邮局</text>
+                <text class="map-label" x="114" y="632" text-anchor="middle">学校</text>
+                <text class="map-label" x="484" y="632" text-anchor="middle">超市</text>
+              </g>
+
+              <g class="direction-overlay" aria-hidden="true">
+                <line class="overlay-cross" x1="150" y1="42" x2="150" y2="658"></line>
+                <line class="overlay-cross" x1="42" y1="600" x2="658" y2="600"></line>
+                <line class="overlay-axis" x1="150" y1="600" x2="452" y2="600"></line>
+                <line class="overlay-main-line" x1="150" y1="600" x2="452" y2="530"></line>
+                <path class="overlay-arc" d="M224 600 A74 74 0 0 0 222 583"></path>
+                <circle class="overlay-anchor" cx="150" cy="600" r="6"></circle>
+                <circle class="overlay-anchor" cx="452" cy="530" r="6"></circle>
+                <g class="overlay-chip">
+                  <rect x="275" y="538" width="108" height="34" rx="17"></rect>
+                  <text class="overlay-text" x="329" y="560" text-anchor="middle">1000米</text>
+                </g>
+                <g class="overlay-chip">
+                  <rect x="210" y="548" width="76" height="34" rx="17"></rect>
+                  <text class="overlay-text" x="248" y="570" text-anchor="middle">13°</text>
+                </g>
+                <text class="overlay-axis-label" x="462" y="594" text-anchor="start">东</text>
+                <text class="overlay-axis-label" x="162" y="58" text-anchor="start">北</text>
+              </g>
+            </svg>
             <svg class="treasure-pin" viewBox="0 0 180 126" role="img" aria-label="宝箱图片">
               <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
               <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
@@ -633,6 +812,7 @@
       function selectMode(mode) {
         state.activeMode = mode;
         startAudio();
+        elements.mapWrap.classList.toggle("is-direction-active", mode === "direction");
         elements.emptyNote.hidden = true;
         elements.coordinateForm.hidden = mode !== "coordinate";
         elements.directionForm.hidden = mode !== "direction";
