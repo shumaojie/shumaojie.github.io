@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>寻宝大冒险</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --frame: #344e63;
+      --blue: #5a99db;
+      --blue-soft: #d9ecfb;
+      --blue-line: #78afd9;
+      --red: #e60012;
+      --pink: #d55469;
+      --panel: #effcff;
+      --panel-line: #bdd5dc;
+      --success: #0a8c51;
+      --warning: #c85a10;
+      --gold: #f5b832;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 14px;
+      color: var(--ink);
+      background: #f2f6fb;
+      font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    }
+
+    button,
+    input { font: inherit; }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-frame {
+      position: relative;
+      width: min(100%, 1260px);
+      min-height: 720px;
+      padding: 22px 34px 18px;
+      border: 6px solid var(--frame);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--red);
+      font-family: "SimHei", "Microsoft YaHei", sans-serif;
+      font-size: clamp(48px, 8vw, 92px);
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+      letter-spacing: 0;
+    }
+
+    .mission {
+      margin: 20px 0 18px;
+      font-size: clamp(24px, 3.3vw, 40px);
+      font-weight: 800;
+      line-height: 1.28;
+      text-align: left;
+    }
+
+    .jumping-tip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 50px;
+      padding: 0 18px;
+      border: 3px solid #ffd267;
+      border-radius: 999px;
+      background: #fff8d8;
+      color: #c23522;
+      font-size: clamp(24px, 3.4vw, 42px);
+      font-weight: 900;
+      line-height: 1.1;
+      animation: jump 1.05s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 440px;
+      gap: 28px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .map-column {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .north-mark {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      padding-top: 20px;
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .north-arrow {
+      position: relative;
+      width: 26px;
+      height: 76px;
+    }
+
+    .north-arrow::before {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      width: 4px;
+      height: 62px;
+      background: #111111;
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    .north-arrow::after {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-right: 9px solid transparent;
+      border-bottom: 14px solid #111111;
+      border-left: 9px solid transparent;
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    .map-stack { display: grid; gap: 8px; }
+
+    .map-wrap {
+      position: relative;
+      width: min(100%, 570px);
+      border: 3px solid #1687c4;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .map-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .treasure-pin {
+      position: absolute;
+      left: 56%;
+      top: 85%;
+      width: clamp(78px, 14vw, 132px);
+      transform: translate(-50%, -72%) scale(0.85);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      filter: drop-shadow(0 10px 12px rgba(64, 42, 0, 0.25));
+    }
+
+    .is-found .treasure-pin {
+      opacity: 1;
+      transform: translate(-50%, -72%) scale(1);
+    }
+
+    .scale {
+      margin-left: 4px;
+      font-family: "KaiTi", "STKaiti", "SimSun", serif;
+      font-size: clamp(22px, 2.8vw, 31px);
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .control-column {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+      padding-top: 24px;
+    }
+
+    .mode-buttons {
+      display: grid;
+      justify-items: center;
+      gap: 28px;
+    }
+
+    .mode-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 206px;
+      min-height: 70px;
+      padding: 5px 24px;
+      border: 4px solid var(--blue-line);
+      border-radius: 12px;
+      background: var(--blue-soft);
+      color: #d41121;
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+      transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
+    }
+
+    .mode-button:hover { transform: translateY(-2px); }
+
+    .mode-button.is-active {
+      background: var(--blue);
+      box-shadow: inset 0 0 0 2px rgba(28, 93, 159, 0.2), 0 8px 16px rgba(42, 102, 173, 0.2);
+    }
+
+    .mode-button.is-done {
+      border-color: #5dbb89;
+      box-shadow: 0 0 0 5px rgba(93, 187, 137, 0.16);
+    }
+
+    .radio-dot {
+      width: 19px;
+      height: 19px;
+      margin-right: 9px;
+      border: 3px solid #376a9c;
+      border-radius: 50%;
+      background: #eef8ff;
+      box-shadow: inset 0 0 0 3px #eef8ff;
+    }
+
+    .mode-button.is-active .radio-dot,
+    .mode-button.is-done .radio-dot { background: #2c6fbd; }
+
+    .answer-panel {
+      min-height: 250px;
+      padding: 18px 20px;
+      border: 2px solid var(--panel-line);
+      border-radius: 17px;
+      background: var(--panel);
+      color: var(--pink);
+      font-size: 32px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .empty-note {
+      color: #6f8290;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    form { margin: 0; }
+
+    .sentence {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 6px;
+      max-width: 100%;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      white-space: nowrap;
+    }
+
+    .sentence input {
+      width: 80px;
+      min-width: 80px;
+      min-height: 48px;
+      border: 0;
+      border-bottom: 4px solid rgba(213, 84, 105, 0.62);
+      outline: 0;
+      background: transparent;
+      color: #b91527;
+      font-size: 31px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .sentence input:focus {
+      border-bottom-color: #b91527;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .direction-input {
+      width: min(100%, 330px);
+      min-width: 250px;
+      text-align: left !important;
+      padding: 0 8px;
+    }
+
+    .submit-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .submit-button,
+    .clear-button,
+    .open-button {
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 10px;
+      font-size: 21px;
+      font-weight: 900;
+    }
+
+    .submit-button {
+      background: #2e83c6;
+      color: #ffffff;
+    }
+
+    .clear-button,
+    .open-button {
+      border: 2px solid #aac6d8;
+      background: #ffffff;
+      color: #36566b;
+    }
+
+    .open-button {
+      border-color: #f0c35a;
+      background: #fff4c6;
+      color: #9a5a00;
+    }
+
+    .feedback {
+      min-height: 58px;
+      margin-top: 16px;
+      color: var(--warning);
+      font-size: clamp(30px, 3.6vw, 46px);
+      font-weight: 900;
+      line-height: 1.28;
+      white-space: pre-line;
+      animation: pop 180ms ease;
+    }
+
+    .feedback.is-success { color: var(--success); }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .status-card {
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #546778;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .status-card.is-done { color: var(--success); background: #edfff6; }
+
+    .treasure-result {
+      position: relative;
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      color: var(--success);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.2;
+      overflow: hidden;
+    }
+
+    .treasure-button {
+      width: 160px;
+      max-width: 100%;
+      padding: 0;
+      background: transparent;
+      filter: drop-shadow(0 8px 10px rgba(64, 42, 0, 0.22));
+    }
+
+    .treasure-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      animation: chestPulse 1.4s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .blessing {
+      max-width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff7c9 0%, #fff 100%);
+      color: #b91c1c;
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 900;
+      line-height: 1.32;
+      text-align: center;
+      box-shadow: 0 12px 24px rgba(205, 106, 0, 0.16);
+    }
+
+    .confetti-field {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      top: -16px;
+      width: 9px;
+      height: 16px;
+      border-radius: 2px;
+      animation: confetti 1.7s ease-out forwards;
+    }
+
+    @keyframes jump {
+      0%, 100% { transform: translateY(0) scale(1); }
+      45% { transform: translateY(-8px) scale(1.02); }
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.96); opacity: 0.2; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes chestPulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-5px) scale(1.05); }
+    }
+
+    @keyframes confetti {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(300px) rotate(540deg); opacity: 0; }
+    }
+
+    @media (max-width: 1080px) {
+      .game-frame { padding: 18px; }
+      .game-layout { grid-template-columns: 1fr; }
+      .control-column { padding-top: 0; }
+      .mode-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+      .mode-button { width: 100%; }
+      .map-wrap { width: min(100%, 640px); }
+    }
+
+    @media (max-width: 660px) {
+      body { padding: 8px; }
+      .game-frame { min-height: 0; border-width: 4px; padding: 12px; }
+      .mission { margin: 14px 0; }
+      .map-column { grid-template-columns: 42px minmax(0, 1fr); }
+      .north-mark { font-size: 20px; padding-top: 10px; }
+      .north-arrow { height: 50px; }
+      .north-arrow::before { height: 42px; }
+      .mode-buttons { grid-template-columns: 1fr; }
+      .mode-button { min-height: 56px; font-size: 30px; }
+      .answer-panel { padding: 14px; font-size: 24px; }
+      .sentence input { width: 66px; min-width: 66px; font-size: 24px; }
+      .direction-input { min-width: 220px; }
+      .status-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-frame">
+    <h1>寻宝大冒险</h1>
+    <p class="mission">学校在街区里设置1个“藏宝点”，可能是公园或超市。</p>
+    <div class="jumping-tip" aria-live="polite">两种方法都正确，就可以找到宝藏</div>
+
+    <div class="game-layout">
+      <section class="map-column" aria-label="寻宝地图">
+        <div class="north-mark" aria-hidden="true">
+          <span>北</span>
+          <span class="north-arrow"></span>
+        </div>
+        <div class="map-stack">
+          <div id="mapWrap" class="map-wrap">
+            <img src="img/ditu.jpeg" alt="街区寻宝地图，学校、银行、公园、小明家、邮局、医院、超市分布在方格中">
+            <svg class="treasure-pin" viewBox="0 0 180 126" role="img" aria-label="宝箱图片">
+              <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
+              <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
+              <path d="M19 57h142v25H19z" fill="#e9941b" stroke="#603704" stroke-width="7"/>
+              <path d="M87 11v104" stroke="#fff1a9" stroke-width="13"/>
+              <path d="M23 91h132" stroke="#8b510e" stroke-width="6"/>
+              <rect x="70" y="70" width="40" height="38" rx="7" fill="#ffdd54" stroke="#603704" stroke-width="6"/>
+              <circle cx="90" cy="90" r="5" fill="#603704"/>
+            </svg>
+          </div>
+          <div class="scale">比例尺1：20000</div>
+        </div>
+      </section>
+
+      <section class="control-column" aria-label="答题区">
+        <div class="mode-buttons" role="group" aria-label="选择寻宝方式">
+          <button id="coordinateMode" class="mode-button" type="button"><span class="radio-dot" aria-hidden="true"></span>数对</button>
+          <button id="directionMode" class="mode-button" type="button"><span class="radio-dot" aria-hidden="true"></span>方向+距离</button>
+        </div>
+
+        <div class="answer-panel">
+          <div id="emptyNote" class="empty-note">请选择一种方法开始寻宝。</div>
+
+          <form id="coordinateForm" hidden>
+            <div class="sentence">
+              <span>我认为“藏宝点”在数对（</span>
+              <input id="columnInput" type="number" step="any" inputmode="decimal" aria-label="列数">
+              <span>，</span>
+              <input id="rowInput" type="number" step="any" inputmode="decimal" aria-label="行数">
+              <span>）。</span>
+            </div>
+            <div class="submit-row">
+              <button class="submit-button" type="submit">确定</button>
+              <button class="clear-button" type="button" data-clear="coordinate">重新填写</button>
+            </div>
+          </form>
+
+          <form id="directionForm" hidden>
+            <div class="sentence">
+              <span>我认为藏宝点在（</span>
+              <input id="directionAnswer" class="direction-input" type="text" aria-label="方向和距离描述" placeholder="学校的东偏北13°方向1000米">
+              <span>）。</span>
+            </div>
+            <div class="submit-row">
+              <button class="submit-button" type="submit">确定</button>
+              <button class="clear-button" type="button" data-clear="direction">重新填写</button>
+            </div>
+          </form>
+
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+
+          <div class="status-row">
+            <div id="coordinateStatus" class="status-card">数对：等待作答</div>
+            <div id="directionStatus" class="status-card">方向+距离：等待作答</div>
+          </div>
+
+          <div id="treasureResult" class="treasure-result" hidden>
+            <div>你太厉害啦！宝藏就在这里，请你打开它吧！</div>
+            <button id="treasureButton" class="treasure-button" type="button" aria-label="打开宝藏">
+              <svg class="treasure-svg" viewBox="0 0 180 126" aria-hidden="true">
+                <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
+                <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
+                <path d="M19 57h142v25H19z" fill="#e9941b" stroke="#603704" stroke-width="7"/>
+                <path d="M87 11v104" stroke="#fff1a9" stroke-width="13"/>
+                <path d="M23 91h132" stroke="#8b510e" stroke-width="6"/>
+                <rect x="70" y="70" width="40" height="38" rx="7" fill="#ffdd54" stroke="#603704" stroke-width="6"/>
+                <circle cx="90" cy="90" r="5" fill="#603704"/>
+              </svg>
+            </button>
+            <div id="blessing" class="blessing" hidden></div>
+            <div id="confettiField" class="confetti-field" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var coordinateAnswer = { column: 4, row: 1 };
+      var blessings = [
+        "六年时光沉淀专属宝藏，愿你带着收获奔赴下一程山海",
+        "少年心怀璀璨宝藏，前路漫漫亦会步步生光",
+        "积攒学识与勇气做行囊，你本身就是独一无二的宝藏",
+        "毕业解锁成长新篇章，愿你的人生宝藏愈发丰盈闪亮",
+        "珍藏童年美好宝藏，带着热爱奔赴更远的远方",
+        "心怀热忱皆是宝藏，往后岁岁年年皆得所愿",
+        "岁月赠予成长宝藏，勇敢奔赴属于你的广阔天地",
+        "自带光芒便是无价宝藏，提笔书写崭新少年篇章",
+        "收好六年珍贵回忆宝藏，昂首阔步奔赴崭新旅程",
+        "以初心守护心中宝藏，未来一路繁花万丈荣光"
+      ];
+      var state = {
+        activeMode: "",
+        coordinateWrongCount: 0,
+        directionWrongCount: 0,
+        coordinateCorrect: false,
+        directionCorrect: false,
+        audioContext: null
+      };
+      var elements = {};
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+
+      function init() {
+        elements.mapWrap = document.getElementById("mapWrap");
+        elements.coordinateMode = document.getElementById("coordinateMode");
+        elements.directionMode = document.getElementById("directionMode");
+        elements.emptyNote = document.getElementById("emptyNote");
+        elements.coordinateForm = document.getElementById("coordinateForm");
+        elements.directionForm = document.getElementById("directionForm");
+        elements.columnInput = document.getElementById("columnInput");
+        elements.rowInput = document.getElementById("rowInput");
+        elements.directionAnswer = document.getElementById("directionAnswer");
+        elements.feedback = document.getElementById("feedback");
+        elements.coordinateStatus = document.getElementById("coordinateStatus");
+        elements.directionStatus = document.getElementById("directionStatus");
+        elements.treasureResult = document.getElementById("treasureResult");
+        elements.treasureButton = document.getElementById("treasureButton");
+        elements.blessing = document.getElementById("blessing");
+        elements.confettiField = document.getElementById("confettiField");
+
+        elements.coordinateMode.addEventListener("click", function () { selectMode("coordinate"); });
+        elements.directionMode.addEventListener("click", function () { selectMode("direction"); });
+        elements.coordinateForm.addEventListener("submit", submitCoordinate);
+        elements.directionForm.addEventListener("submit", submitDirection);
+        elements.treasureButton.addEventListener("click", openTreasure);
+        document.querySelectorAll("[data-clear]").forEach(function (button) {
+          button.addEventListener("click", function () { clearForm(button.getAttribute("data-clear")); });
+        });
+        registerServiceWorker();
+      }
+
+      function selectMode(mode) {
+        state.activeMode = mode;
+        startAudio();
+        elements.emptyNote.hidden = true;
+        elements.coordinateForm.hidden = mode !== "coordinate";
+        elements.directionForm.hidden = mode !== "direction";
+        elements.coordinateMode.classList.toggle("is-active", mode === "coordinate");
+        elements.directionMode.classList.toggle("is-active", mode === "direction");
+        showFeedback("请填写你的" + (mode === "coordinate" ? "数对" : "方向和距离") + "答案。", false, false);
+        if (mode === "coordinate") {
+          elements.columnInput.focus();
+        } else {
+          elements.directionAnswer.focus();
+        }
+      }
+
+      function submitCoordinate(event) {
+        var column;
+        var row;
+        event.preventDefault();
+        startAudio();
+        column = Number(elements.columnInput.value);
+        row = Number(elements.rowInput.value);
+
+        if (!Number.isFinite(column) || !Number.isFinite(row)) {
+          showFeedback("请把数对里的两个数字都填完整。", false, true);
+          return;
+        }
+
+        if (column === coordinateAnswer.column && row === coordinateAnswer.row) {
+          markCorrect("coordinate");
+          return;
+        }
+
+        state.coordinateWrongCount += 1;
+        if (state.coordinateWrongCount % 3 === 0) {
+          showFeedback("没关系，寻宝就是需要不断尝试呀", false, true);
+          return;
+        }
+
+        if (column < row) {
+          showFeedback("数对的第一个数表示“列”，第二个数表示“行”哦，再调整一下吧！", false, true);
+          return;
+        }
+
+        if (Math.abs(column - coordinateAnswer.column) < 2 && Math.abs(row - coordinateAnswer.row) < 2) {
+          showFeedback("离宝藏超近了，再调整一下吧！", false, true);
+          return;
+        }
+
+        showFeedback("宝藏不在这个位置哦", false, true);
+      }
+
+      function submitDirection(event) {
+        var result;
+        var message;
+        event.preventDefault();
+        startAudio();
+        result = checkDirectionAnswer(elements.directionAnswer.value);
+
+        if (result.correct) {
+          markCorrect("direction");
+          return;
+        }
+
+        state.directionWrongCount += 1;
+        message = getDirectionHint(result);
+        showFeedback(message, false, true);
+        speak(message);
+      }
+
+      function checkDirectionAnswer(value) {
+        var text = normalizeText(value);
+        var hasSchool = text.indexOf("学校") !== -1;
+        var hasDirection = text.indexOf("东偏北") !== -1;
+        var hasDegree = /(12|13|14)(°|度)?/.test(text);
+        var hasDistance = /(980|1000|1020)米?/.test(text);
+        return {
+          correct: hasSchool && hasDirection && hasDegree && hasDistance,
+          hasSchool: hasSchool,
+          hasDirection: hasDirection,
+          hasDegree: hasDegree,
+          hasDistance: hasDistance,
+          empty: text.length === 0
+        };
+      }
+
+      function getDirectionHint(result) {
+        var missingCount = [result.hasSchool, result.hasDirection, result.hasDegree, result.hasDistance].filter(function (value) { return !value; }).length;
+        if (result.empty || missingCount >= 2) {
+          return "想一想，少了什么关键信息呢？";
+        }
+        if (!result.hasSchool) {
+          return "想一想，观测点写清楚了吗？";
+        }
+        if (!result.hasDirection) {
+          return "再想一想，藏宝点的方向正确吗？";
+        }
+        if (!result.hasDegree) {
+          return "再想一想，藏宝点的方向对应的角度正确吗？";
+        }
+        if (!result.hasDistance) {
+          return "再想一想，藏宝点的距离正确吗？";
+        }
+        return "宝藏不在这里哦！";
+      }
+
+      function markCorrect(mode) {
+        if (mode === "coordinate") {
+          state.coordinateCorrect = true;
+          elements.coordinateStatus.textContent = "数对：已经答对";
+          elements.coordinateStatus.classList.add("is-done");
+          elements.coordinateMode.classList.add("is-done");
+        } else {
+          state.directionCorrect = true;
+          elements.directionStatus.textContent = "方向+距离：已经答对";
+          elements.directionStatus.classList.add("is-done");
+          elements.directionMode.classList.add("is-done");
+        }
+
+        if (state.coordinateCorrect && state.directionCorrect) {
+          showTreasure();
+          return;
+        }
+
+        showFeedback("恭喜你，已经答对一种方法了，继续尝试第二种方法吧！", true, true);
+      }
+
+      function showTreasure() {
+        elements.mapWrap.classList.add("is-found");
+        elements.treasureResult.hidden = false;
+        showFeedback("宝藏就在这里！", true, true);
+        playMelody([523, 659, 784, 1046], 0.12);
+      }
+
+      function openTreasure() {
+        var index = Math.floor(Math.random() * blessings.length);
+        startAudio();
+        elements.blessing.textContent = blessings[index];
+        elements.blessing.hidden = false;
+        createConfetti();
+        playMelody([784, 988, 1175, 1319, 1568], 0.1);
+      }
+
+      function clearForm(mode) {
+        if (mode === "coordinate") {
+          elements.columnInput.value = "";
+          elements.rowInput.value = "";
+          elements.columnInput.focus();
+        } else {
+          elements.directionAnswer.value = "";
+          elements.directionAnswer.focus();
+        }
+        showFeedback("可以重新修改输入，再试一次。", false, false);
+      }
+
+      function showFeedback(message, success, sound) {
+        elements.feedback.textContent = message;
+        elements.feedback.classList.toggle("is-success", success);
+        elements.feedback.style.animation = "none";
+        elements.feedback.offsetHeight;
+        elements.feedback.style.animation = "pop 180ms ease";
+        if (sound) {
+          playMelody(success ? [523, 659, 784] : [392, 330], 0.1);
+        }
+      }
+
+      function createConfetti() {
+        var colors = ["#e60012", "#f5b832", "#2e83c6", "#0a8c51", "#d55469"];
+        var i;
+        elements.confettiField.innerHTML = "";
+        for (i = 0; i < 52; i += 1) {
+          var piece = document.createElement("span");
+          piece.className = "confetti-piece";
+          piece.style.left = Math.random() * 100 + "%";
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = Math.random() * 0.45 + "s";
+          piece.style.transform = "rotate(" + Math.random() * 180 + "deg)";
+          elements.confettiField.appendChild(piece);
+        }
+      }
+
+      function normalizeText(value) {
+        return String(value || "")
+          .replace(/\s+/g, "")
+          .replace(/。/g, "")
+          .replace(/，/g, "")
+          .replace(/,/g, "")
+          .replace(/东偏北方向/g, "东偏北")
+          .trim();
+      }
+
+      function startAudio() {
+        var AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) {
+          return;
+        }
+        if (!state.audioContext) {
+          state.audioContext = new AudioContext();
+        }
+        if (state.audioContext.state === "suspended") {
+          state.audioContext.resume();
+        }
+      }
+
+      function playMelody(notes, duration) {
+        var ctx;
+        var now;
+        startAudio();
+        ctx = state.audioContext;
+        if (!ctx) {
+          return;
+        }
+        now = ctx.currentTime;
+        notes.forEach(function (frequency, index) {
+          var oscillator = ctx.createOscillator();
+          var gain = ctx.createGain();
+          oscillator.type = "sine";
+          oscillator.frequency.value = frequency;
+          gain.gain.setValueAtTime(0.0001, now + index * duration);
+          gain.gain.exponentialRampToValueAtTime(0.12, now + index * duration + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + (index + 1) * duration);
+          oscillator.connect(gain).connect(ctx.destination);
+          oscillator.start(now + index * duration);
+          oscillator.stop(now + (index + 1) * duration + 0.02);
+        });
+      }
+
+      function speak(message) {
+        if (!("speechSynthesis" in window)) {
+          return;
+        }
+        window.speechSynthesis.cancel();
+        var utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = "zh-CN";
+        utterance.rate = 0.92;
+        utterance.pitch = 1.08;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function registerServiceWorker() {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("./sw.js").catch(function () {});
+        }
+      }
+    }());
+  </script>
+</body>
+</html>

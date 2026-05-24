@@ -1101,6 +1101,458 @@
         font-size: 11px;
       }
     }
+
+    .page {
+      max-width: 1280px;
+      margin: 14px auto;
+      padding: 16px 18px 24px;
+      border: 8px solid #43586b;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 28px 60px rgba(39, 58, 80, 0.16);
+    }
+
+    .panel {
+      border: 2px solid #d7e3ef;
+      background: #fff;
+      box-shadow: 0 14px 30px rgba(48, 76, 106, 0.08);
+      backdrop-filter: none;
+    }
+
+    .hero-bar {
+      margin-bottom: 8px;
+    }
+
+    .cache-status {
+      min-height: 40px;
+      padding: 0 14px;
+      font-size: 13px;
+    }
+
+    .ghost-button,
+    .return-link {
+      min-height: 42px;
+    }
+
+    .game-heading {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      margin: 6px 0 18px;
+      text-align: center;
+    }
+
+    .game-heading h1 {
+      margin: 0;
+      color: #ff2c1f;
+      font-family: "Kaiti SC", "STKaiti", "BiauKai", "PingFang SC", sans-serif;
+      font-size: clamp(48px, 8vw, 92px);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      line-height: 1;
+    }
+
+    .game-heading p {
+      margin: 0;
+      max-width: 1100px;
+      color: #1a2a3f;
+      font-size: clamp(22px, 3.2vw, 34px);
+      line-height: 1.5;
+      font-weight: 800;
+    }
+
+    .intro-panel {
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .intro-panel::before,
+    .intro-panel .eyebrow,
+    .intro-panel .intro-subtitle,
+    .intro-panel .ai-card,
+    .intro-panel .intro-grid {
+      display: none;
+    }
+
+    .start-layout {
+      grid-template-columns: minmax(0, 1fr) 270px;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .start-image-wrap {
+      min-height: 430px;
+      padding: 16px;
+      border: 3px solid #cfe0f3;
+      border-radius: 22px;
+      background: #fff;
+    }
+
+    .start-image-wrap img {
+      object-fit: contain;
+    }
+
+    .start-actions {
+      gap: 18px;
+      align-content: center;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .mode-button {
+      min-height: 92px;
+      border: 6px solid #84ade5;
+      border-radius: 22px;
+      background: linear-gradient(180deg, #7fbbff 0%, #5d9af0 100%);
+      color: #ff3427;
+      font-family: "Kaiti SC", "STKaiti", "BiauKai", "PingFang SC", sans-serif;
+      font-size: clamp(26px, 3vw, 34px);
+      font-weight: 900;
+      box-shadow: 0 18px 30px rgba(70, 123, 191, 0.22);
+    }
+
+    .start-actions .cta-button {
+      width: 100%;
+    }
+
+    .start-note {
+      margin: 0;
+      padding: 18px 20px;
+      border: 2px solid #cfe0f3;
+      border-radius: 24px;
+      background: #eef8fb;
+      color: #ff6a73;
+      font-size: clamp(22px, 2.9vw, 30px);
+      line-height: 1.45;
+      font-weight: 700;
+      text-align: left;
+    }
+
+    .workspace {
+      grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
+      gap: 18px;
+    }
+
+    .map-panel,
+    .chat-panel {
+      padding: 18px;
+    }
+
+    .map-panel .eyebrow,
+    .chat-panel .eyebrow {
+      display: none;
+    }
+
+    .panel-top {
+      margin-bottom: 12px;
+    }
+
+    .panel-top h2 {
+      font-size: clamp(26px, 3vw, 38px);
+    }
+
+    .status-stack {
+      gap: 8px;
+    }
+
+    .status-chip {
+      min-height: 36px;
+      padding: 0 12px;
+    }
+
+    .mission-banner {
+      padding: 12px 16px;
+      border: 2px solid #d3e7f1;
+      background: #eef7fb;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .board-layout {
+      grid-template-columns: minmax(0, 1fr) 210px;
+      gap: 14px;
+    }
+
+    .board-card,
+    .facts-card,
+    .prompt-card,
+    .guess-form,
+    .answer-sheet {
+      border: 2px solid #dbe7f1;
+      border-radius: 20px;
+      box-shadow: none;
+    }
+
+    .board-card {
+      padding: 14px;
+    }
+
+    .board-header {
+      margin-bottom: 12px;
+    }
+
+    .board-hint {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .compass {
+      width: 72px;
+      height: 72px;
+    }
+
+    .grid-board {
+      gap: 6px;
+    }
+
+    .corner,
+    .axis-label {
+      min-height: 40px;
+      background: #f3f8fd;
+    }
+
+    .cell {
+      min-height: 76px;
+      border-radius: 16px;
+    }
+
+    .legend {
+      margin-top: 12px;
+      gap: 8px;
+    }
+
+    .legend-item {
+      min-height: 30px;
+      padding: 0 10px;
+    }
+
+    .facts-card {
+      gap: 10px;
+      padding: 14px;
+      background: #f7fbfe;
+    }
+
+    .facts-title {
+      font-size: 16px;
+    }
+
+    .fact-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+      font-size: 14px;
+    }
+
+    .fact-list li {
+      padding: 10px 12px;
+      border: 1px solid #e3edf5;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .answer-preview {
+      gap: 6px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .side-top {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .mode-switcher {
+      display: grid;
+      gap: 14px;
+    }
+
+    .chat-log {
+      gap: 10px;
+      max-height: 170px;
+      margin-bottom: 12px;
+      padding-right: 0;
+    }
+
+    .bubble {
+      max-width: 100%;
+      padding: 14px 16px;
+      border: 2px solid transparent;
+      border-radius: 20px;
+      box-shadow: none;
+    }
+
+    .bubble.ai {
+      border-color: #d5e7f4;
+      background: #f3fbff;
+    }
+
+    .bubble.user {
+      border-color: #f0e1b9;
+      background: #fff7e9;
+    }
+
+    .bubble-role {
+      display: none;
+    }
+
+    .bubble-text {
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .prompt-card {
+      margin-bottom: 12px;
+      padding: 14px 16px;
+      background: #f4fbfe;
+    }
+
+    .prompt-card p {
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    .prompt-tags {
+      display: none;
+    }
+
+    .guess-form {
+      gap: 12px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .form-title,
+    .form-note {
+      display: none;
+    }
+
+    .coordinate-fields {
+      gap: 10px;
+    }
+
+    .guess-form label,
+    .distance-label {
+      font-size: 15px;
+    }
+
+    .guess-form input,
+    .direction-inline input {
+      min-height: 50px;
+      font-size: 18px;
+    }
+
+    .direction-inline {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .direction-inline span {
+      font-size: 15px;
+    }
+
+    .small-ghost {
+      justify-self: start;
+    }
+
+    .direction-picker,
+    .quick-distance {
+      gap: 8px;
+    }
+
+    .preview-line {
+      display: flex;
+      align-items: center;
+      min-height: 120px;
+      padding: 18px 20px;
+      border: 2px solid #cfe0f3;
+      border-radius: 24px;
+      background: #eef8fb;
+      color: #ff6a73;
+      font-size: clamp(22px, 2.7vw, 32px);
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .submit-button {
+      min-height: 60px;
+      font-size: 19px;
+    }
+
+    .action-bar {
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .action-tip {
+      width: 100%;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .answer-sheet {
+      margin-top: 12px;
+      padding: 14px;
+    }
+
+    .answer-sheet__intro {
+      font-size: 16px;
+    }
+
+    @media (max-width: 980px) {
+      .start-layout,
+      .workspace,
+      .board-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-switcher,
+      .start-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .start-image-wrap {
+        min-height: 300px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body::before,
+      body::after {
+        display: none;
+      }
+
+      .page {
+        margin: 0;
+        border-width: 4px;
+        border-radius: 0;
+      }
+
+      .mode-switcher,
+      .start-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .mode-button {
+        min-height: 72px;
+      }
+
+      .preview-line {
+        min-height: 96px;
+        font-size: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1115,34 +1567,20 @@
       </div>
     </header>
 
-    <section id="introScreen" class="intro-panel panel">
-      <div class="eyebrow">AI 探险导航员</div>
+    <section class="game-heading" aria-label="游戏标题">
       <h1>寻宝大冒险</h1>
-      <p class="intro-subtitle">宝藏就藏在地图上的公园或超市里。你可以用数对，或者用方向、距离和比例尺，找到它的准确位置。</p>
+      <p>学校在街区里设置 1 个“宝藏打卡点”，可能是公园或超市。</p>
+    </section>
 
-      <div class="ai-card">
-        <div class="ai-card__tag">元气开场</div>
-        <p id="introSpeech">欢迎来到「城市寻宝大冒险」！宝藏就藏在地图上的公园或超市里，你可以用两种方式找到它：第一，用数对描述位置；第二，用方向、距离和比例尺描述位置。快选择你的挑战方式吧！</p>
-      </div>
-
-      <div class="intro-grid">
-        <div class="mini-card">
-          <strong>数对模式</strong>
-          <p>以学校为起点，先看列，再看行。地图下方到上方是行，左边到右边是列，适合练习数对和坐标感。</p>
-        </div>
-        <div class="mini-card">
-          <strong>方向 + 距离模式</strong>
-          <p>以学校为观测点，结合方向和比例尺描述位置。这里约定 1 格代表 200 米，用路线推理也能找到宝藏。</p>
-        </div>
-      </div>
-
+    <section id="introScreen" class="intro-panel panel">
       <div class="start-layout">
         <div class="start-image-wrap">
           <img src="img/ditu.jpeg" alt="寻宝地图示意图">
         </div>
         <div class="start-actions">
-          <button class="cta-button primary" type="button" data-start-mode="coordinate">数对</button>
-          <button class="cta-button secondary" type="button" data-start-mode="direction">方向+距离</button>
+          <button class="cta-button primary mode-button" type="button" data-start-mode="coordinate">数对</button>
+          <button class="cta-button secondary mode-button" type="button" data-start-mode="direction">方向+距离</button>
+          <p id="introSpeech" class="start-note">选一种方式，开始找宝藏。</p>
         </div>
       </div>
     </section>
@@ -1200,17 +1638,17 @@
       </section>
 
       <section class="chat-panel panel">
-        <div class="panel-top">
-          <div>
-            <div class="eyebrow">AI 对话脚本</div>
-            <h2>和导航员一起推理</h2>
+        <div class="side-top">
+          <div class="mode-switcher">
+            <button class="cta-button primary mode-button" type="button" data-start-mode="coordinate">数对</button>
+            <button class="cta-button secondary mode-button" type="button" data-start-mode="direction">方向+距离</button>
           </div>
           <div id="roundBadge" class="status-chip">第 1 轮</div>
         </div>
 
-        <div id="chatLog" class="chat-log"></div>
-
         <div id="promptCard" class="prompt-card"></div>
+
+        <div id="chatLog" class="chat-log"></div>
 
         <form id="coordinateForm" class="guess-form" hidden>
           <div class="form-title">输入你猜到的数对</div>
@@ -1460,6 +1898,19 @@
           updateDirectionPreview();
         });
 
+        elements.directionPicker.addEventListener("click", function (event) {
+          var button = findButton(event.target);
+
+          if (!button || state.status !== "playing") {
+            return;
+          }
+
+          state.selectedDirection = button.getAttribute("data-direction") || "";
+          elements.directionTextInput.value = state.selectedDirection.replace(/方向$/, "");
+          updateDirectionPreview();
+          highlightDirectionButtons();
+        });
+
         elements.quickDistance.addEventListener("click", function (event) {
           var button = findButton(event.target);
 
@@ -1564,7 +2015,7 @@
       function updateRoundUI() {
         var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
         var usedHints = state.wrongCount > 3 ? 3 : state.wrongCount;
-        var attemptText = "已用提示 " + usedHints + " / 3";
+        var attemptText = "提示 " + usedHints + "/3";
 
         if (state.status === "solved") {
           attemptText = "通关成功";
@@ -1572,10 +2023,10 @@
           attemptText = state.answerVisible ? "答案已揭晓" : "提示已用完";
         }
 
-        elements.boardTitle.textContent = place.name + "藏宝图";
+        elements.boardTitle.textContent = "街区藏宝图";
         elements.modeBadge.textContent = getModeLabel(state.mode);
         elements.attemptBadge.textContent = attemptText;
-        elements.roundBadge.textContent = "第 " + state.round + " 轮";
+        elements.roundBadge.textContent = "第" + state.round + "轮";
         elements.missionBanner.textContent = getMissionText(state.mode, place);
         elements.boardHint.textContent = getBoardHint(state.mode, place);
 
@@ -1595,6 +2046,7 @@
 
         elements.coordinateForm.hidden = !isCoordinate;
         elements.directionForm.hidden = isCoordinate;
+        elements.directionPicker.hidden = isCoordinate;
         setFormDisabled(elements.coordinateForm, !isCoordinate || !isPlaying);
         setFormDisabled(elements.directionForm, isCoordinate || !isPlaying);
         elements.degreeWrap.hidden = !state.degreeVisible;
@@ -1602,15 +2054,14 @@
       }
 
       function updatePromptCard() {
-        var place = LANDMARKS[state.targetKey] || LANDMARKS.park;
         var html = "<div class=\"prompt-title\">当前任务</div>";
 
         if (state.mode === "coordinate") {
-          html += "<p>这次宝藏藏在" + place.name + "。请告诉 AI：它在第几列、第几行？你也可以先点地图格子，再提交答案。</p>";
-          html += "<div class=\"prompt-tags\"><span>学校 = (1,1)</span><span>第一个数是列</span><span>第二个数是行</span></div>";
+          html += "<p>先看列，再看行。可以直接输入，也可以先点格子再提交。</p>";
+          html += "<div class=\"prompt-tags\"><span>学校 = (1,1)</span></div>";
         } else {
-          html += "<p>这次宝藏藏在" + place.name + "。请以学校为观测点，描述它的方向和距离，再用比例尺检查答案是否合理。</p>";
-          html += "<div class=\"prompt-tags\"><span>学校是观测点</span><span>1 格 = 200 米</span><span>方向和距离缺一不可</span></div>";
+          html += "<p>从学校出发，先判断方向，再判断距离。点击快捷方向也可以直接填入。</p>";
+          html += "<div class=\"prompt-tags\"><span>1 格 = 200 米</span></div>";
         }
 
         elements.promptCard.innerHTML = html;
@@ -1618,14 +2069,14 @@
 
       function updateAnswerPreview() {
         if (state.status === "solved" || state.answerVisible) {
-          elements.currentAnswer.innerHTML = "<strong>当前标准答案</strong><span>数对：（3，0）</span><span>方向+距离：学校正东（或东）方向 600 米</span>";
+          elements.currentAnswer.innerHTML = "<strong>标准答案</strong><span>数对：（3，0）</span><span>方向：学校正东（或东）600 米</span>";
           return;
         }
 
         if (state.mode === "coordinate") {
-          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先看列，再看行，当前数对答案是固定目标。</span><span>答对后会显示对应的方向+距离表达。</span>";
+          elements.currentAnswer.innerHTML = "<strong>小提示</strong><span>学校在 (1,1)</span><span>先列后行</span>";
         } else {
-          elements.currentAnswer.innerHTML = "<strong>等待揭晓</strong><span>先判断方向，再判断距离是否为 600 米。</span><span>答对后会显示对应的数对。</span>";
+          elements.currentAnswer.innerHTML = "<strong>小提示</strong><span>观测点是学校</span><span>1 格 = 200 米</span>";
         }
       }
 
@@ -1874,7 +2325,7 @@
         }
 
         state.answerVisible = true;
-        addAiMessage("宝藏在这里！\n数对：（3，0）\n方向+距离：学校正东（或东）方向 600 米。你可以继续修改输入再试一次。")
+        addAiMessage("宝藏在这里！\n数对：（3，0）\n方向：学校正东（或东）600 米。")
         elements.answerReveal.innerHTML = "<div class=\"answer-sheet__title\">正确答案</div><div class=\"answer-sheet__intro\">数对：（3，0）<br>方向+距离：学校正东（或东）方向 600 米</div>";
         elements.answerReveal.hidden = false;
         updateRoundUI();
@@ -1893,7 +2344,7 @@
         elements.answerReveal.hidden = true;
         elements.answerReveal.innerHTML = "";
         clearForms();
-        addAiMessage("好，我们再试一次！你可以在输入的界面继续修改答案。")
+        addAiMessage("再试一次，继续改答案吧。")
         updateRoundUI();
         updateModeForms();
       }
@@ -1906,7 +2357,7 @@
         elements.distanceInput.value = String(ANSWERS.direction.distance);
         elements.degreeInput.value = "";
         state.degreeVisible = false;
-        state.selectedDirection = "";
+        state.selectedDirection = "正东方向";
         updateCoordinatePreview();
         updateDirectionPreview();
         highlightDirectionButtons();
@@ -1966,7 +2417,7 @@
           html += buildActionButton("再来一次！", "primary", "replay");
           html += buildActionButton("切换模式挑战", "tertiary", "switch");
         } else if (state.status === "playing") {
-          html = "<div class=\"action-tip\">猜错后 AI 会依次给出 3 阶提示。答对后还能切换另一种表示方法继续挑战。</div>";
+          html = "<div class=\"action-tip\">可反复修改答案，答错 3 次后可直接看答案。</div>";
         } else {
           html += buildActionButton("回到开场", "tertiary", "intro");
         }
@@ -2000,6 +2451,11 @@
         article.appendChild(title);
         article.appendChild(paragraph);
         elements.chatLog.appendChild(article);
+
+        while (elements.chatLog.children.length > 2) {
+          elements.chatLog.removeChild(elements.chatLog.firstChild);
+        }
+
         elements.chatLog.scrollTop = elements.chatLog.scrollHeight;
 
         if (role === "ai") {
@@ -2048,42 +2504,39 @@
 
       function getMissionText(mode, place) {
         if (mode === "coordinate") {
-          return "本轮宝藏藏在" + place.name + "。以学校(1,1)为起点，请用数对找出它的位置。";
+          return "数对模式：从学校(1,1)出发，用数对找到宝藏位置。";
         }
 
-        return "本轮宝藏藏在" + place.name + "。请以学校为观测点，结合方向、距离和比例尺描述它的位置。";
+        return "方向+距离模式：从学校出发，用方向和距离描述宝藏位置。";
       }
 
       function getBoardHint(mode, place) {
         if (mode === "coordinate") {
-          return "从左往右是列，从下往上是行。当前目标是“" + place.name + "”。点击格子也能帮你快速猜一次。";
+          return "从左往右是列，从下往上是行。点格子也能快速填写。";
         }
 
-        return "看地图先判断“" + place.name + "”在学校的哪个方向，再根据 1 格 = 200 米换算实际距离。";
+        return "先判断方向，再按 1 格 = 200 米换算实际距离。";
       }
 
       function getOpeningMessage(mode, targetKey, variant) {
-        var place = LANDMARKS[targetKey];
-
         if (variant === "switch") {
           if (mode === "coordinate") {
-            return "切换挑战成功！\n同一个宝藏点，试着换成数对来描述它吧。学校还是(1,1)，第一个数是列，第二个数是行。";
+            return "已切换到数对模式。先看列，再看行。";
           }
-          return "切换挑战成功！\n同一个宝藏点，试着换成方向和距离来描述它吧。记得比例尺是1格代表200米。";
+          return "已切换到方向+距离模式。记得 1 格代表 200 米。";
         }
 
         if (variant === "replay") {
-          if (mode === "coordinate") {
-            return "这次宝藏藏在不同的地方啦，再挑战一次吧！\n还是用数对来找，学校在(1,1)，第一个数是列，第二个数是行。当前目标是“" + place.name + "”。";
-          }
-          return "这次宝藏藏在不同的地方啦，再挑战一次吧！\n还是用方向和距离来找，比例尺 1 格 = 200 米。当前目标是“" + place.name + "”。";
+          return mode === "coordinate"
+            ? "新一轮开始。继续用数对找宝藏。"
+            : "新一轮开始。继续用方向和距离找宝藏。";
         }
 
         if (mode === "coordinate") {
-          return "第一关开始！\n这次宝藏藏在" + place.name + "里。请用数对告诉我它的位置吧。记得：学校在(1,1)，第一个数是列，第二个数是行。";
+          return "开始吧。请用数对告诉我宝藏的位置。";
         }
 
-        return "挑战开始！\n这次宝藏藏在" + place.name + "里。请以学校为观测点，说出它的方向和距离吧。比例尺 1 格 = 200 米。";
+        return "开始吧。请说出宝藏的方向和距离。";
       }
 
       function getSuccessMessage(mode, place) {

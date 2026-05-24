@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>寻宝大冒险</title>
+  <style>
+    :root {
+      --ink: #0b0f17;
+      --frame: #344e63;
+      --grid: #1687c4;
+      --button-bg: #d9ecfb;
+      --button-border: #78afd9;
+      --button-active: #5a99db;
+      --red: #e60012;
+      --prompt-bg: #effcff;
+      --prompt-line: #bdd5dc;
+      --prompt-text: #d55469;
+      --success: #0a8c51;
+      --warning: #c85a10;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      color: var(--ink);
+      background: #f2f6fb;
+      font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-frame {
+      width: min(100%, 1240px);
+      min-height: 720px;
+      padding: 22px 36px 16px;
+      border: 6px solid var(--frame);
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--red);
+      font-family: "SimHei", "Microsoft YaHei", sans-serif;
+      font-size: 88px;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .mission {
+      margin: 24px 0 24px;
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.35;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 34px;
+      align-items: start;
+    }
+
+    .map-column {
+      display: grid;
+      grid-template-columns: 70px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+
+    .north-mark {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      padding-top: 12px;
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
+      font-size: 31px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .north-arrow {
+      position: relative;
+      width: 28px;
+      height: 78px;
+    }
+
+    .north-arrow::before {
+      position: absolute;
+      left: 50%;
+      top: 8px;
+      width: 4px;
+      height: 64px;
+      background: #111111;
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    .north-arrow::after {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-right: 9px solid transparent;
+      border-bottom: 14px solid #111111;
+      border-left: 9px solid transparent;
+      content: "";
+      transform: translateX(-50%);
+    }
+
+    .map-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .city-map {
+      position: relative;
+      width: min(100%, 490px);
+      aspect-ratio: 1;
+      border: 3px solid var(--grid);
+      background-image:
+        linear-gradient(to right, var(--grid) 3px, transparent 3px),
+        linear-gradient(to bottom, var(--grid) 3px, transparent 3px);
+      background-size: calc(100% / 7) calc(100% / 7);
+      background-position: -3px -3px;
+      background-color: #ffffff;
+    }
+
+    .place {
+      position: absolute;
+      left: calc(var(--x) / 7 * 100%);
+      bottom: calc(var(--y) / 7 * 100%);
+      transform: translate(-50%, 50%);
+    }
+
+    .dot {
+      display: block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ff0715;
+      box-shadow: 0 0 0 1px rgba(230, 0, 18, 0.2);
+    }
+
+    .label {
+      position: absolute;
+      color: #050505;
+      font-family: "KaiTi", "STKaiti", "SimSun", serif;
+      font-size: 43px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+      white-space: nowrap;
+    }
+
+    .school .label {
+      left: -48px;
+      top: 11px;
+    }
+
+    .bank .label {
+      left: 12px;
+      top: 12px;
+    }
+
+    .home .label {
+      left: -54px;
+      top: -31px;
+    }
+
+    .post .label {
+      left: -28px;
+      top: 13px;
+    }
+
+    .hospital .label {
+      left: 15px;
+      top: -32px;
+    }
+
+    .market .label {
+      left: -7px;
+      top: 14px;
+    }
+
+    .park .label {
+      left: 15px;
+      top: -48px;
+    }
+
+    .treasure-pin {
+      position: absolute;
+      left: calc(4 / 7 * 100%);
+      bottom: calc(1 / 7 * 100%);
+      width: 72px;
+      height: 64px;
+      pointer-events: none;
+      transform: translate(-50%, 28%);
+      opacity: 0;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .city-map.is-found .treasure-pin {
+      opacity: 1;
+      transform: translate(-50%, -6%);
+    }
+
+    .scale {
+      margin-left: 18px;
+      font-family: "KaiTi", "STKaiti", "SimSun", serif;
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.1;
+      white-space: nowrap;
+    }
+
+    .control-column {
+      display: grid;
+      gap: 26px;
+      align-content: start;
+      padding-top: 56px;
+    }
+
+    .mode-buttons {
+      display: grid;
+      justify-items: center;
+      gap: 84px;
+    }
+
+    .mode-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 174px;
+      min-height: 66px;
+      padding: 5px 26px;
+      border: 4px solid var(--button-border);
+      border-radius: 12px;
+      background: var(--button-bg);
+      color: #d41121;
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+      transition: background 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .mode-button.is-active {
+      background: var(--button-active);
+      box-shadow: inset 0 0 0 2px rgba(28, 93, 159, 0.2), 0 8px 16px rgba(42, 102, 173, 0.2);
+    }
+
+    .radio-dot {
+      width: 19px;
+      height: 19px;
+      margin-right: 9px;
+      border: 3px solid #376a9c;
+      border-radius: 50%;
+      background: #eef8ff;
+      box-shadow: inset 0 0 0 3px #eef8ff;
+    }
+
+    .mode-button.is-active .radio-dot {
+      background: #2c6fbd;
+    }
+
+    .answer-panel {
+      min-height: 146px;
+      padding: 16px 22px;
+      border: 2px solid var(--prompt-line);
+      border-radius: 17px;
+      background: var(--prompt-bg);
+      color: var(--prompt-text);
+      font-size: 34px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    .answer-panel form {
+      margin: 0;
+    }
+
+    .sentence {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sentence input {
+      width: 86px;
+      min-height: 46px;
+      border: 0;
+      border-bottom: 4px solid rgba(213, 84, 105, 0.62);
+      outline: 0;
+      background: transparent;
+      color: #b91527;
+      font-size: 32px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .sentence input:focus {
+      border-bottom-color: #b91527;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .sentence .wide-input {
+      width: 132px;
+    }
+
+    .sentence .distance-input {
+      width: 118px;
+    }
+
+    .degree-toggle,
+    .submit-button,
+    .clear-button {
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .degree-toggle {
+      border: 2px solid #8ab9d8;
+      background: #ffffff;
+      color: #1d6fa6;
+    }
+
+    .submit-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .submit-button {
+      background: #2e83c6;
+      color: #ffffff;
+    }
+
+    .clear-button {
+      background: #ffffff;
+      color: #36566b;
+      border: 2px solid #aac6d8;
+    }
+
+    .feedback {
+      min-height: 38px;
+      margin-top: 12px;
+      color: var(--warning);
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+
+    .feedback.is-success {
+      color: var(--success);
+    }
+
+    .treasure-result {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      color: var(--success);
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .treasure-svg {
+      width: 146px;
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(0 8px 10px rgba(64, 42, 0, 0.22));
+    }
+
+    .direction-panel {
+      font-size: 26px;
+      line-height: 1.55;
+    }
+
+    .direction-panel .sentence input {
+      font-size: 25px;
+    }
+
+    .empty-note {
+      color: #7b8c9a;
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    @media (max-width: 1050px) {
+      body {
+        padding: 10px;
+      }
+
+      .game-frame {
+        padding: 18px;
+      }
+
+      h1 {
+        font-size: 64px;
+      }
+
+      .mission {
+        font-size: 28px;
+        white-space: normal;
+      }
+
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .control-column {
+        padding-top: 0;
+      }
+
+      .mode-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .mode-button {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .game-frame {
+        min-height: 0;
+        border-width: 4px;
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      .mission {
+        margin: 14px 0;
+        font-size: 21px;
+      }
+
+      .map-column {
+        grid-template-columns: 42px minmax(0, 1fr);
+      }
+
+      .north-mark {
+        font-size: 20px;
+      }
+
+      .north-arrow {
+        height: 50px;
+      }
+
+      .north-arrow::before {
+        height: 42px;
+      }
+
+      .label {
+        font-size: 24px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+      }
+
+      .scale {
+        margin-left: 0;
+        font-size: 19px;
+      }
+
+      .mode-buttons {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .mode-button {
+        min-height: 54px;
+        font-size: 30px;
+      }
+
+      .answer-panel {
+        padding: 14px;
+        font-size: 25px;
+      }
+
+      .direction-panel {
+        font-size: 22px;
+      }
+
+      .sentence input,
+      .direction-panel .sentence input {
+        width: 72px;
+        min-height: 42px;
+        font-size: 23px;
+      }
+
+      .sentence .wide-input,
+      .sentence .distance-input {
+        width: 104px;
+      }
+
+      .feedback {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-frame">
+    <h1>寻宝大冒险</h1>
+    <p class="mission">学校在街区里设置1个“宝藏打卡点”， 可能是公园或超市。</p>
+
+    <div class="game-layout">
+      <section class="map-column" aria-label="寻宝地图">
+        <div class="north-mark" aria-hidden="true">
+          <span>北</span>
+          <span class="north-arrow"></span>
+        </div>
+
+        <div class="map-stack">
+          <div id="cityMap" class="city-map">
+            <div class="place bank" style="--x: 1; --y: 5;"><span class="dot"></span><span class="label">银行</span></div>
+            <div class="place park" style="--x: 5; --y: 5;"><span class="dot"></span><span class="label">公园</span></div>
+            <div class="place home" style="--x: 3; --y: 3;"><span class="dot"></span><span class="label">小明家</span></div>
+            <div class="place post" style="--x: 2; --y: 2;"><span class="dot"></span><span class="label">邮局</span></div>
+            <div class="place hospital" style="--x: 5; --y: 2;"><span class="dot"></span><span class="label">医院</span></div>
+            <div class="place school" style="--x: 1; --y: 1;"><span class="dot"></span><span class="label">学校</span></div>
+            <div class="place market" style="--x: 4; --y: 1;"><span class="dot"></span><span class="label">超市</span></div>
+            <svg class="treasure-pin" viewBox="0 0 120 96" aria-hidden="true">
+              <path d="M20 42h80v42H20z" fill="#d98518" stroke="#71420a" stroke-width="5"/>
+              <path d="M22 42c4-22 20-32 38-32s34 10 38 32z" fill="#f8bc32" stroke="#71420a" stroke-width="5"/>
+              <path d="M17 42h86v15H17z" fill="#f0a51b" stroke="#71420a" stroke-width="5"/>
+              <path d="M58 12v72" stroke="#fff0a8" stroke-width="9"/>
+              <rect x="47" y="50" width="26" height="26" rx="5" fill="#ffdc53" stroke="#71420a" stroke-width="4"/>
+            </svg>
+          </div>
+          <div class="scale">比例尺1：20000</div>
+        </div>
+      </section>
+
+      <section class="control-column" aria-label="答题区">
+        <div class="mode-buttons" role="group" aria-label="选择寻宝方式">
+          <button id="coordinateMode" class="mode-button" type="button" data-mode="coordinate"><span class="radio-dot" aria-hidden="true"></span>数对</button>
+          <button id="directionMode" class="mode-button" type="button" data-mode="direction"><span class="radio-dot" aria-hidden="true"></span>方向+距离</button>
+        </div>
+
+        <div id="answerPanel" class="answer-panel">
+          <div class="empty-note">请选择一种寻宝方式</div>
+
+          <form id="coordinateForm" hidden>
+            <div class="sentence">
+              <span>我认为宝藏打卡点在数对（</span>
+              <input id="columnInput" type="number" step="any" inputmode="decimal" aria-label="列数">
+              <span>，</span>
+              <input id="rowInput" type="number" step="any" inputmode="decimal" aria-label="行数">
+              <span>）。</span>
+            </div>
+            <div class="submit-row">
+              <button class="submit-button" type="submit">确定</button>
+              <button class="clear-button" type="button" data-clear="coordinate">重新填写</button>
+            </div>
+          </form>
+
+          <form id="directionForm" class="direction-panel" hidden>
+            <div class="sentence">
+              <span>我认为宝藏打卡点在</span>
+              <input id="originInput" class="wide-input" type="text" aria-label="观测点">
+              <span>的</span>
+              <input id="directionInput" class="wide-input" type="text" aria-label="方向">
+              <span>方向</span>
+              <button id="degreeToggle" class="degree-toggle" type="button">+ 度数</button>
+              <span id="degreeField" hidden>
+                <input id="degreeInput" type="number" step="any" inputmode="decimal" aria-label="角度">
+                <span>度</span>
+              </span>
+              <input id="distanceInput" class="distance-input" type="number" step="any" inputmode="decimal" aria-label="距离">
+              <span>米。</span>
+            </div>
+            <div class="submit-row">
+              <button class="submit-button" type="submit">确定</button>
+              <button class="clear-button" type="button" data-clear="direction">重新填写</button>
+            </div>
+          </form>
+
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+
+          <div id="treasureResult" class="treasure-result" hidden>
+            <div>宝藏就在这里！</div>
+            <svg class="treasure-svg" viewBox="0 0 180 126" role="img" aria-label="宝箱图片">
+              <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
+              <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
+              <path d="M19 57h142v25H19z" fill="#e9941b" stroke="#603704" stroke-width="7"/>
+              <path d="M87 11v104" stroke="#fff1a9" stroke-width="13"/>
+              <path d="M23 91h132" stroke="#8b510e" stroke-width="6"/>
+              <rect x="70" y="70" width="40" height="38" rx="7" fill="#ffdd54" stroke="#603704" stroke-width="6"/>
+              <circle cx="90" cy="90" r="5" fill="#603704"/>
+            </svg>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var coordinateAnswer = { column: 3, row: 0 };
+      var directionAnswer = {
+        origin: "学校",
+        directions: ["东", "正东", "东方向", "正东方向"],
+        distance: 600
+      };
+      var state = {
+        activeMode: "",
+        coordinateWrongCount: 0,
+        directionWrongCount: 0,
+        degreeVisible: false
+      };
+      var elements = {};
+
+      document.addEventListener("DOMContentLoaded", init);
+
+      function init() {
+        elements.cityMap = document.getElementById("cityMap");
+        elements.answerPanel = document.getElementById("answerPanel");
+        elements.emptyNote = document.querySelector(".empty-note");
+        elements.coordinateForm = document.getElementById("coordinateForm");
+        elements.directionForm = document.getElementById("directionForm");
+        elements.coordinateMode = document.getElementById("coordinateMode");
+        elements.directionMode = document.getElementById("directionMode");
+        elements.columnInput = document.getElementById("columnInput");
+        elements.rowInput = document.getElementById("rowInput");
+        elements.originInput = document.getElementById("originInput");
+        elements.directionInput = document.getElementById("directionInput");
+        elements.distanceInput = document.getElementById("distanceInput");
+        elements.degreeToggle = document.getElementById("degreeToggle");
+        elements.degreeField = document.getElementById("degreeField");
+        elements.degreeInput = document.getElementById("degreeInput");
+        elements.feedback = document.getElementById("feedback");
+        elements.treasureResult = document.getElementById("treasureResult");
+
+        elements.coordinateMode.addEventListener("click", function () { selectMode("coordinate"); });
+        elements.directionMode.addEventListener("click", function () { selectMode("direction"); });
+        elements.coordinateForm.addEventListener("submit", submitCoordinate);
+        elements.directionForm.addEventListener("submit", submitDirection);
+        elements.degreeToggle.addEventListener("click", toggleDegreeField);
+        document.querySelectorAll("[data-clear]").forEach(function (button) {
+          button.addEventListener("click", function () { clearForm(button.getAttribute("data-clear")); });
+        });
+
+        registerServiceWorker();
+      }
+
+      function selectMode(mode) {
+        state.activeMode = mode;
+        clearFoundState();
+        elements.feedback.classList.remove("is-success");
+        elements.feedback.textContent = "";
+        elements.emptyNote.hidden = true;
+        elements.coordinateForm.hidden = mode !== "coordinate";
+        elements.directionForm.hidden = mode !== "direction";
+        elements.coordinateMode.classList.toggle("is-active", mode === "coordinate");
+        elements.directionMode.classList.toggle("is-active", mode === "direction");
+        elements.answerPanel.classList.toggle("direction-panel", mode === "direction");
+
+        if (mode === "coordinate") {
+          elements.columnInput.focus();
+        } else {
+          elements.originInput.focus();
+        }
+      }
+
+      function submitCoordinate(event) {
+        var column;
+        var row;
+
+        event.preventDefault();
+        column = Number(elements.columnInput.value);
+        row = Number(elements.rowInput.value);
+
+        if (!Number.isFinite(column) || !Number.isFinite(row)) {
+          showFeedback("请把数对里的两个数字都填完整。", false);
+          return;
+        }
+
+        if (column === coordinateAnswer.column && row === coordinateAnswer.row) {
+          showTreasure();
+          return;
+        }
+
+        state.coordinateWrongCount += 1;
+
+        if (state.coordinateWrongCount % 3 === 0) {
+          showFeedback("没关系，寻宝就是需要不断尝试呀", false);
+          return;
+        }
+
+        if (Math.abs(column - coordinateAnswer.column) < 2 && Math.abs(row - coordinateAnswer.row) < 2) {
+          showFeedback("离宝藏超近了，再调整一下吧！", false);
+        } else {
+          showFeedback("宝藏不在这个位置哦！", false);
+        }
+      }
+
+      function submitDirection(event) {
+        var originCorrect;
+        var directionCorrect;
+        var distanceCorrect;
+        var degreeCorrect;
+        var messageParts;
+
+        event.preventDefault();
+        originCorrect = normalizeText(elements.originInput.value) === directionAnswer.origin;
+        directionCorrect = isEastDirection(elements.directionInput.value);
+        distanceCorrect = Number(elements.distanceInput.value) === directionAnswer.distance;
+        degreeCorrect = isDegreeCorrect();
+
+        if (originCorrect && directionCorrect && distanceCorrect && degreeCorrect) {
+          showTreasure();
+          return;
+        }
+
+        state.directionWrongCount += 1;
+        messageParts = ["宝藏不在这里哦！"];
+
+        if (!originCorrect) {
+          messageParts.push("再想一想，宝藏的打卡点要从学校开始观察吗？");
+        }
+        if (!directionCorrect) {
+          messageParts.push("再想一想，宝藏的打卡点的方向正确吗？");
+        }
+        if (!distanceCorrect) {
+          messageParts.push("再想一想，宝藏的打卡点的距离正确吗？");
+        }
+        if (!degreeCorrect) {
+          messageParts.push("再想一想，正东方向对应的角度正确吗？");
+        }
+        if (state.directionWrongCount % 3 === 0) {
+          messageParts.push("没关系，寻宝就是需要不断尝试呀");
+        }
+
+        showFeedback(messageParts.join("\n"), false);
+        speak(messageParts.join("。"));
+      }
+
+      function isEastDirection(value) {
+        var text = normalizeText(value).replace(/方向/g, "");
+        return directionAnswer.directions.indexOf(text) !== -1 || directionAnswer.directions.indexOf(text + "方向") !== -1;
+      }
+
+      function isDegreeCorrect() {
+        var degree;
+
+        if (!state.degreeVisible || normalizeText(elements.degreeInput.value) === "") {
+          return true;
+        }
+
+        degree = Number(elements.degreeInput.value);
+        if (!Number.isFinite(degree)) {
+          return false;
+        }
+
+        degree = ((degree % 360) + 360) % 360;
+        return degree === 0 || degree === 90;
+      }
+
+      function normalizeText(value) {
+        return String(value || "").replace(/\s+/g, "").trim();
+      }
+
+      function toggleDegreeField() {
+        state.degreeVisible = !state.degreeVisible;
+        elements.degreeField.hidden = !state.degreeVisible;
+        elements.degreeToggle.textContent = state.degreeVisible ? "- 度数" : "+ 度数";
+        if (state.degreeVisible) {
+          elements.degreeInput.focus();
+        } else {
+          elements.degreeInput.value = "";
+        }
+      }
+
+      function clearForm(mode) {
+        clearFoundState();
+        showFeedback("", false);
+
+        if (mode === "coordinate") {
+          elements.columnInput.value = "";
+          elements.rowInput.value = "";
+          elements.columnInput.focus();
+        } else {
+          elements.originInput.value = "";
+          elements.directionInput.value = "";
+          elements.distanceInput.value = "";
+          elements.degreeInput.value = "";
+          if (state.degreeVisible) {
+            toggleDegreeField();
+          }
+          elements.originInput.focus();
+        }
+      }
+
+      function showTreasure() {
+        elements.cityMap.classList.add("is-found");
+        elements.treasureResult.hidden = false;
+        showFeedback("宝藏就在这里！", true);
+      }
+
+      function clearFoundState() {
+        elements.cityMap.classList.remove("is-found");
+        elements.treasureResult.hidden = true;
+      }
+
+      function showFeedback(message, success) {
+        elements.feedback.textContent = message;
+        elements.feedback.classList.toggle("is-success", Boolean(success));
+      }
+
+      function speak(message) {
+        var utterance;
+
+        if (!("speechSynthesis" in window) || !message) {
+          return;
+        }
+
+        window.speechSynthesis.cancel();
+        utterance = new SpeechSynthesisUtterance(message.replace(/\n/g, " "));
+        utterance.lang = "zh-CN";
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function registerServiceWorker() {
+        if (!("serviceWorker" in navigator) || window.location.protocol === "file:") {
+          return;
+        }
+
+        navigator.serviceWorker.register("sw.js").catch(function () {});
+      }
+    }());
+  </script>
+</body>
+</html>
