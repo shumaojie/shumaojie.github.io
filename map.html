@@ -567,8 +567,9 @@
       var routeSummary = document.getElementById("routeSummary");
       var measureList = document.getElementById("measureList");
       var emptyRoute = document.getElementById("emptyRoute");
-      var AMAP_WEB_KEY = "d33cd8d7ae54845d492ab40ad76a936d";
-      var AMAP_SECURITY_CODE = "";
+      var AMAP_WEB_KEY = "65bdb894413d8212821138398ff5599b";
+      // 高德 JS API 新安全策略下通常还需要 securityJsCode；这里填入当前应用对应的安全密钥。
+      var AMAP_SECURITY_CODE = "78877653cf68ddfff90b91a4d7edaf26";
       var map = null;
       var mlMap = null; // 高德在线 3D map
       var routeLayer = null;
@@ -686,7 +687,7 @@
         }
         loadAmap(function (error) {
           if (error) {
-            fallbackTo2D("高德3D在线地图加载失败，请检查 Key、域名白名单或网络。");
+            fallbackTo2D(getAmapLoadErrorMessage(error));
             return;
           }
           if (!app.classList.contains("is-3d")) {
@@ -764,7 +765,7 @@
 
       function createAmap3D() {
         if (!window.AMap || !window.AMap.Map) {
-          fallbackTo2D("高德3D在线地图初始化失败，请确认 Key 已为当前域名开通。");
+          fallbackTo2D("高德 JS API 没有真正执行。当前浏览器可能把脚本重定向到了认证页/代理页，或当前域名/IP 的安全校验未通过。");
           return;
         }
 
@@ -871,6 +872,19 @@
           }, 40);
         }
         hint.textContent = message;
+      }
+
+      function getAmapLoadErrorMessage(error) {
+        if (!error || !error.message) {
+          return "高德3D在线地图加载失败，请检查浏览器代理、securityJsCode 和域名白名单。";
+        }
+        if (error.message === "amap-script-blocked" || error.message === "amap-load-timeout") {
+          return "高德 JS API 没有真正执行。当前浏览器可能把脚本重定向到了认证页/代理页，或当前域名/IP 的安全校验未通过。";
+        }
+        if (error.message === "amap-load-failed") {
+          return "高德3D在线地图脚本加载失败，请检查网络、代理认证或浏览器拦截。";
+        }
+        return "高德3D在线地图加载失败，请检查浏览器代理、securityJsCode 和域名白名单。";
       }
 
       function addTiles() {
