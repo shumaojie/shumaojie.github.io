@@ -7,19 +7,16 @@
   <title>寻宝大冒险</title>
   <style>
     :root {
-      --ink: #183247;
-      --frame: #28628a;
-      --blue: #3c86c8;
-      --blue-active: #2369a7;
-      --blue-line: #7db5e8;
-      --red: #d94a45;
-      --pink: #b64f78;
-      --panel-line: #b8d8e8;
-      --success: #178457;
-      --warning: #b85b14;
-      --paper: #fffdf6;
-      --mint: #dff5eb;
-      --gold: #f6c64a;
+      --ink: #111827;
+      --frame: #2b4d68;
+      --blue: #5a99db;
+      --blue-active: #5c93d6;
+      --blue-line: #79a8e6;
+      --red: #e60012;
+      --pink: #d55469;
+      --panel-line: #bdd5dc;
+      --success: #0a8c51;
+      --warning: #c85a10;
     }
 
     * { box-sizing: border-box; }
@@ -36,9 +33,7 @@
       place-items: center;
       padding: 12px;
       color: var(--ink);
-      background:
-        linear-gradient(135deg, rgba(224, 245, 235, 0.95), rgba(255, 247, 211, 0.88)),
-        #eef7f8;
+      background: #eef3f9;
       font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     }
 
@@ -60,47 +55,38 @@
       position: relative;
       width: min(100%, 1240px);
       min-height: 720px;
-      padding: 18px 20px 22px;
-      border: 4px solid rgba(40, 98, 138, 0.85);
-      border-radius: 26px;
-      background: rgba(255, 253, 246, 0.98);
-      box-shadow: 0 22px 48px rgba(33, 82, 113, 0.18);
+      padding: 12px 16px 18px;
+      border: 6px solid var(--frame);
+      background: #ffffff;
       overflow: hidden;
     }
 
     h1 {
       margin: 0;
-      color: #1d5f8f;
-      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-      font-size: clamp(38px, 5.6vw, 68px);
+      color: var(--red);
+      font-family: "SimHei", "Microsoft YaHei", sans-serif;
+      font-size: clamp(50px, 8vw, 92px);
       font-weight: 900;
-      line-height: 1.08;
+      line-height: 1;
       text-align: center;
       letter-spacing: 0;
     }
 
     .mission {
-      width: fit-content;
-      max-width: 100%;
-      margin: 10px auto 8px;
-      padding: 8px 18px;
-      border: 2px solid rgba(59, 133, 193, 0.16);
-      border-radius: 999px;
-      background: #ffffff;
-      color: #244c67;
-      font-size: clamp(17px, 2.1vw, 25px);
-      font-weight: 900;
+      margin: 8px 0 4px;
+      color: #111111;
+      font-size: clamp(20px, 2.8vw, 34px);
+      font-weight: 700;
       line-height: 1.35;
       text-align: center;
-      box-shadow: 0 10px 22px rgba(40, 98, 138, 0.1);
     }
 
     .game-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px;
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      gap: 24px;
       align-items: start;
-      margin-top: 14px;
+      margin-top: 10px;
     }
 
     .map-column {
@@ -156,26 +142,23 @@
       position: relative;
       display: grid;
       gap: 0;
-      padding: 12px 0 42px;
+      padding-top: 8px;
+      padding-bottom: 40px;
     }
 
     .jumping-tip {
       position: absolute;
       top: 6px;
-      right: 14px;
+      right: 4px;
       z-index: 10;
       display: block;
-      max-width: min(300px, 52%);
-      padding: 8px 12px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.84);
-      color: #2374a5;
-      font-size: clamp(15px, 1.8vw, 22px);
+      max-width: min(250px, 48%);
+      color: #61c3df;
+      font-size: clamp(18px, 2.1vw, 28px);
       font-weight: 900;
-      line-height: 1.35;
+      line-height: 1.45;
       text-align: left;
-      text-shadow: none;
-      box-shadow: 0 10px 20px rgba(37, 87, 121, 0.12);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.76);
       animation: floatTip 1.8s ease-in-out infinite;
       pointer-events: none;
     }
@@ -184,10 +167,7 @@
       position: relative;
       width: min(100%, 700px);
       overflow: hidden;
-      border: 3px solid rgba(48, 121, 174, 0.28);
-      border-radius: 18px;
       background: #ffffff;
-      box-shadow: 0 18px 34px rgba(31, 93, 133, 0.12);
     }
 
     .map-svg {
@@ -197,28 +177,28 @@
     }
 
     .grid-frame {
-      fill: #fbfffd;
-      stroke: #2589c8;
+      fill: #ffffff;
+      stroke: #1788ca;
       stroke-width: 4;
     }
 
     .grid-line {
-      stroke: rgba(31, 135, 208, 0.82);
-      stroke-width: 3.2;
+      stroke: #1f87d0;
+      stroke-width: 3.6;
     }
 
     .map-node {
-      fill: #e94b43;
+      fill: #ff1f12;
     }
 
     .map-label {
-      fill: rgba(28, 60, 83, 0.86);
+      fill: rgba(0, 0, 0, 0.78);
       font-family: "KaiTi", "STKaiti", "Microsoft YaHei", serif;
       font-size: 56px;
       font-weight: 700;
       letter-spacing: 1px;
       paint-order: stroke fill;
-      stroke: rgba(255, 255, 255, 0.9);
+      stroke: rgba(255, 255, 255, 0.88);
       stroke-width: 8px;
     }
 
@@ -234,7 +214,7 @@
       pointer-events: none;
     }
 
-    .map-wrap.is-direction-active.has-direction-choice .direction-overlay {
+    .map-wrap.is-direction-active .direction-overlay {
       opacity: 1;
       transform: none;
     }
@@ -278,11 +258,6 @@
       stroke-width: 1.5;
     }
 
-    .overlay-chip.is-hidden,
-    .overlay-arc.is-hidden {
-      display: none;
-    }
-
     .overlay-text,
     .overlay-axis-label {
       fill: #1d4367;
@@ -299,10 +274,10 @@
 
     .treasure-pin {
       position: absolute;
-      left: 55.7%;
-      top: 72.1%;
-      width: clamp(70px, 8.6vw, 104px);
-      transform: translate(-50%, -58%) scale(0.84);
+      left: 65.8%;
+      top: 59.6%;
+      width: clamp(64px, 9vw, 100px);
+      transform: translate(-50%, -66%) scale(0.84);
       opacity: 0;
       pointer-events: none;
       transition: opacity 180ms ease, transform 180ms ease;
@@ -311,7 +286,7 @@
 
     .is-found .treasure-pin {
       opacity: 1;
-      transform: translate(-50%, -58%) scale(1);
+      transform: translate(-50%, -66%) scale(1);
     }
 
     .scale {
@@ -320,7 +295,7 @@
       bottom: 4px;
       z-index: 8;
       transform: translateX(-50%);
-      color: #244c67;
+      color: #000000;
       font-family: "KaiTi", "STKaiti", "SimSun", serif;
       font-size: clamp(18px, 2.2vw, 28px);
       font-weight: 900;
@@ -330,34 +305,33 @@
 
     .control-column {
       display: grid;
-      gap: 12px;
+      gap: 16px;
       align-content: start;
-      padding-top: 10px;
+      padding-top: 148px;
     }
 
     .mode-buttons {
       display: grid;
-      gap: 12px;
-      justify-items: stretch;
+      gap: 22px;
+      justify-items: center;
     }
 
     .mode-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 100%;
-      min-width: 0;
-      min-height: 56px;
-      padding: 0 16px;
-      border: 3px solid var(--blue-line);
-      border-radius: 18px;
-      background: #edf7ff;
-      color: #1d5f8f;
-      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-      font-size: 22px;
+      min-width: 188px;
+      min-height: 74px;
+      padding: 0 18px;
+      border: 5px solid var(--blue-line);
+      border-radius: 16px;
+      background: #d8e9ff;
+      color: #ff1515;
+      font-family: "KaiTi", "STKaiti", "Microsoft YaHei", sans-serif;
+      font-size: 34px;
       font-weight: 900;
       line-height: 1;
-      box-shadow: 0 8px 18px rgba(79, 132, 194, 0.14), inset 0 0 0 3px rgba(255, 255, 255, 0.54);
+      box-shadow: 0 8px 0 rgba(79, 132, 194, 0.16), inset 0 0 0 4px rgba(255, 255, 255, 0.36);
       transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
     }
 
@@ -365,7 +339,6 @@
 
     .mode-button.is-active {
       background: var(--blue-active);
-      color: #ffffff;
       box-shadow: 0 8px 0 rgba(57, 98, 152, 0.18), inset 0 0 0 4px rgba(255, 255, 255, 0.2);
     }
 
@@ -391,12 +364,12 @@
     }
 
     .answer-panel {
-      padding: 16px;
-      border: 2px solid rgba(94, 157, 194, 0.26);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.96);
+      padding: 18px 18px 16px;
+      border: 3px solid rgba(189, 213, 220, 0.9);
+      border-radius: 18px;
+      background: rgba(239, 252, 255, 0.96);
       color: var(--pink);
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 700;
       line-height: 1.5;
       box-shadow: 0 12px 24px rgba(71, 111, 145, 0.08);
@@ -405,22 +378,17 @@
     form { margin: 0; }
 
     .sentence {
-      display: grid;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       gap: 8px;
-      justify-items: start;
       max-width: 100%;
       white-space: normal;
     }
 
-    .coordinate-pair {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
     .prompt-prefix {
-      color: #94466a;
-      font-size: 19px;
+      color: #bf3350;
+      font-size: 22px;
       font-weight: 800;
     }
 
@@ -429,113 +397,20 @@
       min-width: 64px;
       min-height: 42px;
       border: 0;
-      border-bottom: 3px solid rgba(72, 140, 186, 0.5);
+      border-bottom: 3px solid rgba(213, 84, 105, 0.62);
       outline: 0;
       background: transparent;
-      color: #174c78;
+      color: #b91527;
       font-size: 24px;
       font-weight: 900;
       text-align: center;
     }
 
-    .direction-choice-title {
-      margin-bottom: 10px;
-      color: #94466a;
-      font-size: 18px;
-      font-weight: 900;
-      line-height: 1.3;
-    }
-
-    .direction-options {
+    .direction-sentence {
       display: grid;
-      gap: 10px;
-    }
-
-    .direction-option {
-      position: relative;
-      display: grid;
-      grid-template-columns: 34px minmax(0, 1fr);
-      gap: 10px;
-      align-items: center;
-      min-height: 58px;
-      padding: 10px 12px;
-      border: 2px solid rgba(94, 157, 194, 0.28);
-      border-radius: 14px;
-      background: #f7fbff;
-      color: #174c78;
-      font-size: 17px;
-      font-weight: 900;
-      line-height: 1.25;
-      cursor: pointer;
-      transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
-    }
-
-    .direction-option:hover {
-      transform: translateY(-1px);
-      border-color: rgba(36, 119, 181, 0.48);
-      box-shadow: 0 8px 16px rgba(36, 119, 181, 0.08);
-    }
-
-    .direction-option input {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .option-index {
-      display: grid;
-      place-items: center;
-      width: 30px;
-      height: 30px;
-      border: 3px solid #7db5e8;
-      border-radius: 50%;
-      background: #ffffff;
-      color: #1d5f8f;
-      font-size: 17px;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .direction-option.is-selected {
-      border-color: #2477b5;
-      background: #edf7ff;
-      box-shadow: 0 0 0 4px rgba(36, 119, 181, 0.12);
-    }
-
-    .direction-option.is-selected .option-index {
-      border-color: #2477b5;
-      background: #2477b5;
-      color: #ffffff;
-    }
-
-    .direction-option.is-correct {
-      border-color: #59b482;
-      background: #edfff6;
-      color: #16754f;
-      box-shadow: 0 0 0 4px rgba(89, 180, 130, 0.16);
-    }
-
-    .direction-option.is-correct .option-index {
-      border-color: #178457;
-      background: #178457;
-      color: #ffffff;
-    }
-
-    .direction-option.is-wrong {
-      border-color: #e0a15d;
-      background: #fff8ee;
-      color: #9a4f12;
-    }
-
-    .direction-option.is-wrong .option-index {
-      border-color: #c96f18;
-      background: #c96f18;
-      color: #ffffff;
-    }
-
-    .direction-option input:disabled + .option-index,
-    .direction-option input:disabled ~ .option-text {
-      cursor: default;
+      grid-template-columns: auto 30px minmax(0, 1fr) 30px;
+      gap: 6px;
+      align-items: start;
     }
 
     .big-paren {
@@ -545,7 +420,33 @@
       line-height: 1;
     }
 
-    .sentence input:focus {
+    .direction-input-wrap {
+      min-height: 76px;
+      padding: 6px 10px 8px;
+      border-bottom: 3px solid rgba(213, 84, 105, 0.62);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .direction-input {
+      display: block;
+      width: 100%;
+      min-height: 56px;
+      max-height: 120px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #b91527;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.45;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .sentence input:focus,
+    .direction-input:focus {
       border-bottom-color: #b91527;
       background: rgba(255, 255, 255, 0.78);
     }
@@ -568,7 +469,7 @@
     }
 
     .submit-button {
-      background: #2477b5;
+      background: #2e83c6;
       color: #ffffff;
     }
 
@@ -606,7 +507,7 @@
     .status-card {
       min-height: 92px;
       padding: 18px 20px;
-      border-radius: 18px;
+      border-radius: 24px;
       background: #ffffff;
       color: #52677a;
       font-size: clamp(18px, 2.2vw, 26px);
@@ -634,7 +535,7 @@
     }
 
     .treasure-button {
-      width: 146px;
+      width: 132px;
       max-width: 100%;
       padding: 0;
       background: transparent;
@@ -653,8 +554,8 @@
       max-width: 100%;
       padding: 10px 12px;
       border-radius: 14px;
-      background: linear-gradient(180deg, #fff7c9 0%, #ffffff 100%);
-      color: #9a3b16;
+      background: linear-gradient(180deg, #fff7c9 0%, #fff 100%);
+      color: #b91c1c;
       font-size: clamp(16px, 2vw, 24px);
       font-weight: 800;
       line-height: 1.32;
@@ -701,7 +602,7 @@
     @media (max-width: 760px) {
       .game-frame { min-height: 0; padding: 10px; border-width: 4px; }
       .mission { font-size: 18px; }
-      .game-layout { grid-template-columns: minmax(0, 1fr) minmax(190px, 30vw); gap: 12px; }
+      .game-layout { grid-template-columns: minmax(0, 1fr) 160px; gap: 12px; }
       .map-column { grid-template-columns: 28px minmax(0, 1fr); gap: 6px; }
       .north-mark { font-size: 16px; padding-top: 76px; }
       .north-arrow { height: 56px; }
@@ -717,7 +618,7 @@
         bottom: 0;
         font-size: 14px;
       }
-      .control-column { padding-top: 0; gap: 10px; }
+      .control-column { padding-top: 82px; gap: 10px; }
       .mode-buttons { justify-items: stretch; gap: 12px; }
       .mode-button {
         width: 100%;
@@ -743,21 +644,13 @@
         font-size: 18px;
       }
       .big-paren { font-size: 36px; }
-      .direction-choice-title { font-size: 15px; }
-      .direction-options { gap: 8px; }
-      .direction-option {
-        grid-template-columns: 28px minmax(0, 1fr);
-        gap: 8px;
-        min-height: 46px;
-        padding: 8px 10px;
-        border-radius: 12px;
-        font-size: 14px;
+      .direction-input-wrap {
+        min-height: 56px;
+        padding: 4px 8px 6px;
       }
-      .option-index {
-        width: 24px;
-        height: 24px;
-        border-width: 3px;
-        font-size: 13px;
+      .direction-input {
+        min-height: 40px;
+        font-size: 18px;
       }
       .submit-button,
       .clear-button,
@@ -794,6 +687,7 @@
         transform: none;
         margin: 6px 0 0 76px;
       }
+      .direction-sentence { grid-template-columns: 1fr; }
       .big-paren { display: none; }
     }
   </style>
@@ -801,7 +695,7 @@
 <body>
   <main class="game-frame">
     <h1>寻宝大冒险</h1>
-    <p class="mission">六年级“位置与方向”挑战：以学校为起点，找出藏宝点的位置。</p>
+    <p class="mission">学校在街区里设置了1个“藏宝点”，可能是公园或医院。</p>
 
     <div class="game-layout">
       <section class="map-column" aria-label="寻宝地图">
@@ -810,9 +704,9 @@
           <span class="north-arrow"></span>
         </div>
         <div class="map-stack">
-          <div class="jumping-tip" aria-live="polite">数对和方向+距离<br>都能描述同一个位置</div>
+          <div class="jumping-tip" aria-live="polite">两种方法都正确，<br>就可以找到宝藏了</div>
           <div id="mapWrap" class="map-wrap">
-            <svg id="treasureMap" class="map-svg" viewBox="0 0 700 560" role="img" aria-label="街区寻宝地图，学校、超市、公园、医院分布在方格中">
+            <svg id="treasureMap" class="map-svg" viewBox="0 0 700 560" role="img" aria-label="街区寻宝地图，学校、公园、医院分布在方格中">
               <rect width="700" height="560" fill="#ffffff"></rect>
               <g aria-hidden="true">
                 <rect class="grid-frame" x="110" y="54" width="420" height="420"></rect>
@@ -830,14 +724,12 @@
 
               <g aria-hidden="true">
                 <circle class="map-node" cx="180" cy="404" r="18"></circle>
-                <circle class="map-node" cx="390" cy="404" r="9"></circle>
                 <circle class="map-node" cx="460" cy="334" r="9"></circle>
                 <circle class="map-node" cx="460" cy="124" r="9"></circle>
               </g>
 
               <g aria-hidden="true">
                 <text class="map-label map-label--small" x="504" y="175" text-anchor="start">公园</text>
-                <text class="map-label map-label--small" x="404" y="388" text-anchor="start">超市</text>
                 <text class="map-label map-label--small" x="500" y="388" text-anchor="start">医院</text>
                 <text class="map-label" x="118" y="470" text-anchor="start">学校</text>
               </g>
@@ -845,35 +737,31 @@
               <g class="direction-overlay" aria-hidden="true">
                 <line class="overlay-cross" x1="180" y1="78" x2="180" y2="438"></line>
                 <line class="overlay-cross" x1="98" y1="404" x2="520" y2="404"></line>
-                <line id="directionGuideLine" class="overlay-axis" x1="180" y1="404" x2="390" y2="404"></line>
-                <line id="directionChoiceLine" class="overlay-main-line" x1="180" y1="404" x2="390" y2="404"></line>
-                <path id="directionChoiceArc" class="overlay-arc is-hidden" d="M252 404 A72 72 0 0 0 252 404"></path>
+                <line class="overlay-axis" x1="180" y1="404" x2="460" y2="404"></line>
+                <line class="overlay-main-line" x1="180" y1="404" x2="460" y2="334"></line>
+                <path class="overlay-arc" d="M252 404 A72 72 0 0 0 250 386"></path>
                 <circle class="overlay-anchor" cx="180" cy="404" r="6"></circle>
-                <circle id="directionChoicePoint" class="overlay-anchor" cx="390" cy="404" r="6"></circle>
-                <g id="directionDistanceChip" class="overlay-chip">
-                  <rect x="244" y="362" width="112" height="34" rx="17"></rect>
-                  <text id="directionDistanceText" class="overlay-text" x="300" y="384" text-anchor="middle">600米</text>
+                <circle class="overlay-anchor" cx="460" cy="334" r="6"></circle>
+                <g class="overlay-chip">
+                  <rect x="294" y="346" width="112" height="34" rx="17"></rect>
+                  <text class="overlay-text" x="350" y="368" text-anchor="middle">1000米</text>
                 </g>
-                <g id="directionNameChip" class="overlay-chip">
-                  <rect x="228" y="422" width="92" height="34" rx="17"></rect>
-                  <text id="directionNameText" class="overlay-text" x="274" y="444" text-anchor="middle">正东</text>
-                </g>
-                <g id="directionAngleChip" class="overlay-chip is-hidden">
-                  <rect x="255" y="374" width="64" height="34" rx="17"></rect>
-                  <text id="directionAngleText" class="overlay-text" x="287" y="396" text-anchor="middle">13°</text>
+                <g class="overlay-chip">
+                  <rect x="226" y="356" width="78" height="34" rx="17"></rect>
+                  <text class="overlay-text" x="265" y="378" text-anchor="middle">13°</text>
                 </g>
                 <text class="overlay-axis-label" x="470" y="398" text-anchor="start">东</text>
                 <text class="overlay-axis-label" x="192" y="92" text-anchor="start">北</text>
               </g>
             </svg>
-            <svg class="treasure-pin" viewBox="0 0 180 126" role="img" aria-label="元宝图标">
-              <ellipse cx="90" cy="112" rx="58" ry="9" fill="rgba(89, 55, 0, 0.22)"></ellipse>
-              <path d="M22 72C29 41 50 22 73 24C78 45 84 60 90 66C96 60 102 45 107 24C130 22 151 41 158 72C148 101 123 116 90 116C57 116 32 101 22 72Z" fill="#f0aa22" stroke="#7b4300" stroke-width="7" stroke-linejoin="round"></path>
-              <path d="M42 72C51 58 67 50 90 50C113 50 129 58 138 72C127 86 111 94 90 94C69 94 53 86 42 72Z" fill="#ffd95f" stroke="#9a5a00" stroke-width="5" stroke-linejoin="round"></path>
-              <path d="M38 72C43 55 54 42 68 35C70 50 75 62 82 72C69 78 53 78 38 72Z" fill="#ffe88c" opacity=".86"></path>
-              <path d="M142 72C137 55 126 42 112 35C110 50 105 62 98 72C111 78 127 78 142 72Z" fill="#ffe88c" opacity=".86"></path>
-              <path d="M62 100C76 106 104 106 118 100" fill="none" stroke="#fff2a8" stroke-width="8" stroke-linecap="round" opacity=".9"></path>
-              <circle cx="90" cy="73" r="12" fill="#fff3a8" stroke="#d58a10" stroke-width="4"></circle>
+            <svg class="treasure-pin" viewBox="0 0 180 126" role="img" aria-label="宝箱图片">
+              <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
+              <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
+              <path d="M19 57h142v25H19z" fill="#e9941b" stroke="#603704" stroke-width="7"/>
+              <path d="M87 11v104" stroke="#fff1a9" stroke-width="13"/>
+              <path d="M23 91h132" stroke="#8b510e" stroke-width="6"/>
+              <rect x="70" y="70" width="40" height="38" rx="7" fill="#ffdd54" stroke="#603704" stroke-width="6"/>
+              <circle cx="90" cy="90" r="5" fill="#603704"/>
             </svg>
           </div>
           <div class="scale">比例尺1：20000</div>
@@ -890,13 +778,11 @@
           <form id="coordinateForm" hidden>
             <div class="sentence">
               <span class="prompt-prefix">我认为“藏宝点”在数对</span>
-              <span class="coordinate-pair">
-                <span class="big-paren">（</span>
-                <input id="columnInput" type="number" step="any" inputmode="decimal" aria-label="列数">
-                <span class="prompt-prefix">，</span>
-                <input id="rowInput" type="number" step="any" inputmode="decimal" aria-label="行数">
-                <span class="big-paren">）</span>
-              </span>
+              <span class="big-paren">（</span>
+              <input id="columnInput" type="number" step="any" inputmode="decimal" aria-label="列数">
+              <span class="prompt-prefix">，</span>
+              <input id="rowInput" type="number" step="any" inputmode="decimal" aria-label="行数">
+              <span class="big-paren">）</span>
             </div>
             <div class="submit-row">
               <button class="submit-button" type="submit">确定</button>
@@ -905,23 +791,17 @@
           </form>
 
           <form id="directionForm" hidden>
-            <div class="direction-choice-title">选择一个方向和距离</div>
-            <div class="direction-options" role="radiogroup" aria-label="方向和距离选项">
-              <label class="direction-option">
-                <input type="radio" name="directionChoice" value="east600">
-                <span class="option-index">1</span>
-                <span class="option-text">学校的正东方向600米</span>
+            <div class="direction-sentence">
+              <span class="prompt-prefix">我认为藏宝点在</span>
+              <span class="big-paren">（</span>
+              <label class="direction-input-wrap">
+                <textarea id="directionAnswer" class="direction-input" rows="2" aria-label="方向和距离描述" placeholder="学校的东偏北13°方向1000米"></textarea>
               </label>
-              <label class="direction-option">
-                <input type="radio" name="directionChoice" value="eastNorth1000">
-                <span class="option-index">2</span>
-                <span class="option-text">学校的东偏北13°方向1000米</span>
-              </label>
-              <label class="direction-option">
-                <input type="radio" name="directionChoice" value="north600">
-                <span class="option-index">3</span>
-                <span class="option-text">正北600米</span>
-              </label>
+              <span class="big-paren">）</span>
+            </div>
+            <div class="submit-row">
+              <button class="submit-button" type="submit">确定</button>
+              <button class="clear-button" type="button" data-clear="direction">重新填写</button>
             </div>
           </form>
 
@@ -937,13 +817,13 @@
           <div>你太厉害啦！宝藏就在这里，请你打开它吧！</div>
           <button id="treasureButton" class="treasure-button" type="button" aria-label="打开宝藏">
             <svg class="treasure-svg" viewBox="0 0 180 126" aria-hidden="true">
-              <ellipse cx="90" cy="112" rx="58" ry="9" fill="rgba(89, 55, 0, 0.22)"></ellipse>
-              <path d="M22 72C29 41 50 22 73 24C78 45 84 60 90 66C96 60 102 45 107 24C130 22 151 41 158 72C148 101 123 116 90 116C57 116 32 101 22 72Z" fill="#f0aa22" stroke="#7b4300" stroke-width="7" stroke-linejoin="round"></path>
-              <path d="M42 72C51 58 67 50 90 50C113 50 129 58 138 72C127 86 111 94 90 94C69 94 53 86 42 72Z" fill="#ffd95f" stroke="#9a5a00" stroke-width="5" stroke-linejoin="round"></path>
-              <path d="M38 72C43 55 54 42 68 35C70 50 75 62 82 72C69 78 53 78 38 72Z" fill="#ffe88c" opacity=".86"></path>
-              <path d="M142 72C137 55 126 42 112 35C110 50 105 62 98 72C111 78 127 78 142 72Z" fill="#ffe88c" opacity=".86"></path>
-              <path d="M62 100C76 106 104 106 118 100" fill="none" stroke="#fff2a8" stroke-width="8" stroke-linecap="round" opacity=".9"></path>
-              <circle cx="90" cy="73" r="12" fill="#fff3a8" stroke="#d58a10" stroke-width="4"></circle>
+              <path d="M25 57h130v58H25z" fill="#c97418" stroke="#603704" stroke-width="7"/>
+              <path d="M29 57c6-33 30-49 61-49s55 16 61 49z" fill="#f5b72d" stroke="#603704" stroke-width="7"/>
+              <path d="M19 57h142v25H19z" fill="#e9941b" stroke="#603704" stroke-width="7"/>
+              <path d="M87 11v104" stroke="#fff1a9" stroke-width="13"/>
+              <path d="M23 91h132" stroke="#8b510e" stroke-width="6"/>
+              <rect x="70" y="70" width="40" height="38" rx="7" fill="#ffdd54" stroke="#603704" stroke-width="6"/>
+              <circle cx="90" cy="90" r="5" fill="#603704"/>
             </svg>
           </button>
           <div id="blessing" class="blessing" hidden></div>
@@ -955,48 +835,7 @@
 
   <script>
     (function () {
-      var coordinateAnswer = { column: 4, row: 1 };
-      var directionChoices = {
-        east600: {
-          correct: true,
-          x2: 390,
-          y2: 404,
-          guideX2: 390,
-          guideY2: 404,
-          distance: "600米",
-          direction: "正东",
-          distanceChip: { x: 244, y: 362, width: 112, textX: 300, textY: 384 },
-          directionChip: { x: 228, y: 422, width: 92, textX: 274, textY: 444 },
-          hint: "宝藏就在这里！"
-        },
-        eastNorth1000: {
-          correct: false,
-          x2: 521,
-          y2: 325,
-          guideX2: 521,
-          guideY2: 404,
-          distance: "1000米",
-          direction: "东偏北13°",
-          angle: "13°",
-          anglePath: "M252 404 A72 72 0 0 0 250 388",
-          distanceChip: { x: 330, y: 314, width: 124, textX: 392, textY: 336 },
-          directionChip: { x: 356, y: 348, width: 142, textX: 427, textY: 370 },
-          angleChip: { x: 256, y: 374, width: 64, textX: 288, textY: 396 },
-          hint: "这条线画到了东偏北方向，角度和距离都不是藏宝点的位置哦。"
-        },
-        north600: {
-          correct: false,
-          x2: 180,
-          y2: 194,
-          guideX2: 180,
-          guideY2: 194,
-          distance: "600米",
-          direction: "正北",
-          distanceChip: { x: 118, y: 278, width: 112, textX: 174, textY: 300 },
-          directionChip: { x: 194, y: 286, width: 92, textX: 240, textY: 308 },
-          hint: "这条线向北走了600米，但藏宝点和学校在同一条横线上。"
-        }
-      };
+      var coordinateAnswer = { column: 5, row: 2 };
       var blessings = [
         "六年时光沉淀专属宝藏，愿你带着收获奔赴下一程山海",
         "少年心怀璀璨宝藏，前路漫漫亦会步步生光",
@@ -1013,7 +852,6 @@
         activeMode: "",
         coordinateWrongCount: 0,
         directionWrongCount: 0,
-        selectedDirection: "",
         coordinateCorrect: false,
         directionCorrect: false,
         audioContext: null
@@ -1035,14 +873,7 @@
         elements.directionForm = document.getElementById("directionForm");
         elements.columnInput = document.getElementById("columnInput");
         elements.rowInput = document.getElementById("rowInput");
-        elements.directionChoices = Array.prototype.slice.call(document.querySelectorAll("input[name='directionChoice']"));
-        elements.directionGuideLine = document.getElementById("directionGuideLine");
-        elements.directionChoiceLine = document.getElementById("directionChoiceLine");
-        elements.directionChoiceArc = document.getElementById("directionChoiceArc");
-        elements.directionChoicePoint = document.getElementById("directionChoicePoint");
-        elements.directionDistanceChip = document.getElementById("directionDistanceChip");
-        elements.directionNameChip = document.getElementById("directionNameChip");
-        elements.directionAngleChip = document.getElementById("directionAngleChip");
+        elements.directionAnswer = document.getElementById("directionAnswer");
         elements.feedback = document.getElementById("feedback");
         elements.statusRow = document.getElementById("statusRow");
         elements.coordinateStatus = document.getElementById("coordinateStatus");
@@ -1055,45 +886,16 @@
         elements.coordinateMode.addEventListener("click", function () { selectMode("coordinate"); });
         elements.directionMode.addEventListener("click", function () { selectMode("direction"); });
         elements.coordinateForm.addEventListener("submit", submitCoordinate);
-        elements.directionChoices.forEach(function (input) {
-          input.addEventListener("change", function () { chooseDirection(input.value); });
-        });
+        elements.directionForm.addEventListener("submit", submitDirection);
+        elements.directionAnswer.addEventListener("input", resizeDirectionInput);
         elements.treasureButton.addEventListener("click", openTreasure);
         document.querySelectorAll("[data-clear]").forEach(function (button) {
           button.addEventListener("click", function () { clearForm(button.getAttribute("data-clear")); });
         });
 
-        resetGameState();
-        window.addEventListener("pageshow", resetGameState);
-        registerServiceWorker();
-      }
-
-      function resetGameState() {
-        state.activeMode = "";
-        state.coordinateWrongCount = 0;
-        state.directionWrongCount = 0;
-        state.coordinateCorrect = false;
-        state.directionCorrect = false;
-        elements.answerPanel.hidden = true;
-        elements.coordinateForm.hidden = true;
-        elements.directionForm.hidden = true;
-        elements.statusRow.hidden = true;
-        elements.treasureResult.hidden = true;
-        elements.blessing.hidden = true;
-        elements.feedback.textContent = "";
-        elements.feedback.classList.remove("is-success");
-        elements.columnInput.value = "";
-        elements.rowInput.value = "";
-        elements.mapWrap.classList.remove("is-direction-active", "has-direction-choice", "is-found");
-        elements.coordinateMode.classList.remove("is-active", "is-done");
-        elements.directionMode.classList.remove("is-active", "is-done");
-        elements.coordinateStatus.textContent = "数对：等待作答";
-        elements.directionStatus.textContent = "方向+距离：等待作答";
-        elements.coordinateStatus.classList.remove("is-done");
-        elements.directionStatus.classList.remove("is-done");
-        elements.confettiField.innerHTML = "";
-        clearDirectionChoiceState();
         updateStatusRowVisibility();
+        resizeDirectionInput();
+        registerServiceWorker();
       }
 
       function selectMode(mode) {
@@ -1105,11 +907,12 @@
         elements.directionForm.hidden = mode !== "direction";
         elements.coordinateMode.classList.toggle("is-active", mode === "coordinate");
         elements.directionMode.classList.toggle("is-active", mode === "direction");
+        showFeedback("请填写你的" + (mode === "coordinate" ? "数对" : "方向和距离") + "答案。", false, false);
         if (mode === "coordinate") {
-          showFeedback("请填写你的数对答案。", false, false);
           elements.columnInput.focus();
         } else {
-          showFeedback("请选择一个方向和距离选项。", false, false);
+          resizeDirectionInput();
+          elements.directionAnswer.focus();
         }
       }
 
@@ -1150,97 +953,58 @@
         showFeedback("宝藏不在这个位置哦", false, true);
       }
 
-      function chooseDirection(value) {
-        var choice = directionChoices[value];
-        var selectedInput = getDirectionInput(value);
-        if (!choice || !selectedInput || selectedInput.disabled) {
-          return;
-        }
+      function submitDirection(event) {
+        var result;
+        var message;
+        event.preventDefault();
         startAudio();
-        state.selectedDirection = value;
-        updateDirectionChoiceSelection(value);
-        drawDirectionChoice(choice);
+        result = checkDirectionAnswer(elements.directionAnswer.value);
 
-        if (choice.correct) {
+        if (result.correct) {
           markCorrect("direction");
           return;
         }
 
         state.directionWrongCount += 1;
-        showFeedback(choice.hint, false, true);
-        speak(choice.hint);
+        message = getDirectionHint(result);
+        showFeedback(message, false, true);
+        speak(message);
       }
 
-      function getDirectionInput(value) {
-        var result = null;
-        elements.directionChoices.forEach(function (input) {
-          if (input.value === value) {
-            result = input;
-          }
-        });
-        return result;
+      function checkDirectionAnswer(value) {
+        var text = normalizeText(value);
+        var hasSchool = text.indexOf("学校") !== -1;
+        var hasDirection = text.indexOf("东偏北") !== -1;
+        var hasDegree = /(12|13|14)(°|度)?/.test(text);
+        var hasDistance = /(980|1000|1020)米?/.test(text);
+        return {
+          correct: hasSchool && hasDirection && hasDegree && hasDistance,
+          hasSchool: hasSchool,
+          hasDirection: hasDirection,
+          hasDegree: hasDegree,
+          hasDistance: hasDistance,
+          empty: text.length === 0
+        };
       }
 
-      function clearDirectionChoiceState() {
-        state.selectedDirection = "";
-        elements.mapWrap.classList.remove("has-direction-choice");
-        elements.directionChoices.forEach(function (input) {
-          input.checked = false;
-          input.disabled = false;
-        });
-        updateDirectionChoiceSelection("");
-      }
-
-      function updateDirectionChoiceSelection(selectedValue) {
-        elements.directionChoices.forEach(function (input) {
-          var option = input.closest(".direction-option");
-          var choice = directionChoices[input.value];
-          var isSelected = input.value === selectedValue;
-          if (!option || !choice) {
-            return;
-          }
-          option.classList.toggle("is-selected", isSelected);
-          option.classList.toggle("is-correct", isSelected && choice.correct);
-          option.classList.toggle("is-wrong", isSelected && !choice.correct);
-        });
-      }
-
-      function drawDirectionChoice(choice) {
-        elements.mapWrap.classList.add("has-direction-choice");
-        setLine(elements.directionGuideLine, 180, 404, choice.guideX2, choice.guideY2);
-        setLine(elements.directionChoiceLine, 180, 404, choice.x2, choice.y2);
-        elements.directionChoicePoint.setAttribute("cx", choice.x2);
-        elements.directionChoicePoint.setAttribute("cy", choice.y2);
-        setOverlayChip(elements.directionDistanceChip, choice.distance, choice.distanceChip);
-        setOverlayChip(elements.directionNameChip, choice.direction, choice.directionChip);
-
-        if (choice.angle && choice.angleChip) {
-          elements.directionChoiceArc.setAttribute("d", choice.anglePath);
-          elements.directionChoiceArc.classList.remove("is-hidden");
-          setOverlayChip(elements.directionAngleChip, choice.angle, choice.angleChip);
-        } else {
-          elements.directionChoiceArc.classList.add("is-hidden");
-          elements.directionAngleChip.classList.add("is-hidden");
+      function getDirectionHint(result) {
+        var missingCount = [result.hasSchool, result.hasDirection, result.hasDegree, result.hasDistance].filter(function (value) { return !value; }).length;
+        if (result.empty || missingCount >= 2) {
+          return "想一想，少了什么关键信息呢？";
         }
-      }
-
-      function setLine(line, x1, y1, x2, y2) {
-        line.setAttribute("x1", x1);
-        line.setAttribute("y1", y1);
-        line.setAttribute("x2", x2);
-        line.setAttribute("y2", y2);
-      }
-
-      function setOverlayChip(chip, text, position) {
-        var rect = chip.querySelector("rect");
-        var label = chip.querySelector("text");
-        chip.classList.remove("is-hidden");
-        rect.setAttribute("x", position.x);
-        rect.setAttribute("y", position.y);
-        rect.setAttribute("width", position.width);
-        label.setAttribute("x", position.textX);
-        label.setAttribute("y", position.textY);
-        label.textContent = text;
+        if (!result.hasSchool) {
+          return "想一想，观测点写清楚了吗？";
+        }
+        if (!result.hasDirection) {
+          return "再想一想，藏宝点的方向正确吗？";
+        }
+        if (!result.hasDegree) {
+          return "再想一想，藏宝点的方向对应的角度正确吗？";
+        }
+        if (!result.hasDistance) {
+          return "再想一想，藏宝点的距离正确吗？";
+        }
+        return "宝藏不在这里哦！";
       }
 
       function markCorrect(mode) {
@@ -1254,7 +1018,6 @@
           elements.directionStatus.textContent = "方向+距离：已经答对";
           elements.directionStatus.classList.add("is-done");
           elements.directionMode.classList.add("is-done");
-          lockDirectionChoices();
         }
 
         updateStatusRowVisibility();
@@ -1265,12 +1028,6 @@
         }
 
         showFeedback("恭喜你，已经答对一种方法了，继续尝试第二种方法吧！", true, true);
-      }
-
-      function lockDirectionChoices() {
-        elements.directionChoices.forEach(function (input) {
-          input.disabled = true;
-        });
       }
 
       function showTreasure() {
@@ -1296,10 +1053,9 @@
           elements.rowInput.value = "";
           elements.columnInput.focus();
         } else {
-          clearDirectionChoiceState();
-          if (elements.directionChoices.length > 0) {
-            elements.directionChoices[0].focus();
-          }
+          elements.directionAnswer.value = "";
+          resizeDirectionInput();
+          elements.directionAnswer.focus();
         }
         showFeedback("可以重新修改输入，再试一次。", false, false);
       }
@@ -1317,6 +1073,14 @@
 
       function updateStatusRowVisibility() {
         elements.statusRow.hidden = !(state.coordinateCorrect || state.directionCorrect);
+      }
+
+      function resizeDirectionInput() {
+        if (!elements.directionAnswer) {
+          return;
+        }
+        elements.directionAnswer.style.height = "auto";
+        elements.directionAnswer.style.height = Math.min(elements.directionAnswer.scrollHeight, 120) + "px";
       }
 
       function createConfetti() {
