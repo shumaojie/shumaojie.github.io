@@ -493,6 +493,7 @@
     }
 
     .leaflet-tooltip.distance-tooltip,
+    .distance-tooltip.is-amap-overlay,
     .leaflet-tooltip.angle-tooltip {
       padding: 5px 8px;
       border: 0;
@@ -502,6 +503,11 @@
       font-size: 12px;
       font-weight: 800;
       box-shadow: 0 10px 18px rgba(26, 52, 72, 0.12);
+    }
+
+    .leaflet-tooltip.distance-tooltip,
+    .distance-tooltip.is-amap-overlay {
+      font-weight: 900;
     }
 
     .leaflet-tooltip.angle-tooltip {
@@ -825,6 +831,9 @@
           zoomSnap: 0.25,
           zoomDelta: 0.5,
           zoomControl: true,
+          inertia: false,
+          zoomAnimation: false,
+          markerZoomAnimation: false,
           worldCopyJump: false,
           maxBounds: areaBounds,
           maxBoundsViscosity: 1
@@ -988,6 +997,8 @@
           showBuildingBlock: renderMode === "3d",
           showIndoorMap: renderMode === "3d",
           expandZoomRange: true,
+          animateEnable: false,
+          jogEnable: false,
           pitchEnable: renderMode === "3d",
           rotateEnable: renderMode === "3d",
           dragEnable: true,
