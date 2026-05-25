@@ -467,6 +467,24 @@
       line-height: 1.25;
     }
 
+    .direction-field--single {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .direction-input-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+      width: 100%;
+    }
+
+    .direction-input-line .direction-formula,
+    .direction-input-line .field-unit {
+      padding-top: 8px;
+    }
+
     .direction-field input {
       width: 100%;
       min-width: 0;
@@ -481,11 +499,35 @@
       text-align: center;
     }
 
+    .direction-field textarea {
+      width: 100%;
+      min-width: 0;
+      min-height: 104px;
+      padding: 6px 8px;
+      border: 0;
+      border-bottom: 3px solid rgba(72, 140, 186, 0.5);
+      outline: 0;
+      background: transparent;
+      color: #174c78;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.35;
+      text-align: left;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
     .direction-field--text input {
       text-align: left;
     }
 
-    .direction-field input:focus {
+    .direction-field--single input,
+    .direction-field--single textarea {
+      text-align: left;
+    }
+
+    .direction-field input:focus,
+    .direction-field textarea:focus {
       border-bottom-color: #b91527;
       background: rgba(255, 255, 255, 0.78);
     }
@@ -721,8 +763,15 @@
         border-radius: 12px;
         font-size: 14px;
       }
+      .direction-field--single {
+        grid-template-columns: minmax(0, 1fr);
+      }
       .direction-field input {
         min-height: 30px;
+        font-size: 16px;
+      }
+      .direction-field textarea {
+        min-height: 76px;
         font-size: 16px;
       }
       .direction-formula {
@@ -843,7 +892,7 @@
               <circle cx="90" cy="73" r="12" fill="#fff3a8" stroke="#d58a10" stroke-width="4"></circle>
             </svg>
           </div>
-          <div class="scale">比例尺1：24000</div>
+          <div class="scale">比例尺1：20000</div>
         </div>
       </section>
 
@@ -872,25 +921,14 @@
           </form>
 
           <form id="directionForm" hidden>
-            <div class="direction-choice-title">填写与学校的方向和距离</div>
             <div class="direction-fields">
-              <label class="direction-field direction-field--text">
-                <span class="field-label">与学校方向：</span>
-                <span class="direction-formula">（</span>
-                <input id="directionNameInput" type="text" name="xunbao-direction-name" aria-label="与学校方向" autocomplete="new-password">
-                <span class="direction-formula">）</span>
-              </label>
-              <label class="direction-field">
-                <span class="field-label">度数是</span>
-                <span class="direction-formula">（</span>
-                <input id="directionDegreeInput" type="number" name="xunbao-direction-degree" step="any" inputmode="decimal" aria-label="度数" autocomplete="off">
-                <span class="field-unit">）度</span>
-              </label>
-              <label class="direction-field">
-                <span class="field-label">距离</span>
-                <span class="direction-formula">（</span>
-                <input id="directionDistanceInput" type="number" name="xunbao-direction-distance" step="any" inputmode="decimal" aria-label="距离" autocomplete="off">
-                <span class="field-unit">）米</span>
+              <label class="direction-field direction-field--single">
+                <span class="field-label">我认为藏宝点在</span>
+                <span class="direction-input-line">
+                  <span class="direction-formula">（</span>
+                  <textarea id="directionSentenceInput" name="xunbao-direction-sentence" rows="3" aria-label="我认为藏宝点在" autocomplete="off"></textarea>
+                  <span class="field-unit">）</span>
+                </span>
               </label>
             </div>
             <div class="submit-row">
@@ -932,8 +970,11 @@
       var coordinateAnswer = { column: 4, row: 1 };
       var directionAnswer = { direction: "东偏北", degree: 14, distance: 1000 };
       var directionOrigin = { x: 180, y: 404 };
-      var directionTarget = { x: 460, y: 334 };
-      var directionScale = Math.sqrt(Math.pow(directionTarget.x - directionOrigin.x, 2) + Math.pow(directionTarget.y - directionOrigin.y, 2)) / directionAnswer.distance;
+      var mapGridUnitPixels = 70;
+      var mapLengthUnits = 5;
+      var directionTarget = getCoordinatePoint(coordinateAnswer);
+      var mapUnitPixels = getPointDistance(directionOrigin, directionTarget) / mapLengthUnits;
+      var directionScale = mapLengthUnits * mapUnitPixels / directionAnswer.distance;
       var blessings = [
         "六年时光沉淀专属宝藏，愿你带着收获奔赴下一程山海",
         "少年心怀璀璨宝藏，前路漫漫亦会步步生光",
@@ -971,9 +1012,7 @@
         elements.directionForm = document.getElementById("directionForm");
         elements.columnInput = document.getElementById("columnInput");
         elements.rowInput = document.getElementById("rowInput");
-        elements.directionNameInput = document.getElementById("directionNameInput");
-        elements.directionDegreeInput = document.getElementById("directionDegreeInput");
-        elements.directionDistanceInput = document.getElementById("directionDistanceInput");
+        elements.directionSentenceInput = document.getElementById("directionSentenceInput");
         elements.directionFields = Array.prototype.slice.call(document.querySelectorAll(".direction-field"));
         elements.directionGuideLine = document.getElementById("directionGuideLine");
         elements.directionChoiceLine = document.getElementById("directionChoiceLine");
@@ -1059,7 +1098,8 @@
         } else {
           clearDirectionInputs();
           clearDirectionAttempt();
-          showFeedback("请填写与学校的方向、度数和距离。", false, false);
+          showFeedback("请填写一句完整描述", false, false);
+          elements.directionSentenceInput.focus();
         }
       }
 
@@ -1123,38 +1163,95 @@
       }
 
       function getDirectionResult() {
-        var direction = normalizeDirection(elements.directionNameInput.value);
-        var degree = Number(elements.directionDegreeInput.value);
-        var distance = Number(elements.directionDistanceInput.value);
-        var choice = buildDirectionChoice(direction, degree, distance);
-        var hasDirection = direction.length > 0;
-        var hasDegree = Number.isFinite(degree);
-        var hasDistance = Number.isFinite(distance);
-        var directionCorrect = direction === directionAnswer.direction;
-        var degreeCorrect = hasDegree && degree === directionAnswer.degree;
-        var distanceCorrect = hasDistance && distance === directionAnswer.distance;
+        var parsed = parseDirectionSentence(elements.directionSentenceInput.value);
+        var tips = [];
 
         elements.directionFields.forEach(function (field) {
           field.classList.remove("is-correct");
         });
 
-        if (!hasDirection || !hasDegree || !hasDistance) {
-          return { correct: false, choice: choice, message: "请把方向、度数和距离都填完整。" };
+        if (parsed.missingAnyKeyInfo) {
+          return { correct: false, choice: parsed.choice, message: "想一想，少了什么关键信息呢？" };
         }
-        if (directionCorrect && degreeCorrect && distanceCorrect) {
+
+        if (parsed.correct) {
           elements.directionFields.forEach(function (field) { field.classList.add("is-correct"); });
-          return { correct: true, choice: choice, message: "宝藏就在这里！" };
+          return { correct: true, choice: buildDirectionChoice(directionAnswer.direction, directionAnswer.degree, directionAnswer.distance), message: "宝藏就在这里！" };
         }
-        if (!directionCorrect) {
-          return { correct: false, choice: choice, message: "再想一想，藏宝点在学校的哪个方向？" };
+
+        if (!parsed.schoolCorrect) {
+          tips.push("再想一想，描述里要写清楚观测点“学校”。");
         }
-        if (!degreeCorrect) {
-          return { correct: false, choice: choice, message: "方向对了，角度再调整一下，应该是14度。" };
+        if (!parsed.directionCorrect) {
+          tips.push("再想一想，藏宝点的方向正确吗？");
         }
-        if (!distanceCorrect) {
-          return { correct: false, choice: choice, message: "方向和角度对了，距离要填1000米。" };
+        if (!parsed.angleCorrect) {
+          tips.push("再想一想，藏宝点的方向对应的角度正确吗？");
         }
-        return { correct: false, choice: choice, message: "宝藏不在这里哦。" };
+        if (!parsed.distanceCorrect) {
+          tips.push("再想一想，藏宝点的距离正确吗？");
+        }
+        return {
+          correct: false,
+          choice: parsed.choice,
+          message: tips.length ? "宝藏不在这里哦！\n" + tips.join("\n") : "宝藏不在这里哦！"
+        };
+      }
+
+      function parseDirectionSentence(value) {
+        var rawText = String(value || "");
+        var text = normalizeText(rawText);
+        var schoolPresent = text.indexOf("学校") !== -1;
+        var hasDirectionWords = /(东偏北|东北|正东|东|正北|北)/.test(text);
+        var directionCorrect = /(东偏北|东北)/.test(text);
+        var angleMatch = text.match(/(-?\d+(?:\.\d+)?)\s*(?:°|度)/);
+        var distanceMatch = text.match(/(-?\d+(?:\.\d+)?)\s*米/);
+        var angleValue = angleMatch ? Number(angleMatch[1]) : NaN;
+        var distanceValue = distanceMatch ? Number(distanceMatch[1]) : NaN;
+        var angleCorrect = Number.isFinite(angleValue) && [12, 13, 14].indexOf(angleValue) !== -1;
+        var distanceCorrect = Number.isFinite(distanceValue) && distanceValue >= 980 && distanceValue <= 1020;
+        var inferredDirection = inferDirection(text);
+        var choice = null;
+
+        if (inferredDirection === "东偏北" && Number.isFinite(angleValue) && Number.isFinite(distanceValue)) {
+          choice = buildDirectionChoice(inferredDirection, angleValue, distanceValue);
+        } else if (inferredDirection && Number.isFinite(distanceValue)) {
+          choice = buildDirectionChoice(inferredDirection, 0, distanceValue);
+        }
+
+        return {
+          correct: schoolPresent && directionCorrect && angleCorrect && distanceCorrect,
+          schoolCorrect: schoolPresent,
+          directionCorrect: directionCorrect,
+          angleCorrect: angleCorrect,
+          distanceCorrect: distanceCorrect,
+          missingAnyKeyInfo: !schoolPresent || !hasDirectionWords || !Number.isFinite(angleValue) || !Number.isFinite(distanceValue),
+          choice: choice
+        };
+      }
+
+      function inferDirection(text) {
+        if (/(东偏北|东北)/.test(text)) {
+          return "东偏北";
+        }
+        if (/(正东|东)/.test(text)) {
+          return "东";
+        }
+        if (/(正北|北)/.test(text)) {
+          return "北";
+        }
+        return "";
+      }
+
+      function getCoordinatePoint(coordinate) {
+        return {
+          x: directionOrigin.x + coordinate.column * mapGridUnitPixels,
+          y: directionOrigin.y - coordinate.row * mapGridUnitPixels
+        };
+      }
+
+      function getPointDistance(pointA, pointB) {
+        return Math.sqrt(Math.pow(pointB.x - pointA.x, 2) + Math.pow(pointB.y - pointA.y, 2));
       }
 
       function buildDirectionChoice(direction, degree, distance) {
@@ -1225,12 +1322,8 @@
       }
 
       function clearDirectionInputs() {
-        elements.directionNameInput.value = "";
-        elements.directionDegreeInput.value = "";
-        elements.directionDistanceInput.value = "";
-        elements.directionNameInput.disabled = false;
-        elements.directionDegreeInput.disabled = false;
-        elements.directionDistanceInput.disabled = false;
+        elements.directionSentenceInput.value = "";
+        elements.directionSentenceInput.disabled = false;
       }
 
       function drawDirectionChoice(choice) {
@@ -1296,9 +1389,7 @@
       }
 
       function lockDirectionInputs() {
-        elements.directionNameInput.disabled = true;
-        elements.directionDegreeInput.disabled = true;
-        elements.directionDistanceInput.disabled = true;
+        elements.directionSentenceInput.disabled = true;
       }
 
       function showTreasure() {
@@ -1326,10 +1417,8 @@
         } else {
           clearDirectionInputs();
           clearDirectionAttempt();
-          elements.directionNameInput.disabled = false;
-          elements.directionDegreeInput.disabled = false;
-          elements.directionDistanceInput.disabled = false;
-          elements.directionNameInput.focus();
+          elements.directionSentenceInput.disabled = false;
+          elements.directionSentenceInput.focus();
         }
         showFeedback("可以重新修改输入，再试一次。", false, false);
       }
