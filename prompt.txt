@@ -212,4 +212,14 @@ xunbao.html
 map.html源代码经常更新，需要进入map.html不需要浏览器缓存，而是最新的版本
 
 
+map.html
+部署到这里后https://shumaojie.github.io/map.html
+点击测量，点了一下，起点和终点都出现了，这是一个bug.
+需要出现比例尺。
 
+
+map.html
+终点的标识应该在线段的最后，现在视觉上感觉线段冲出了终点。
+起点和终点需要在线段的两端。
+
+有时终点鼠标点不上，

@@ -519,7 +519,7 @@
     }
 
     .measure-marker-wrap.is-amap-overlay {
-      transform: translate(-50%, -50%);
+      transform: none;
     }
 
     .road-label-icon { background: transparent; border: 0; }
@@ -1073,13 +1073,6 @@
         if (!container || !container.addEventListener) {
           return;
         }
-        container.addEventListener("click", function (event) {
-          var latlng = getAmapLatLngFromContainerEvent(event);
-          if (!latlng) {
-            return;
-          }
-          handleMapChoice(latlng, "地图点", "amap-dom-map");
-        });
         container.addEventListener("mousemove", function (event) {
           var latlng = getAmapLatLngFromContainerEvent(event);
           if (!latlng) {
@@ -1253,10 +1246,10 @@
             strokeWeight: options.weight,
             strokeOpacity: options.opacity == null ? 1 : options.opacity,
             strokeStyle: options.dashArray ? "dashed" : "solid",
-            lineCap: "round",
+            lineCap: options.lineCap || "round",
             lineJoin: "round",
             zIndex: options.zIndex || 320,
-            bubble: false
+            bubble: true
           };
           if (options.dashArray) {
             amapOptions.strokeDasharray = parseDashArray(options.dashArray);
@@ -1292,6 +1285,9 @@
             strokeOpacity: style.opacity == null ? 1 : style.opacity,
             strokeStyle: style.dashArray ? "dashed" : "solid"
           };
+          if (style.lineCap) {
+            amapStyle.lineCap = style.lineCap;
+          }
           if (style.dashArray) {
             amapStyle.strokeDasharray = parseDashArray(style.dashArray);
           }
@@ -1325,7 +1321,7 @@
           position: toAmapPathPoint(point),
           anchor: "center",
           offset: new AMap.Pixel(0, 0),
-          bubble: false,
+          bubble: true,
           zIndex: zIndex || 340,
           content: '<span class="' + className + ' is-amap-overlay">' + text + '</span>'
         });
@@ -1345,7 +1341,7 @@
             weight: 6,
             dashArray: null,
             opacity: 1,
-            lineCap: "round",
+            lineCap: "butt",
             pane: "routePane",
             zIndex: 330
           });
@@ -1377,7 +1373,7 @@
             color: "#f08a24",
             weight: 5,
             dashArray: "10 10",
-            lineCap: "round",
+            lineCap: "butt",
             pane: "routePane",
             zIndex: 330
           });
@@ -1396,7 +1392,8 @@
         }
         pitch = mlMap.getPitch ? Math.round(mlMap.getPitch()) : 68;
         zoom = mlMap.getZoom ? mlMap.getZoom().toFixed(1) : "17.0";
-        scaleReadout.textContent = (currentViewMode === "3d" ? "高德3D 俯仰 " + pitch + "°" : "高德2D") + "  缩放 " + zoom;
+        viewRibbon.textContent = currentViewMode === "3d" ? "3D版本 俯仰 " + pitch + "°  缩放 " + zoom : "2D版本  缩放 " + zoom;
+        updateScaleDisplay();
         if (activeTool === "measure") {
           hint.textContent = currentMeasure.state === "drawing" ? "起点已确定，请单击终点确认。" : "请点击起点；也可以直接点文一街小学。";
           return;
@@ -1805,15 +1802,16 @@
         if (currentMeasure.state === "await-start") {
           currentMeasure.start = latlng;
           currentMeasure.startLabel = label;
-          currentMeasure.end = latlng;
+          currentMeasure.end = null;
+          currentMeasure.previewEnd = null;
           currentMeasure.state = "drawing";
           currentMeasure.startMarker = makeMeasureMarker(latlng, "起点", false);
-          currentMeasure.endMarker = makeMeasureMarker(latlng, "终点", true);
+          currentMeasure.endMarker = null;
           currentMeasure.line = createPolylineOverlay([latlng, latlng], {
             color: "#f08a24",
             weight: 5,
             dashArray: "10 10",
-            lineCap: "round",
+            lineCap: "butt",
             pane: "routePane",
             zIndex: 330
           });
@@ -1826,6 +1824,7 @@
 
         if (currentMeasure.state === "drawing") {
           currentMeasure.end = latlng;
+          currentMeasure.previewEnd = null;
           currentMeasure.endLabel = label;
           completeMeasurement();
         }
@@ -1838,15 +1837,28 @@
         if (activeTool !== "measure" || currentMeasure.state !== "drawing") {
           return;
         }
-        currentMeasure.end = event.latlng;
+        currentMeasure.previewEnd = event.latlng;
         renderCurrentMeasure();
       }
 
       function renderCurrentMeasure() {
-        if (!currentMeasure.line || !currentMeasure.start || !currentMeasure.end) {
+        var targetPoint;
+        if (!currentMeasure.line || !currentMeasure.start) {
           return;
         }
-        setPolylinePath(currentMeasure.line, [currentMeasure.start, currentMeasure.end]);
+        targetPoint = currentMeasure.end || currentMeasure.previewEnd;
+        if (!targetPoint) {
+          setPolylinePath(currentMeasure.line, [currentMeasure.start, currentMeasure.start]);
+          return;
+        }
+        if (!currentMeasure.end) {
+          setPolylinePath(currentMeasure.line, [currentMeasure.start, targetPoint]);
+          return;
+        }
+        if (!currentMeasure.endMarker) {
+          currentMeasure.endMarker = makeMeasureMarker(currentMeasure.end, "终点", true);
+        }
+        setPolylinePath(currentMeasure.line, [currentMeasure.start, targetPoint]);
         setOverlayPosition(currentMeasure.endMarker, currentMeasure.end);
       }
 
@@ -1862,7 +1874,7 @@
         }
 
         renderCurrentMeasure();
-        setLineStyle(currentMeasure.line, { color: "#d8444b", weight: 6, dashArray: null, opacity: 1 });
+        setLineStyle(currentMeasure.line, { color: "#d8444b", weight: 6, dashArray: null, opacity: 1, lineCap: "butt" });
         middle = {
           lat: (currentMeasure.start.lat + currentMeasure.end.lat) / 2,
           lng: (currentMeasure.start.lng + currentMeasure.end.lng) / 2
@@ -1906,7 +1918,7 @@
             position: toAmapPathPoint(latlng),
             anchor: "center",
             offset: new AMap.Pixel(0, 0),
-            bubble: false,
+            bubble: true,
             zIndex: 360,
             content: '<span class="measure-marker-wrap is-amap-overlay"><span class="measure-marker' + (isEnd ? " end" : "") + '" data-label="' + label + '"></span></span>'
           });
@@ -2153,18 +2165,31 @@
       }
 
       function updateScaleDisplay() {
+        var metersPerPixel;
+        var denominator;
         var pointA;
         var pointB;
         var meters;
-        var metersPerPixel;
-        var denominator;
-        if (!map) {
+        var center;
+        var zoom;
+        var latitude;
+        if (isAmapVisible() && mlMap && mlMap.getZoom && mlMap.getCenter) {
+          center = mlMap.getCenter();
+          zoom = Number(mlMap.getZoom());
+          latitude = center && typeof center.getLat === "function" ? center.getLat() : center && center.lat;
+          if (isFinite(zoom) && isFinite(latitude)) {
+            metersPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, zoom);
+          }
+        } else if (map) {
+          pointA = map.containerPointToLatLng([0, map.getSize().y / 2]);
+          pointB = map.containerPointToLatLng([100, map.getSize().y / 2]);
+          meters = map.distance(pointA, pointB);
+          metersPerPixel = meters / 100;
+        }
+        if (!isFinite(metersPerPixel) || metersPerPixel <= 0) {
+          scaleReadout.textContent = "比例尺 正在计算";
           return;
         }
-        pointA = map.containerPointToLatLng([0, map.getSize().y / 2]);
-        pointB = map.containerPointToLatLng([100, map.getSize().y / 2]);
-        meters = map.distance(pointA, pointB);
-        metersPerPixel = meters / 100;
         denominator = Math.max(1000, Math.round((metersPerPixel / 0.000264583) / 1000) * 1000);
         scaleReadout.textContent = "比例尺 1:" + denominator.toLocaleString("zh-CN");
       }
@@ -2174,6 +2199,7 @@
           state: "idle",
           start: null,
           end: null,
+          previewEnd: null,
           startLabel: "起点",
           endLabel: "终点",
           startMarker: null,
