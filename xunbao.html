@@ -299,8 +299,8 @@
 
     .treasure-pin {
       position: absolute;
-      left: 55.7%;
-      top: 72.1%;
+      left: var(--treasure-x, 64.5%);
+      top: var(--treasure-y, 60.1%);
       width: clamp(70px, 8.6vw, 104px);
       transform: translate(-50%, -58%) scale(0.84);
       opacity: 0;
@@ -992,6 +992,7 @@
         elements.blessing = document.getElementById("blessing");
         elements.confettiField = document.getElementById("confettiField");
 
+        setTreasurePosition();
         elements.coordinateMode.addEventListener("click", function () { selectMode("coordinate"); });
         elements.directionMode.addEventListener("click", function () { selectMode("direction"); });
         elements.coordinateForm.addEventListener("submit", submitCoordinate);
@@ -1033,6 +1034,15 @@
         elements.confettiField.innerHTML = "";
         clearDirectionAttempt();
         updateStatusRowVisibility();
+      }
+
+      function setTreasurePosition() {
+        var answerPoint = buildDirectionChoice(directionAnswer.direction, directionAnswer.degree, directionAnswer.distance);
+        if (!answerPoint) {
+          return;
+        }
+        elements.mapWrap.style.setProperty("--treasure-x", (answerPoint.x2 / 700 * 100).toFixed(2) + "%");
+        elements.mapWrap.style.setProperty("--treasure-y", (answerPoint.y2 / 560 * 100).toFixed(2) + "%");
       }
 
       function selectMode(mode) {
