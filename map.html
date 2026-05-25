@@ -283,7 +283,7 @@
 
     .scale-readout {
       left: 50%;
-      bottom: 22px;
+      bottom: calc(22px + 3vh);
       color: var(--blue-deep);
       font-weight: 900;
       white-space: nowrap;
@@ -559,7 +559,7 @@
       .tool-button,
       .return-link { min-height: 30px; padding: 0 10px; font-size: 11px; }
       .hint { left: 12px; right: 12px; top: auto; bottom: 118px; max-width: none; }
-      .scale-readout { left: 50%; bottom: 14px; }
+      .scale-readout { left: 50%; bottom: calc(14px + 3vh); }
       .view-ribbon { top: 58px; left: 12px; }
     }
   </style>
@@ -808,6 +808,7 @@
         window.addEventListener("resize", function () {
           if (mlMap && mlMap.resize) {
             mlMap.resize();
+            refreshAmapLandmarks();
           }
           if (map) {
             map.invalidateSize();
@@ -1036,6 +1037,8 @@
         mlMap.on("complete", updateThreeDStatus);
         mlMap.on("mapmove", updateThreeDStatus);
         mlMap.on("zoomchange", updateThreeDStatus);
+        mlMap.on("zoomend", updateThreeDStatus);
+        mlMap.on("moveend", updateThreeDStatus);
         mlMap.on("rotatechange", updateThreeDStatus);
       }
 
@@ -1112,16 +1115,33 @@
             position: [place.lng, place.lat],
             anchor: "bottom-center",
             title: place.name,
-            offset: new AMap.Pixel(0, 0),
+            offset: new AMap.Pixel(0, -6),
             bubble: false,
-            zIndex: 220,
-            content: '<span class="landmark-pin-wrap"><span class="landmark-pin is-amap ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span></span>'
+            zIndex: 260,
+            content: '<span class="landmark-pin is-amap ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span>'
           });
           marker.on("click", function () {
             handleMapChoice({ lat: place.lat, lng: place.lng }, place.shortName, "amap-landmark:" + place.key);
           });
           marker.setMap(mlMap);
           return marker;
+        });
+        refreshAmapLandmarks();
+      }
+
+      function refreshAmapLandmarks() {
+        if (!mlMap || !window.AMap || !amapLandmarkMarkers.length) {
+          return;
+        }
+        amapLandmarkMarkers.forEach(function (marker, index) {
+          var place = landmarks[index];
+          if (!marker || !place || !marker.setPosition) {
+            return;
+          }
+          marker.setPosition([place.lng, place.lat]);
+          if (marker.setOffset && window.AMap.Pixel) {
+            marker.setOffset(new AMap.Pixel(0, -6));
+          }
         });
       }
 
@@ -1415,6 +1435,7 @@
         pitch = mlMap.getPitch ? Math.round(mlMap.getPitch()) : 68;
         zoom = mlMap.getZoom ? mlMap.getZoom().toFixed(1) : "17.0";
         viewRibbon.textContent = currentViewMode === "3d" ? "3D版本 俯仰 " + pitch + "°  缩放 " + zoom : "2D版本  缩放 " + zoom;
+        refreshAmapLandmarks();
         updateScaleDisplay();
         if (activeTool === "measure") {
           hint.textContent = currentMeasure.state === "drawing" ? "起点已确定，请单击终点确认。" : "请点击起点；也可以直接点文一街小学。";
