@@ -299,8 +299,8 @@
 
     .treasure-pin {
       position: absolute;
-      left: var(--treasure-x, 64.5%);
-      top: var(--treasure-y, 60.1%);
+      left: var(--treasure-x, 65.71%);
+      top: var(--treasure-y, 59.64%);
       width: clamp(70px, 8.6vw, 104px);
       transform: translate(-50%, -58%) scale(0.84);
       opacity: 0;
@@ -799,14 +799,12 @@
 
               <g aria-hidden="true">
                 <circle class="map-node" cx="180" cy="404" r="18"></circle>
-                <circle class="map-node" cx="390" cy="404" r="9"></circle>
                 <circle class="map-node" cx="460" cy="334" r="9"></circle>
                 <circle class="map-node" cx="460" cy="124" r="9"></circle>
               </g>
 
               <g aria-hidden="true">
                 <text class="map-label map-label--small" x="504" y="175" text-anchor="start">公园</text>
-                <text class="map-label map-label--small" x="404" y="388" text-anchor="start"></text>
                 <text class="map-label map-label--small" x="500" y="388" text-anchor="start">医院</text>
                 <text class="map-label" x="118" y="470" text-anchor="start">学校</text>
               </g>
@@ -814,11 +812,11 @@
               <g class="direction-overlay" aria-hidden="true">
                 <line class="overlay-cross" x1="180" y1="78" x2="180" y2="438"></line>
                 <line class="overlay-cross" x1="98" y1="404" x2="520" y2="404"></line>
-                <line id="directionGuideLine" class="overlay-axis" x1="180" y1="404" x2="390" y2="404"></line>
-                <line id="directionChoiceLine" class="overlay-main-line" x1="180" y1="404" x2="390" y2="404"></line>
+                <line id="directionGuideLine" class="overlay-axis" x1="180" y1="404" x2="460" y2="404"></line>
+                <line id="directionChoiceLine" class="overlay-main-line" x1="180" y1="404" x2="460" y2="334"></line>
                 <path id="directionChoiceArc" class="overlay-arc is-hidden" d="M252 404 A72 72 0 0 0 252 404"></path>
                 <circle class="overlay-anchor" cx="180" cy="404" r="6"></circle>
-                <circle id="directionChoicePoint" class="overlay-anchor" cx="390" cy="404" r="6"></circle>
+                <circle id="directionChoicePoint" class="overlay-anchor" cx="460" cy="334" r="6"></circle>
                 <g id="directionDistanceChip" class="overlay-chip is-hidden">
                   <rect x="244" y="362" width="112" height="34" rx="17"></rect>
                   <text id="directionDistanceText" class="overlay-text" x="300" y="384" text-anchor="middle"></text>
@@ -845,7 +843,7 @@
               <circle cx="90" cy="73" r="12" fill="#fff3a8" stroke="#d58a10" stroke-width="4"></circle>
             </svg>
           </div>
-          <div class="scale">比例尺1：20000</div>
+          <div class="scale">比例尺1：24254</div>
         </div>
       </section>
 
@@ -932,9 +930,10 @@
   <script>
     (function () {
       var coordinateAnswer = { column: 4, row: 1 };
-      var directionAnswer = { direction: "东偏北", degree: 14, distance: 800 };
+      var directionAnswer = { direction: "东偏北", degree: 14, distance: 1000 };
       var directionOrigin = { x: 180, y: 404 };
-      var directionScale = 70 / 200;
+      var directionTarget = { x: 460, y: 334 };
+      var directionScale = Math.sqrt(Math.pow(directionTarget.x - directionOrigin.x, 2) + Math.pow(directionTarget.y - directionOrigin.y, 2)) / directionAnswer.distance;
       var blessings = [
         "六年时光沉淀专属宝藏，愿你带着收获奔赴下一程山海",
         "少年心怀璀璨宝藏，前路漫漫亦会步步生光",
@@ -1153,7 +1152,7 @@
           return { correct: false, choice: choice, message: "方向对了，角度再调整一下，应该是14度。" };
         }
         if (!distanceCorrect) {
-          return { correct: false, choice: choice, message: "方向和角度对了，距离要填800米。" };
+          return { correct: false, choice: choice, message: "方向和角度对了，距离要填1000米。" };
         }
         return { correct: false, choice: choice, message: "宝藏不在这里哦。" };
       }
