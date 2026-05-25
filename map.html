@@ -282,9 +282,13 @@
     }
 
     .scale-readout {
-      left: 18px;
-      bottom: 18px;
+      left: 50%;
+      bottom: 22px;
       color: var(--blue-deep);
+      font-weight: 900;
+      white-space: nowrap;
+      transform: translateX(-50%) scale(3);
+      transform-origin: bottom center;
     }
 
     .hint {
@@ -548,8 +552,8 @@
       .actions { gap: 8px; }
       .tool-button,
       .return-link { min-height: 30px; padding: 0 10px; font-size: 11px; }
-      .hint { left: 12px; right: 12px; top: auto; bottom: 48px; max-width: none; }
-      .scale-readout { left: 12px; bottom: 12px; }
+      .hint { left: 12px; right: 12px; top: auto; bottom: 118px; max-width: none; }
+      .scale-readout { left: 50%; bottom: 14px; }
       .view-ribbon { top: 58px; left: 12px; }
     }
   </style>
