@@ -1151,8 +1151,6 @@
         var rect;
         var x;
         var y;
-        var pixel;
-        var point;
         if (!mlMap || !window.AMap || !event || shouldIgnoreAmapContainerEvent(event.target)) {
           return null;
         }
@@ -1164,6 +1162,15 @@
         x = event.clientX - rect.left;
         y = event.clientY - rect.top;
         if (!isFinite(x) || !isFinite(y) || x < 0 || y < 0 || x > rect.width || y > rect.height) {
+          return null;
+        }
+        return getAmapLatLngFromContainerPoint(x, y);
+      }
+
+      function getAmapLatLngFromContainerPoint(x, y) {
+        var pixel;
+        var point;
+        if (!mlMap || !window.AMap || !isFinite(x) || !isFinite(y)) {
           return null;
         }
         pixel = window.AMap.Pixel ? new AMap.Pixel(x, y) : { x: x, y: y };
@@ -2185,15 +2192,33 @@
         var pointA;
         var pointB;
         var meters;
+        var container;
+        var rect;
+        var samplePixels;
+        var sampleY;
         var center;
         var zoom;
         var latitude;
         if (isAmapVisible() && mlMap && mlMap.getZoom && mlMap.getCenter) {
-          center = mlMap.getCenter();
-          zoom = Number(mlMap.getZoom());
-          latitude = center && typeof center.getLat === "function" ? center.getLat() : center && center.lat;
-          if (isFinite(zoom) && isFinite(latitude)) {
-            metersPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, zoom);
+          container = mlMap.getContainer ? mlMap.getContainer() : document.getElementById("mlMap");
+          rect = container && container.getBoundingClientRect ? container.getBoundingClientRect() : null;
+          if (rect && rect.width > 0 && rect.height > 0) {
+            samplePixels = Math.min(200, Math.max(100, rect.width / 4));
+            sampleY = rect.height / 2;
+            pointA = getAmapLatLngFromContainerPoint(rect.width / 2 - samplePixels / 2, sampleY);
+            pointB = getAmapLatLngFromContainerPoint(rect.width / 2 + samplePixels / 2, sampleY);
+            if (pointA && pointB) {
+              meters = getDistanceBetween(pointA, pointB);
+              metersPerPixel = meters / samplePixels;
+            }
+          }
+          if (!isFinite(metersPerPixel) || metersPerPixel <= 0) {
+            center = mlMap.getCenter();
+            zoom = Number(mlMap.getZoom());
+            latitude = center && typeof center.getLat === "function" ? center.getLat() : center && center.lat;
+            if (isFinite(zoom) && isFinite(latitude)) {
+              metersPerPixel = 156543.03392 * Math.cos(latitude * Math.PI / 180) / Math.pow(2, zoom);
+            }
           }
         } else if (map) {
           pointA = map.containerPointToLatLng([0, map.getSize().y / 2]);
@@ -2205,7 +2230,7 @@
           scaleReadout.textContent = "比例尺 正在计算";
           return;
         }
-        denominator = Math.max(1000, Math.round((metersPerPixel / 0.000264583) / 1000) * 1000);
+        denominator = Math.max(1000, Math.round((metersPerPixel / 0.000264583) / 100) * 100);
         scaleReadout.textContent = "比例尺 1:" + denominator.toLocaleString("zh-CN");
       }
 
