@@ -659,10 +659,12 @@
       var amapTrafficLayer = null;
       var amapLandmarkMarkers = [];
       var amapInstanceMode = "";
+      var amapDomEventsBound = false;
       var areaMaskLayer = null;
       var highlightedSegment = null;
       var currentViewMode = "3d";
       var amapEventsBound = false;
+      var lastMapChoice = null;
       var activeTool = "";
       var routeSegments = [];
       var currentMeasure = emptyMeasure();
@@ -838,7 +840,7 @@
         addLandmarks();
         addAreaMask();
         map.fitBounds(areaBounds, { padding: [24, 24] });
-        map.on("click", function (event) { handleMapChoice(event.latlng, "地图点"); });
+        map.on("click", function (event) { handleMapChoice(event.latlng, "地图点", "leaflet-map"); });
         map.on("mousemove", handleMouseMove);
         map.on("zoom move", updateScaleDisplay);
         map.whenReady(function () {
@@ -1009,6 +1011,7 @@
 
         addAmapLandmarks();
         bindAmapInteractions();
+          bindAmapDomInteractions();
         applyAmapViewMode(mode || currentViewMode);
   rebuildVisibleOverlays();
         updateThreeDStatus();
@@ -1050,12 +1053,38 @@
           return;
         }
         mlMap.on("click", function (event) {
-          handleMapChoice(normalizeLatLng(event && event.lnglat), "地图点");
+          handleMapChoice(normalizeLatLng(event && event.lnglat), "地图点", "amap-map");
         });
         mlMap.on("mousemove", function (event) {
           handleMouseMove({ latlng: normalizeLatLng(event && event.lnglat) });
         });
         amapEventsBound = true;
+      }
+
+      function bindAmapDomInteractions() {
+        var container;
+        if (!mlMap || amapDomEventsBound) {
+          return;
+        }
+        container = mlMap.getContainer ? mlMap.getContainer() : document.getElementById("mlMap");
+        if (!container || !container.addEventListener) {
+          return;
+        }
+        container.addEventListener("click", function (event) {
+          var latlng = getAmapLatLngFromContainerEvent(event);
+          if (!latlng) {
+            return;
+          }
+          handleMapChoice(latlng, "地图点", "amap-dom-map");
+        });
+        container.addEventListener("mousemove", function (event) {
+          var latlng = getAmapLatLngFromContainerEvent(event);
+          if (!latlng) {
+            return;
+          }
+          handleMouseMove({ latlng: latlng });
+        });
+        amapDomEventsBound = true;
       }
 
       function addAmapLandmarks() {
@@ -1078,7 +1107,7 @@
             content: '<span class="landmark-pin-wrap"><span class="landmark-pin is-amap ' + place.type + '"><span class="badge"></span><span>' + place.shortName + '</span></span></span>'
           });
           marker.on("click", function () {
-            handleMapChoice({ lat: place.lat, lng: place.lng }, place.shortName);
+            handleMapChoice({ lat: place.lat, lng: place.lng }, place.shortName, "amap-landmark:" + place.key);
           });
           marker.setMap(mlMap);
           return marker;
@@ -1100,6 +1129,72 @@
           return { lat: point.lat, lng: point.lng };
         }
         return null;
+      }
+
+      function shouldIgnoreAmapContainerEvent(target) {
+        return !!(target && target.closest && target.closest(".amap-control-container, .amap-toolbar, .amap-logo, .amap-copyright"));
+      }
+
+      function getAmapLatLngFromContainerEvent(event) {
+        var container;
+        var rect;
+        var x;
+        var y;
+        var pixel;
+        var point;
+        if (!mlMap || !window.AMap || !event || shouldIgnoreAmapContainerEvent(event.target)) {
+          return null;
+        }
+        container = mlMap.getContainer ? mlMap.getContainer() : document.getElementById("mlMap");
+        if (!container) {
+          return null;
+        }
+        rect = container.getBoundingClientRect();
+        x = event.clientX - rect.left;
+        y = event.clientY - rect.top;
+        if (!isFinite(x) || !isFinite(y) || x < 0 || y < 0 || x > rect.width || y > rect.height) {
+          return null;
+        }
+        pixel = window.AMap.Pixel ? new AMap.Pixel(x, y) : { x: x, y: y };
+        if (typeof mlMap.containerToLngLat === "function") {
+          point = mlMap.containerToLngLat(pixel);
+        } else if (typeof mlMap.pixelToLngLat === "function") {
+          point = mlMap.pixelToLngLat(pixel);
+        }
+        return normalizeLatLng(point);
+      }
+
+      function isDuplicateMapChoice(latlng, source) {
+        if (!latlng || !source || !lastMapChoice || !lastMapChoice.latlng) {
+          return false;
+        }
+        if (Date.now() - lastMapChoice.at > 180) {
+          return false;
+        }
+        if (getDistanceBetween(lastMapChoice.latlng, latlng) > 12) {
+          return false;
+        }
+        if (lastMapChoice.source === source) {
+          return true;
+        }
+        if (String(lastMapChoice.source).indexOf("amap") === 0 && String(source).indexOf("amap") === 0) {
+          return true;
+        }
+        if (String(lastMapChoice.source).indexOf("leaflet") === 0 && String(source).indexOf("leaflet") === 0) {
+          return true;
+        }
+        return false;
+      }
+
+      function rememberMapChoice(latlng, source) {
+        if (!latlng) {
+          return;
+        }
+        lastMapChoice = {
+          at: Date.now(),
+          latlng: { lat: latlng.lat, lng: latlng.lng },
+          source: source || ""
+        };
       }
 
       function isAmapOverlay(layer) {
@@ -1657,7 +1752,7 @@
             icon: makeLandmarkIcon(place)
           }).addTo(map);
           marker.on("click", function (event) {
-            handleMapChoice(event.latlng, place.shortName);
+            handleMapChoice(event.latlng, place.shortName, "leaflet-landmark:" + place.key);
             L.DomEvent.stop(event);
           });
         });
@@ -1682,7 +1777,7 @@
         currentMeasure.state = "await-start";
         measureButton.classList.add("is-active");
         compassButton.classList.remove("is-active");
-        hint.textContent = isAmapVisible() ? "请在当前高德地图上单击起点；再单击终点确认。" : "请点击起点，再单击终点确认。";
+        hint.textContent = isAmapVisible() ? "请在当前高德地图上单击任意位置作为起点，再单击任意位置作为终点。" : "请在地图上单击任意位置作为起点，再单击任意位置作为终点。";
       }
 
       function activateCompass() {
@@ -1693,11 +1788,15 @@
         hint.textContent = routeSegments.length ? "请点击已测线段的起点，显示十字方向标和较小夹角。" : "先完成一条测量线段，再使用十字方向标。";
       }
 
-      function handleMapChoice(latlng, label) {
+      function handleMapChoice(latlng, label, source) {
         latlng = normalizeLatLng(latlng) || latlng;
         if ((!map && !mlMap) || !latlng) {
           return;
         }
+        if (isDuplicateMapChoice(latlng, source)) {
+          return;
+        }
+        rememberMapChoice(latlng, source);
 
         if (activeTool === "compass") {
           showCompass(latlng);
@@ -1726,7 +1825,7 @@
           if (!isAmapVisible()) {
             currentMeasure.line.addTo(map);
           }
-          hint.textContent = "起点已确定，请单击终点确认；黄龙体育中心用红色圆点标出。";
+          hint.textContent = "起点已确定，请单击任意位置确认终点；也可以点黄龙体育中心。";
           return;
         }
 
@@ -1962,6 +2061,7 @@
         [currentMeasure.startMarker, currentMeasure.endMarker, currentMeasure.line].forEach(function (layer) {
           removeOverlay(layer);
         });
+        lastMapChoice = null;
         currentMeasure = emptyMeasure();
       }
 
