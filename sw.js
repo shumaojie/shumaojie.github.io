@@ -1,4 +1,4 @@
-const VERSION = "v7";
+const VERSION = "v8";
 const SHELL_CACHE = "scale-shell-" + VERSION;
 const TILE_CACHE = "scale-tiles-" + VERSION;
 const CACHE_NAMES = [SHELL_CACHE, TILE_CACHE];
@@ -46,7 +46,7 @@ self.addEventListener("fetch", function (event) {
   url = new URL(request.url);
 
   if (request.mode === "navigate") {
-    event.respondWith(handleNavigation(request));
+    event.respondWith(handleNavigation(request, isMapDocument(url) ? "no-store" : "reload"));
     return;
   }
 
@@ -66,6 +66,10 @@ function resolveUrl(path) {
 
 function isTileRequest(url) {
   return url.hostname === "tile.openstreetmap.org" || /(^|\.)is\.autonavi\.com$/i.test(url.hostname);
+}
+
+function isMapDocument(url) {
+  return url.origin === self.location.origin && /\/map\.html$/i.test(url.pathname);
 }
 
 function precacheList(cacheName, urls, allowOpaque) {
@@ -92,8 +96,10 @@ function fetchAndStore(cacheName, url, allowOpaque) {
     });
 }
 
-function handleNavigation(request) {
-  return fetch(request)
+function handleNavigation(request, cacheMode) {
+  var networkRequest = cacheMode ? new Request(request, { cache: cacheMode }) : request;
+
+  return fetch(networkRequest)
     .then(function (response) {
       var responseToCache;
 
